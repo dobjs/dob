@@ -47,6 +47,8 @@ dynamicObj.b = 7 // print 'dynamicObj.b change to 7'
 console.log(runCount) // 2
 ```
 
+## unobserve
+
 ```typescript
 import { observe, observable } from 'dynamic-object'
 
