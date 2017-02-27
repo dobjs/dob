@@ -1,30 +1,75 @@
-# DependencyInject
+# dynamic-object
+
+worked with `object` `array` `map` `weakMap` `set` `weakSet`
+
+## Dynamic tracking variable
+
+Observe will also be executed once at initialization
 
 ```typescript
-import { Container, inject } from 'dependency-inject'
+import { observe, observable } from 'dynamic-object'
 
-class Store {
-    num = 1
-}
+const dynamicObj = observable({
+    a: 1,
+    b: 2
+})
 
-class Action {
-    @inject(Store)
-    private store: Store
+observe(() => {
+    console.log('dynamicObj.b change to', dynamicObj.b) // print 'dynamicObj.b change to 2'
+})
 
-    setNum(num: number) {
-        this.store.num = num
-    }
-}
+dynamicObj.a = 3 // nothing happened
+dynamicObj.b = 4 // print 'dynamicObj.b change to 4'
+```
 
-// init store
-const container = new Container()
-container.set(Store, new Store())
-container.set(Action, new Action())
+## Performance optimization
 
-// get data with injected
-const store = container.get(Store)
-const action = container.get(Action)
+```typescript
+import { observe, observable } from 'dynamic-object'
 
-action.setNum(2)
-console.log(store.num) // 2
+const dynamicObj = observable({
+    a: 1,
+    b: 2
+})
+
+let runCount = 0
+
+observe(() => {
+    console.log('dynamicObj.b change to', dynamicObj.b) // print 'dynamicObj.b change to 2'
+    runCount++
+})
+
+dynamicObj.b = 3
+dynamicObj.b = 4
+dynamicObj.b = 5
+dynamicObj.b = 6
+dynamicObj.b = 7 // print 'dynamicObj.b change to 7'
+console.log(runCount) // 2
+```
+
+```typescript
+import { observe, observable } from 'dynamic-object'
+
+const dynamicObj = observable({
+    a: 1,
+    b: 2
+})
+
+const signal = observe(() => {
+    console.log('dynamicObj.b change to', dynamicObj.b) // print 'dynamicObj.b change to 2'
+})
+
+dynamicObj.a = 3 // nothing happened
+dynamicObj.b = 4 // print 'dynamicObj.b change to 4'
+
+setInterval(()=>{
+    signal.unobserve()
+    dynamicObj.b = 5 // nothing happened
+})
+
+// the same as
+// setInterval(()=>{
+//     dynamicObj.b = 5 // nothing happened
+//     signal.unobserve()
+// })
 ```
