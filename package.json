@@ -2,7 +2,7 @@
   "name": "dynamic-object",
   "version": "1.0.1",
   "description": "",
-  "main": "built/bundle.js",
+  "main": "built/index.js",
   "scripts": {
     "test": "tsc && ava",
     "bundle": "tsc && webpack --config built/webpack.config.js"
@@ -24,7 +24,6 @@
   "homepage": "https://github.com/ascoders/dependency-inject#readme",
   "devDependencies": {
     "ava": "^0.18.2",
-    "typescript": "^2.2.1",
-    "webpack": "^2.2.1"
+    "typescript": "^2.2.1"
   }
 }
