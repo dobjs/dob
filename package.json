@@ -1,11 +1,11 @@
 {
   "name": "dynamic-object",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "",
   "main": "built/index.js",
   "scripts": {
     "test": "tsc && ava",
-    "bundle": "tsc && webpack --config built/webpack.config.js"
+    "prepublish": "rm -rf built && tsc"
   },
   "ava": {
     "files": [
