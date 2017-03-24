@@ -15,9 +15,9 @@ const observers = new WeakMap<object, Map<PropertyKey, Set<Observer>>>()
  */
 const queuedObservers = new Set()
 /**
- * 是否执行队列中
+ * 是否在 runInAction 中
  */
-let queued = false
+let isInAction = false
 /**
  * queueObserver 函数生成的 observer 对象
  */
@@ -29,8 +29,6 @@ export interface Observer {
     observedKeys: Array<Set<Observer>>
     // 是否仅观察一次
     once?: boolean
-    // 取消观察队列
-    unqueue?: Function
     // 取消观察对象，比取消观察队列更彻底
     unobserve?: Function
 }
@@ -51,7 +49,7 @@ function toObservable<T extends object>(obj: T): T {
     const builtIn = builtIns.get(obj.constructor)
     if (typeof builtIn === 'function' || typeof builtIn === 'object') {
         // 处理 map weakMap set weakSet
-        dynamicObject = builtIn(obj, registerObserver, queueObservers)
+        dynamicObject = builtIn(obj, registerObserver, queueRunObservers)
     } else if (!builtIn) {
         dynamicObject = new Proxy(obj, {
             get(target, key, receiver) {
@@ -78,24 +76,35 @@ function toObservable<T extends object>(obj: T): T {
             },
 
             set(target, key, value, receiver) {
-                // 如果改动了 length 属性，或者新值与旧值不同，触发可观察队列任务
-                if (key === 'length' || value !== Reflect.get(target, key, receiver)) {
-                    queueObservers<T>(target, key)
-                }
+                // 旧值
+                const oldValue = Reflect.get(target, key, receiver)
 
                 // 如果新值是对象，优先取原始对象
                 if (typeof value === 'object' && value) {
                     value = value.$raw || value
                 }
 
-                return Reflect.set(target, key, value, receiver)
+                const result = Reflect.set(target, key, value, receiver)
+
+                // 如果改动了 length 属性，或者新值与旧值不同，触发可观察队列任务
+                // 这一步要在 Reflect.set 之后，确保触发时使用的是新值
+                if (key === 'length' || value !== oldValue) {
+                    queueRunObservers<T>(target, key)
+                }
+
+                return result
             },
 
             deleteProperty(target, key) {
-                if (Reflect.has(target, key)) {
-                    queueObservers(target, key)
+                const hasKey = Reflect.has(target, key)
+
+                const result = Reflect.deleteProperty(target, key)
+
+                if (hasKey) {
+                    queueRunObservers(target, key)
                 }
-                return Reflect.deleteProperty(target, key)
+
+                return result
             }
         })
     } else {
@@ -111,43 +120,50 @@ function toObservable<T extends object>(obj: T): T {
 }
 
 /**
- * 执行可观察队列任务
+ * 队列执行属于 target 对象、key 字段绑定的 observer 函数
+ * 队列执行的意思是，执行，但不一定立即执行，比如包在 runInAction 中函数触发时，就不会立刻执行
+ * 而是在整个函数体执行完毕后，收集完了队列再统一执行一遍
  */
-function queueObservers<T extends object>(target: T, key: PropertyKey) {
+function queueRunObservers<T extends object>(target: T, key: PropertyKey) {
     const observersForKey = observers.get(target).get(key)
     if (observersForKey) {
-        observersForKey.forEach(queueObserver)
+        observersForKey.forEach(queueRunObserver)
     }
 }
 
 /**
- * 异步执行观察
+ * 将 observer 添加到队列中
+ * 为什么要单独列出来，因为 observe 时会先执行一次当前 observe，调用的就是此函数
  */
-function queueObserver(observer: Observer) {
+function queueRunObserver(observer: Observer) {
+    // 为 Set 类型，不会添加重复的 observer
     queuedObservers.add(observer)
 
-    if (!queued) {
-        queued = true
-        Promise.resolve().then(() => {
-            queuedObservers.forEach(observer => {
-                if (observer.callback) {
-                    if (observer.once) {
-                        observer.callback.apply(null, observer.proxies)
-                        unobserve(observer)
-                    } else {
-                        try {
-                            currentObserver = observer
-                            observer.callback.apply(null, observer.proxies)
-                        } finally {
-                            currentObserver = null
-                        }
-                    }
-                }
-            })
-            queuedObservers.clear()
-            queued = false
-        })
+    // 执行队列 
+    runObserver()
+}
+
+/**
+ * 执行当前队列中的 observe
+ */
+function runObserver() {
+    if (isInAction) {
+        return
     }
+
+    queuedObservers.forEach(observer => {
+        if (observer.callback) {
+            try {
+                currentObserver = observer
+                observer.callback.apply(null, observer.proxies)
+            } finally {
+                currentObserver = null
+            }
+        }
+    })
+
+    // 清空执行 observe 队列    
+    queuedObservers.clear()
 }
 
 /**
@@ -182,13 +198,6 @@ function isObservable<T extends object>(obj: T) {
 }
 
 /**
- * 取消观察队列
- */
-function unqueue(observer: Observer) {
-    queuedObservers.delete(observer)
-}
-
-/**
  * 取消观察对象
  */
 function unobserve(observer: Observer) {
@@ -210,10 +219,9 @@ function observe(callback: Function, ...observeProxies: any[]) {
         callback,
         proxies: observeProxies,
         observedKeys: [],
-        unqueue: () => unqueue(observer),
         unobserve: () => unobserve(observer)
     }
-    queueObserver(observer)
+    queueRunObserver(observer)
     return observer
 }
 
@@ -221,7 +229,40 @@ function observe(callback: Function, ...observeProxies: any[]) {
  * extend 一个可观察对象
  */
 function extendObservable<T, P>(originObj: T, targetObj: P): T {
-    return Object.assign(originObj, targetObj)
+    return runInAction(() => Object.assign(originObj, targetObj))
 }
 
-export { observable, observe, isObservable, extendObservable }
+/**
+ * 在这里执行的方法，会在执行完后统一执行 observe
+ * 注意：如果不用此方法包裹，同步执行代码会触发等同次数的 observe，而不会自动合并!
+ */
+function runInAction(fn: Function) {
+    isInAction = true
+    const result = fn()
+    isInAction = false
+    runObserver()
+
+    return result
+}
+
+/**
+ * Action 装饰器，自带 runInAction 效果
+ */
+function Action(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    const func = descriptor.value
+    return {
+        get() {
+            return (...args: any[]) => {
+                return runInAction(func.bind(this, args))
+                // TODO: support async function
+                // return Promise.resolve(func.apply(this, args)).catch(error => {
+                //     errorHandler && errorHandler(error)
+                // })
+            }
+        },
+        set(newValue: any) {
+            return newValue
+        }
+    }
+}
+export { observable, observe, isObservable, extendObservable, runInAction, Action }

@@ -1,9 +1,9 @@
 import test from 'ava'
-import {observe, observable, isObservable, extendObservable} from './index'
+import { observe, observable, isObservable, extendObservable, runInAction, Action } from './index'
 
-/**
- * observable
- */
+// /**
+//  * observable
+//  */
 
 test('should return a new observable when no argument is provided', t => {
     const dynamicObj = observable()
@@ -11,7 +11,7 @@ test('should return a new observable when no argument is provided', t => {
 })
 
 test('should return an observable wrapping of an object argument', t => {
-    const obj = {prop: 'value'}
+    const obj = { prop: 'value' }
     const dynamicObj = observable(obj)
     t.false(obj === dynamicObj)
     t.true(isObservable(dynamicObj))
@@ -24,7 +24,7 @@ test('should return the argument if test is already an observable', t => {
 })
 
 test('should return the same observable wrapper when called repeatedly with the same argument', t => {
-    const obj = {prop: 'value'}
+    const obj = { prop: 'value' }
     const dynamicObj1 = observable(obj)
     const dynamicObj2 = observable(obj)
     t.true(dynamicObj1 === dynamicObj2)
@@ -52,10 +52,126 @@ test('should return true if an observable is passed as argument', t => {
 })
 
 test('should return false if a non observable is passed as argument', t => {
-    const obj1 = {prop: 'value'}
+    const obj1 = { prop: 'value' }
     const obj2 = new Proxy({}, {})
     t.false(isObservable(obj1))
     t.false(isObservable(obj2))
+})
+
+/**
+ * runInAction
+ */
+
+test('observe run sync', t => {
+    let data = ''
+    const dynamicObj = observable({ name: 'b' })
+
+    data += 'a'
+    observe(() => data += dynamicObj.name)
+    data += 'c'
+
+    return Promise.resolve()
+        .then(() => t.true(data === 'abc'))
+})
+
+test('observe run but not used', t => {
+    let runCount = 0
+    const dynamicObj = observable({ name: 'b' })
+
+    observe(() => runCount++)
+
+    dynamicObj.name = 'c'
+
+    return Promise.resolve()
+        .then(() => t.true(runCount === 1))
+})
+
+test('observe run any time', t => {
+    let runCount = 0
+    const dynamicObj = observable({ name: 'b' })
+
+    observe(() => {
+        runCount += 1
+        // use it!
+        dynamicObj.name
+    })
+
+    dynamicObj.name = 'c'
+    dynamicObj.name = 'd'
+
+    return Promise.resolve()
+        .then(() => t.true(runCount === 3))
+})
+
+test('runInAction', t => {
+    let runCount = 0
+    let count = 0
+    const dynamicObj = observable({ number: 1 })
+
+    observe(() => {
+        runCount += 1
+        // use it!
+        count += dynamicObj.number
+    })
+
+    runInAction(() => {
+        dynamicObj.number = 2
+        dynamicObj.number = 3
+    })
+
+    return Promise.resolve()
+        .then(() => t.true(runCount === 2))
+        .then(() => t.true(count === 4)) // 1 + 3, do not use 2
+})
+
+/**
+ * Action
+ */
+
+test('Action with runInAction work', t => {
+    let runCount = 0
+    let data = 0
+    const dynamicObj = observable({ counter: 0 })
+    observe(() => {
+        runCount++
+        data += dynamicObj.counter
+    })
+
+    class MyAction {
+        @Action run() {
+            dynamicObj.counter = 1
+            dynamicObj.counter = 2
+        }
+    }
+
+    new MyAction().run()
+
+    return Promise.resolve()
+        .then(() => t.true(runCount === 2))
+        .then(() => data = 2) // 0 + 2, ignore 1
+})
+
+test('Action with params', t => {
+    let runCount = 0
+    let data = 0
+    const dynamicObj = observable({ counter: 0 })
+    observe(() => {
+        runCount++
+        data += dynamicObj.counter
+    })
+
+    class MyAction {
+        @Action run(num: number) {
+            dynamicObj.counter = num + 1
+            dynamicObj.counter = num + 1
+        }
+    }
+
+    new MyAction().run(1)
+
+    return Promise.resolve()
+        .then(() => t.true(runCount === 2))
+        .then(() => data = 3) // 0 + 3, ignore 2
 })
 
 /**
@@ -64,7 +180,7 @@ test('should return false if a non observable is passed as argument', t => {
 
 test('should observe basic properties', t => {
     let data = 0
-    const dynamicObj = observable({counter: 0})
+    const dynamicObj = observable({ counter: 0 })
     observe(() => data = dynamicObj.counter)
 
     return Promise.resolve()
@@ -75,7 +191,7 @@ test('should observe basic properties', t => {
 
 test('should observe delete operations', t => {
     let data = ''
-    const dynamicObj = observable({prop: 'value'})
+    const dynamicObj = observable({ prop: 'value' })
     observe(() => data = dynamicObj.prop)
 
     return Promise.resolve()
@@ -86,8 +202,8 @@ test('should observe delete operations', t => {
 
 test('should observe properties on the prototype chain', t => {
     let data = 0
-    const dynamicObj = observable({counter: 0})
-    const parentDynamicObj = observable({counter: 2})
+    const dynamicObj = observable({ counter: 0 })
+    const parentDynamicObj = observable({ counter: 2 })
     Object.setPrototypeOf(dynamicObj, parentDynamicObj)
     observe(() => data = dynamicObj.counter)
 
@@ -103,7 +219,7 @@ test('should observe properties on the prototype chain', t => {
 
 test('should observe function call chains', t => {
     let data = 0
-    const dynamicObj = observable({counter: 0})
+    const dynamicObj = observable({ counter: 0 })
     observe(() => data = getCounter())
 
     function getCounter() {
@@ -118,7 +234,7 @@ test('should observe function call chains', t => {
 
 test('should observe for of iteration', t => {
     let data = ''
-    const dynamicObj = observable({array: ['Hello']})
+    const dynamicObj = observable({ array: ['Hello'] })
     observe(() => data = dynamicObj.array.join(' '))
 
     return Promise.resolve()
@@ -129,42 +245,42 @@ test('should observe for of iteration', t => {
         .then(() => t.true(data === 'World!'))
 })
 
-// test('should observe for in iteration', t => {
-//     let data = 0
-//     const dynamicObj: any = observable({prop: 0})
-//     observe(() => {
-//         data = 0
-//         for (let key in dynamicObj) {
-//             data += dynamicObj[key]
-//         }
-//     })
-//
-//     return Promise.resolve()
-//         .then(() => t.true(data === 0))
-//         .then(() => dynamicObj.prop = 1)
-//         .then(() => t.true(data === 1))
-//         .then(() => dynamicObj.prop1 = 1)
-//         .then(() => t.true(data === 2))
-//         .then(() => dynamicObj.prop2 = 3)
-//         .then(() => t.true(data === 5))
-//         .then(() => dynamicObj.prop1 = 6)
-//         .then(() => t.true(data === 10))
-// })
+// // test('should observe for in iteration', t => {
+// //     let data = 0
+// //     const dynamicObj: any = observable({prop: 0})
+// //     observe(() => {
+// //         data = 0
+// //         for (let key in dynamicObj) {
+// //             data += dynamicObj[key]
+// //         }
+// //     })
+// //
+// //     return Promise.resolve()
+// //         .then(() => t.true(data === 0))
+// //         .then(() => dynamicObj.prop = 1)
+// //         .then(() => t.true(data === 1))
+// //         .then(() => dynamicObj.prop1 = 1)
+// //         .then(() => t.true(data === 2))
+// //         .then(() => dynamicObj.prop2 = 3)
+// //         .then(() => t.true(data === 5))
+// //         .then(() => dynamicObj.prop1 = 6)
+// //         .then(() => t.true(data === 10))
+// // })
 
-// test('should not observe well-known symbols', t => {
-//     let data = ''
-//     const dynamicObj = observable({[Symbol.toStringTag]: 'myString'})
-//     observe(() => data = String(dynamicObj))
-//
-//     return Promise.resolve()
-//         .then(() => expect(data).to.equal('[object myString]'))
-//         .then(() => dynamicObj[Symbol.toStringTag] = 'otherString')
-//         .then(() => expect(data).to.equal('[object myString]'))
-// })
+// // test('should not observe well-known symbols', t => {
+// //     let data = ''
+// //     const dynamicObj = observable({[Symbol.toStringTag]: 'myString'})
+// //     observe(() => data = String(dynamicObj))
+// //
+// //     return Promise.resolve()
+// //         .then(() => expect(data).to.equal('[object myString]'))
+// //         .then(() => dynamicObj[Symbol.toStringTag] = 'otherString')
+// //         .then(() => expect(data).to.equal('[object myString]'))
+// // })
 
 test('should not observe set operations without a value change', t => {
     let data = ''
-    const dynamicObj = observable({prop: 'prop'})
+    const dynamicObj = observable({ prop: 'prop' })
 
     let numOfRuns = 0
 
@@ -190,9 +306,9 @@ test('should not observe set operations without a value change', t => {
         })
 })
 
-test('should not run synchronously after registration', t => {
+test('should run synchronously after registration', t => {
     let data = ''
-    const dynamicObj = observable({prop: 'prop'})
+    const dynamicObj = observable({ prop: 'prop' })
 
     let numOfRuns = 0
     observe(() => {
@@ -200,8 +316,8 @@ test('should not run synchronously after registration', t => {
         numOfRuns++
     })
 
-    t.true(numOfRuns === 0)
-    t.true(data === '')
+    t.true(numOfRuns === 1)
+    t.true(data === 'prop')
 
     return Promise.resolve()
         .then(() => {
@@ -219,7 +335,7 @@ test('should not run synchronously after registration', t => {
 
 test('should rerun maximum once per stack', t => {
     let data = 0
-    const dynamicObj = observable({prop1: 0, prop2: 0})
+    const dynamicObj = observable({ prop1: 0, prop2: 0 })
 
     let numOfRuns = 0
 
@@ -236,9 +352,11 @@ test('should rerun maximum once per stack', t => {
             t.true(data === 0)
         })
         .then(() => {
-            dynamicObj.prop1 = 1
-            dynamicObj.prop2 = 3
-            dynamicObj.prop1 = 2
+            runInAction(() => {
+                dynamicObj.prop1 = 1
+                dynamicObj.prop2 = 3
+                dynamicObj.prop1 = 2
+            })
         })
         .then(() => {
             t.true(numOfRuns === 2)
@@ -247,8 +365,8 @@ test('should rerun maximum once per stack', t => {
 })
 
 test('should avoid infinite loops', t => {
-    const dynamicObj1 = observable({prop: 'value1'})
-    const dynamicObj2 = observable({prop: 'value2'})
+    const dynamicObj1 = observable({ prop: 'value1' })
+    const dynamicObj2 = observable({ prop: 'value2' })
 
     let numOfRuns1 = 0
     let numOfRuns2 = 0
@@ -273,14 +391,14 @@ test('should avoid infinite loops', t => {
         .then(() => t.true(dynamicObj2.prop === 'World!'))
         .then(() => {
             t.true(numOfRuns1 === 3)
-            t.true(numOfRuns2 === 3)
+            t.true(numOfRuns2 === 5)
         })
 })
 
 test('should accept a list of arguments and set the observer arguments to them', t => {
     let data = 0
-    const dynamicObj1 = observable({counter: 0})
-    const dynamicObj2 = observable({counter: 0})
+    const dynamicObj1 = observable({ counter: 0 })
+    const dynamicObj2 = observable({ counter: 0 })
     observe(setdata, dynamicObj1, dynamicObj2)
 
     function setdata(state1: any, state2: any) {
@@ -296,7 +414,7 @@ test('should accept a list of arguments and set the observer arguments to them',
 
 test('should return an unobserve (object) signal', t => {
     let data = 0
-    const dynamicObj = observable({counter: 0})
+    const dynamicObj = observable({ counter: 0 })
     const signal = observe(() => data = dynamicObj.counter)
     t.true(typeof signal === 'object')
 })
@@ -550,9 +668,9 @@ test('should not observe non value changing mutations', t => {
 /**
  * execution order
  */
-test('should run in registration order the first time', t => {
+test('should run in runner order the first time', t => {
     let data = ''
-    const dynamicObj = observable({prop1: 'prop1', prop2: 'prop2', prop3: 'prop3'})
+    const dynamicObj = observable({ prop1: 'prop1', prop2: 'prop2', prop3: 'prop3' })
 
     observe(() => data += dynamicObj.prop1)
     observe(() => data += dynamicObj.prop2)
@@ -563,32 +681,7 @@ test('should run in registration order the first time', t => {
     dynamicObj.prop2 = 'p2'
 
     return Promise.resolve()
-        .then(() => t.true(data === 'p1p2p3'))
-})
-
-/**
- * unqueue
- */
-
-test('should remove the observed function from the queue', t => {
-    let data: number
-    const dynamicObj = observable({prop: 0})
-
-    let numOfRuns = 0
-
-    function test() {
-        data = dynamicObj.prop
-        numOfRuns++
-    }
-
-    const signal = observe(test)
-
-    return Promise.resolve()
-        .then(() => {
-            dynamicObj.prop = 2
-            signal.unqueue()
-        })
-        .then(() => t.true(numOfRuns === 1))
+        .then(() => t.true(data === 'prop1prop2prop3p3p1p2'))
 })
 
 /**
@@ -597,7 +690,7 @@ test('should remove the observed function from the queue', t => {
 
 test('should unobserve the observed function', t => {
     let data = ''
-    const dynamicObj = observable({prop: ''})
+    const dynamicObj = observable({ prop: '' })
 
     let numOfRuns = 0
 
@@ -621,9 +714,9 @@ test('should unobserve the observed function', t => {
         .then(() => t.true(numOfRuns === 2))
 })
 
-test('should unobserve even if the function is registered for the stack', t => {
+test('should not unobserve if the function is registered for the stack, because of sync', t => {
     let data: number
-    const dynamicObj = observable({prop: 0})
+    const dynamicObj = observable({ prop: 0 })
 
     let numOfRuns = 0
 
@@ -636,8 +729,31 @@ test('should unobserve even if the function is registered for the stack', t => {
 
     return Promise.resolve()
         .then(() => {
-            dynamicObj.prop = 2
+            dynamicObj.prop = 2 // but also run
             signal.unobserve()
+        })
+        .then(() => t.true(numOfRuns === 2))
+})
+
+test('should unobserve even if the function is registered for the stack, when use runInAction', t => {
+    let data: number
+    const dynamicObj = observable({ prop: 0 })
+
+    let numOfRuns = 0
+
+    function test() {
+        data = dynamicObj.prop
+        numOfRuns++
+    }
+
+    const signal = observe(test)
+
+    return Promise.resolve()
+        .then(() => {
+            runInAction(() => {
+                dynamicObj.prop = 2 // not run
+                signal.unobserve()
+            })
         })
         .then(() => t.true(numOfRuns === 1))
 })

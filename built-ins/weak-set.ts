@@ -10,7 +10,7 @@ interface customObject {
     [x: string]: any
 }
 
-export default function shim <T extends customObject>(target: T & WeakSet<any>, registerObserver: any, queueObservers: any) {
+export default function shim<T extends customObject>(target: T & WeakSet<any>, registerObserver: any, queueObservers: any) {
     target.$raw = {}
 
     for (let method of all) {
@@ -27,17 +27,21 @@ export default function shim <T extends customObject>(target: T & WeakSet<any>, 
     }
 
     target.add = function (value: string) {
-        if (!this.has(value)) {
+        const has = this.has(value)
+        const result = native.add.apply(this, arguments)
+        if (!has) {
             queueObservers(this, value)
         }
-        return native.add.apply(this, arguments)
+        return result
     }
 
     target.delete = function (value: string) {
-        if (this.has(value)) {
+        const has = this.has(value)
+        const result = native.delete.apply(this, arguments)
+        if (has) {
             queueObservers(this, value)
         }
-        return native.delete.apply(this, arguments)
+        return result
     }
 
     return target

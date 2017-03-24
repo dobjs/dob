@@ -12,7 +12,7 @@ interface customObject {
     [x: string]: any
 }
 
-export default function shim <T extends customObject>(target: T & Map<any, any>, registerObserver: any, queueObservers: any) {
+export default function shim<T extends customObject>(target: T & Map<any, any>, registerObserver: any, queueObservers: any) {
     target.$raw = {}
 
     for (let method of all) {
@@ -36,26 +36,32 @@ export default function shim <T extends customObject>(target: T & Map<any, any>,
     }
 
     target.set = function (key: string, value: any) {
-        if (this.get(key) !== value) {
+        const oldValue = this.get(key)
+        const result = native.set.apply(this, arguments)
+        if (oldValue !== value) {
             queueObservers(this, key)
             queueObservers(this, masterKey)
         }
-        return native.set.apply(this, arguments)
+        return result
     }
 
     target.delete = function (key: string) {
-        if (this.has(key)) {
+        const has = this.has(key)
+        const result = native.delete.apply(this, arguments)
+        if (has) {
             queueObservers(this, key)
             queueObservers(this, masterKey)
         }
-        return native.delete.apply(this, arguments)
+        return result
     }
 
     target.clear = function () {
-        if (this.size) {
+        const size = this.size
+        const result = native.clear.apply(this, arguments)
+        if (size) {
             queueObservers(this, masterKey)
         }
-        return native.clear.apply(this, arguments)
+        return result
     }
 
     return target
