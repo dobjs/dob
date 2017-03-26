@@ -13,15 +13,19 @@ const observers = new WeakMap<object, Map<PropertyKey, Set<Observer>>>()
 /**
  * 待执行的观察队列
  */
-const queuedObservers = new Set()
+const queuedObservers = new Set<Observer>()
 /**
- * 是否在 runInAction 中
- */
-let isInAction = false
-/**
- * queueObserver 函数生成的 observer 对象
+ * 当前 observer 对象
  */
 let currentObserver: Observer = null
+/**
+ * 当前 tracking
+ */
+let currentTracking: Function | Promise<Function> = null
+/**
+ * 所有 tracking 中队列的集合
+ */
+let trackingQueuedObservers = new WeakMap<Function | Promise<Function>, Set<Observer>>()
 
 export interface Observer {
     callback: Function
@@ -65,7 +69,8 @@ function toObservable<T extends object>(obj: T): T {
                 const existProxy = resultIsObject && proxies.get(result)
 
                 // 将监听添加到这个 key 上
-                if (currentObserver) {
+                // 必须不在 runInAction 中才会跟踪
+                if (currentObserver && !currentTracking) {
                     registerObserver(target, key)
                     if (resultIsObject) {
                         return existProxy || toObservable(result)
@@ -136,21 +141,25 @@ function queueRunObservers<T extends object>(target: T, key: PropertyKey) {
  * 为什么要单独列出来，因为 observe 时会先执行一次当前 observe，调用的就是此函数
  */
 function queueRunObserver(observer: Observer) {
-    // 为 Set 类型，不会添加重复的 observer
-    queuedObservers.add(observer)
+    if (!currentTracking) {
+        // 在普通执行队列中添加
+        // 为 Set 类型，不会添加重复的 observer
+        queuedObservers.add(observer)
 
-    // 执行队列 
-    runObserver()
+        // 执行普通队列 
+        runObserver()
+    } else {
+        // 在 tracking 中，添加到其队列
+        // 之后不会像普通队列一样执行，而是等 runInAction 调用 fn 完毕后统一执行
+        const nowTrackingQueuedObservers = trackingQueuedObservers.get(currentTracking)
+        nowTrackingQueuedObservers.add(observer)
+    }
 }
 
 /**
- * 执行当前队列中的 observe
+ * 执行普通队列
  */
 function runObserver() {
-    if (isInAction) {
-        return
-    }
-
     queuedObservers.forEach(observer => {
         if (observer.callback) {
             try {
@@ -164,6 +173,27 @@ function runObserver() {
 
     // 清空执行 observe 队列    
     queuedObservers.clear()
+}
+
+/**
+ * 执行跟踪队列
+ */
+function runTrackingObserver() {
+    const nowTrackingQueuedObservers = trackingQueuedObservers.get(currentTracking)
+
+    nowTrackingQueuedObservers.forEach(observer => {
+        if (observer.callback) {
+            try {
+                currentObserver = observer
+                observer.callback.apply(null, observer.proxies)
+            } finally {
+                currentObserver = null
+            }
+        }
+    })
+
+    // 清空执行 observe 队列    
+    nowTrackingQueuedObservers.clear()
 }
 
 /**
@@ -228,21 +258,53 @@ function observe(callback: Function, ...observeProxies: any[]) {
 /**
  * extend 一个可观察对象
  */
-function extendObservable<T, P>(originObj: T, targetObj: P): T {
+function extendObservable<T, P>(originObj: T, targetObj: P) {
     return runInAction(() => Object.assign(originObj, targetObj))
 }
 
 /**
  * 在这里执行的方法，会在执行完后统一执行 observe
  * 注意：如果不用此方法包裹，同步执行代码会触发等同次数的 observe，而不会自动合并!
+ * 同时，在此方法中使用到的变量不会触发依赖追踪！
+ * @todo: 目前仅支持同步，还未找到支持异步的方案！
  */
-function runInAction(fn: Function) {
-    isInAction = true
+function runInAction(fn: () => any | Promise<any>) {
+    currentTracking = fn
+    trackingQueuedObservers.set(fn, new Set())
+
     const result = fn()
-    isInAction = false
-    runObserver()
+
+    // 执行跟踪的队列
+    runTrackingObserver()
+
+    // 清空队列
+    currentTracking = null
+    trackingQueuedObservers.delete(fn)
 
     return result
+
+    // if (typeof result === 'object' && result.then) {
+    //     // result 为 async，或者返回了 promise
+    //     return result.then((promiseResult: any) => {
+    //         // 执行跟踪的队列
+    //         runTrackingObserver()
+
+    //         // 清空队列
+    //         currentTracking = null
+    //         trackingQueuedObservers.delete(fn)
+
+    //         return promiseResult
+    //     })
+    // } else {
+    //     // 执行跟踪的队列
+    //     runTrackingObserver()
+
+    //     // 清空队列
+    //     currentTracking = null
+    //     trackingQueuedObservers.delete(fn)
+
+    //     return result
+    // }
 }
 
 /**
@@ -253,11 +315,7 @@ function Action(target: any, propertyKey: string, descriptor: PropertyDescriptor
     return {
         get() {
             return (...args: any[]) => {
-                return runInAction(func.bind(this, args))
-                // TODO: support async function
-                // return Promise.resolve(func.apply(this, args)).catch(error => {
-                //     errorHandler && errorHandler(error)
-                // })
+                return runInAction(func.bind(this, ...args))
             }
         },
         set(newValue: any) {

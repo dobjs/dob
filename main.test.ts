@@ -174,6 +174,50 @@ test('Action with params', t => {
         .then(() => data = 3) // 0 + 3, ignore 2
 })
 
+test('Action can get sync return value', t => {
+    let data = 0
+    const dynamicObj = observable({ counter: 0 })
+    observe(() => {
+        data += dynamicObj.counter
+    })
+
+    class MyAction {
+        @Action run(num: number) {
+            dynamicObj.counter = num + 1
+            return dynamicObj.counter
+        }
+    }
+
+    const result = new MyAction().run(1)
+
+    return Promise.resolve()
+        .then(() => t.true(result === 2))
+})
+
+test('Action can get async return value', t => {
+    let data = 0
+    const dynamicObj = observable({ counter: 0 })
+    observe(() => {
+        data += dynamicObj.counter
+    })
+
+    class MyAction {
+        @Action async run(num: number) {
+            dynamicObj.counter = num + 1
+            return dynamicObj.counter
+        }
+    }
+
+    const result = new MyAction().run(1)
+
+    return Promise.resolve()
+        .then(() => {
+            return result.then(value => {
+                t.true(value === 2)
+            })
+        })
+})
+
 /**
  * observe
  */
@@ -791,4 +835,124 @@ test('should observe properties when use extendObservable', t => {
         .then(() => t.true(numOfRuns === 2))
         .then(() => t.true(data1 === 1))
         .then(() => t.true(data2 === 2))
+})
+
+test('will trace dependency in anywhere', t => {
+    let runCount = 0
+
+    const dynamicObj = observable({
+        a: 0,
+        b: 1
+    })
+
+    observe(() => {
+        // use a
+        dynamicObj.a
+
+        runSomeThing()
+
+        runCount++
+    })
+
+    function runSomeThing() {
+        // use b
+        dynamicObj.b
+    }
+
+    dynamicObj.a = 2
+    dynamicObj.b = 3
+
+    return Promise.resolve()
+        .then(() => t.true(runCount === 3))
+})
+
+test('runInAction will not trace dependency', t => {
+    let runCount = 0
+
+    const dynamicObj = observable({
+        a: 0,
+        b: 1
+    })
+
+    observe(() => {
+        // use a
+        dynamicObj.a
+
+        runInAction(() => {
+            dynamicObj.a = dynamicObj.b
+        })
+
+        runCount++
+    })
+
+    dynamicObj.b = 2
+
+    return Promise.resolve()
+        .then(() => t.true(runCount === 2))
+})
+
+/**
+ * runInAction handle async
+ */
+test('runInAction not handle async function!!', t => {
+    let runCount = 0
+    let num = 0
+
+    const dynamicObj = observable({
+        a: 0,
+        b: 1
+    })
+
+    observe(() => {
+        // use a
+        num = dynamicObj.a
+
+        runCount++
+    })
+
+    runInAction(async () => {
+        dynamicObj.a = 1
+        await Promise.resolve()
+        dynamicObj.a = 2
+        dynamicObj.a = 3
+        dynamicObj.a = 4
+        dynamicObj.a = 5
+    })
+
+    return Promise.resolve()
+        .then(() => t.true(runCount === 6))
+        .then(() => t.true(num === 5))
+})
+
+test('runInAction handle async function with runInAction', t => {
+    let runCount = 0
+    let num = 0
+
+    const dynamicObj = observable({
+        a: 0,
+        b: 1
+    })
+
+    observe(() => {
+        // use a
+        num = dynamicObj.a
+
+        runCount++
+    })
+
+    runInAction(async () => {
+        dynamicObj.a = 1
+        await Promise.resolve()
+
+        runInAction(() => {
+            dynamicObj.a = 2
+            dynamicObj.a = 3
+            dynamicObj.a = 4
+            dynamicObj.a = 5
+        })
+    })
+
+    return Promise.resolve()
+        .then(() => t.true(runCount === 3))
+        .then(() => t.true(num === 5))
 })

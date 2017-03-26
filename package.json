@@ -5,7 +5,8 @@
   "main": "built/index.js",
   "scripts": {
     "test": "tsc && ava",
-    "prepublish": "rm -rf built && tsc"
+    "prepublish": "rm -rf built && tsc",
+    "demo": "run-react -d"
   },
   "ava": {
     "files": [
@@ -24,6 +25,12 @@
   "homepage": "https://github.com/ascoders/dependency-inject#readme",
   "devDependencies": {
     "ava": "^0.18.2",
+    "react-dom": "^15.4.2",
+    "run-react": "^1.0.1",
     "typescript": "^2.2.1"
+  },
+  "dependencies": {
+    "mobx": "^3.1.7",
+    "react": "^15.4.2"
   }
 }
