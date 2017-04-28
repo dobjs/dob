@@ -181,6 +181,10 @@ function runObserver() {
 function runTrackingObserver() {
     const nowTrackingQueuedObservers = trackingQueuedObservers.get(currentTracking)
 
+    if (!nowTrackingQueuedObservers) {
+        return
+    }
+
     nowTrackingQueuedObservers.forEach(observer => {
         if (observer.callback) {
             try {
