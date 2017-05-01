@@ -93,7 +93,7 @@ setInterval(()=>{
 ## Action
 
 ```typescript
-import { observe, observable, runInAction } from 'dynamic-object'
+import { observe, observable, Action } from 'dynamic-object'
 
 const dynamicObj = observable({
     a: 1,
