@@ -53,7 +53,7 @@ function toObservable<T extends object>(obj: T): T {
     const builtIn = builtIns.get(obj.constructor)
     if (typeof builtIn === 'function' || typeof builtIn === 'object') {
         // 处理 map weakMap set weakSet
-        dynamicObject = builtIn(obj, registerObserver, queueRunObservers)
+        dynamicObject = builtIn(obj, registerObserver, queueRunObservers, proxyResult)
     } else if (!builtIn) {
         dynamicObject = new Proxy(obj, {
             get(target, key, receiver) {
@@ -62,22 +62,15 @@ function toObservable<T extends object>(obj: T): T {
                     return target
                 }
 
-                const result = Reflect.get(target, key, receiver)
-
-                // 如果取的值是对象，优先取代理对象
-                const resultIsObject = typeof result === 'object' && result
-                const existProxy = resultIsObject && proxies.get(result)
-
-                // 将监听添加到这个 key 上
-                // 必须不在 runInAction 中才会跟踪
+                // 将监听添加到这个 key 上，必须不在 runInAction 中才会跟踪
                 if (currentObserver && !currentTracking) {
                     registerObserver(target, key)
-                    if (resultIsObject) {
-                        return existProxy || toObservable(result)
-                    }
                 }
 
-                return existProxy || result
+                let result = Reflect.get(target, key, receiver)
+                result = proxyResult(target, key, result)
+
+                return result
             },
 
             set(target, key, value, receiver) {
@@ -122,6 +115,21 @@ function toObservable<T extends object>(obj: T): T {
     observers.set(obj, new Map())
 
     return dynamicObject
+}
+
+/**
+ * 返回 get 获取的结果，如果已有 proxy 就使用 proxy 返回，否则 toObservable 递归
+ */
+function proxyResult(target: any, key: PropertyKey, result: any) {
+    // 如果取的值是对象，优先取代理对象
+    const resultIsObject = typeof result === 'object' && result
+    const existProxy = resultIsObject && proxies.get(result)
+
+    if (resultIsObject) {
+        return existProxy || toObservable(result)
+    }
+
+    return result
 }
 
 /**

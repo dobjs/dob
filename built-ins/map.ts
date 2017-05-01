@@ -12,7 +12,7 @@ interface customObject {
     [x: string]: any
 }
 
-export default function shim<T extends customObject>(target: T & Map<any, any>, registerObserver: any, queueObservers: any) {
+export default function shim<T extends customObject>(target: T & Map<any, any>, registerObserver: any, queueObservers: any, proxyResult: any) {
     target.$raw = {}
 
     for (let method of all) {
@@ -23,8 +23,12 @@ export default function shim<T extends customObject>(target: T & Map<any, any>, 
 
     for (let getter of getters) {
         target[getter] = function (key: string) {
+            let result = native[getter].apply(this, arguments)
+            result = proxyResult(this, key, result)
+
             registerObserver(this, key)
-            return native[getter].apply(this, arguments)
+
+            return result
         }
     }
 
