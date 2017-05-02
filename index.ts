@@ -121,6 +121,11 @@ function toObservable<T extends object>(obj: T): T {
  * 返回 get 获取的结果，如果已有 proxy 就使用 proxy 返回，否则 toObservable 递归
  */
 function proxyResult(target: any, key: PropertyKey, result: any) {
+    // 如果取值是 HTMLElement 对象，直接返回原对象，因为原生对象不能被封装
+    if (result instanceof HTMLElement) {
+        return result
+    }
+
     // 如果取的值是对象，优先取代理对象
     const resultIsObject = typeof result === 'object' && result
     const existProxy = resultIsObject && proxies.get(result)
