@@ -23,6 +23,11 @@ let currentObserver: Observer = null
  */
 let currentTracking: Function | Promise<Function> = null
 /**
+ * tracking 深入，比如每次调用 runInAction 深入增加 1，调用完 -1，深入为 0 时表示执行完了
+ * 当 currentTracking 队列存在，且 trackingDeep === 0 时，表示操作队列完毕
+ */
+let trackingDeep = 0
+/**
  * 所有 tracking 中队列的集合
  */
 let trackingQueuedObservers = new WeakMap<Function | Promise<Function>, Set<Observer>>()
@@ -122,7 +127,7 @@ function toObservable<T extends object>(obj: T): T {
  */
 function proxyResult(target: any, key: PropertyKey, result: any) {
     // 如果取值是 HTMLElement 对象，直接返回原对象，因为原生对象不能被封装
-    if (result instanceof HTMLElement) {
+    if (typeof window !== "undefined" && result instanceof HTMLElement) {
         return result
     }
 
@@ -192,6 +197,10 @@ function runObserver() {
  * 执行跟踪队列
  */
 function runTrackingObserver() {
+    if (trackingDeep !== 0) {
+        return
+    }
+
     const nowTrackingQueuedObservers = trackingQueuedObservers.get(currentTracking)
 
     if (!nowTrackingQueuedObservers) {
@@ -286,17 +295,27 @@ function extendObservable<T, P>(originObj: T, targetObj: P) {
  * @todo: 目前仅支持同步，还未找到支持异步的方案！
  */
 function runInAction(fn: () => any | Promise<any>) {
-    currentTracking = fn
-    trackingQueuedObservers.set(fn, new Set())
+    trackingDeep += 1
+
+    if (trackingDeep === 1) {
+        // 目前会忽略所有嵌套 tracking（runInAction 内调用 runInAction），deep 为 1 时表示时第一个 tracking 调用
+        // TODO: 当调用 await 时立刻执行队列，再继续积攒队列执行，让所有异步队列分隔开执行
+        currentTracking = fn
+        trackingQueuedObservers.set(fn, new Set())
+    }
 
     const result = fn()
+
+    trackingDeep -= 1
 
     // 执行跟踪的队列
     runTrackingObserver()
 
     // 清空队列
-    currentTracking = null
-    trackingQueuedObservers.delete(fn)
+    if (trackingDeep === 0) {
+        currentTracking = null
+        trackingQueuedObservers.delete(fn)
+    }
 
     return result
 

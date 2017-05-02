@@ -1,32 +1,23 @@
 import { observe, observable, Action } from "./index"
 
-const dynamicObj = observable({
-    actions: {
-        viewportStore: {
-            instances: new Map<string, {
-                childs: string[]
-            }>()
-        }
-    }
-})
-
-dynamicObj.actions.viewportStore.instances.set("app1", {
-    childs: []
-})
+const dynamicObj = observable([1, 2, 3, 4, 5, 6])
 
 observe(() => {
-    console.log('dynamicObj.b change to', dynamicObj.actions.viewportStore.instances.get("app1").childs.length)
+    dynamicObj.map(num => {
+        num
+    })
+    console.log(dynamicObj)
 })
 
-class CustomAction {
-    @Action someAction() {
-        dynamicObj.actions.viewportStore.instances.get("app1").childs.push("a")
+class A {
+    @Action run() {
+        this.a()
+        dynamicObj.splice(3, 0, 9)
+    }
+
+    @Action a() {
+
     }
 }
 
-declare const window: any
-window.xxx = dynamicObj.actions.viewportStore.instances.get("app1").childs
-
-const customAction = new CustomAction()
-customAction.someAction()
-
+new A().run()
