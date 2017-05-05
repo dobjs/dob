@@ -949,3 +949,36 @@ test('runInAction handle async function with runInAction', t => {
         .then(() => t.true(runCount === 3))
         .then(() => t.true(num === 5))
 })
+
+/**
+ * Branch judgment
+ */
+
+test('branch judgment', t => {
+    let value = 0
+
+    const dynamicObj = observable({
+        a: true,
+        b: 1,
+        c: 2
+    })
+
+    observe(() => {
+        if (dynamicObj.a) {
+            value = dynamicObj.b
+        } else {
+            value = dynamicObj.c
+        }
+    })
+
+    return Promise.resolve()
+        .then(() => t.true(value === 1))
+        .then(() => dynamicObj.c = 3) // nothing happend
+        .then(() => t.true(value === 1))
+        .then(() => dynamicObj.a = false)
+        .then(() => t.true(value === 3))
+        .then(() => dynamicObj.c = 4)
+        .then(() => t.true(value === 4))
+        .then(() => dynamicObj.b = 5)
+        .then(() => t.true(value === 4))
+})
