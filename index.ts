@@ -167,7 +167,7 @@ function queueRunObserver(observer: Observer) {
         queuedObservers.add(observer)
 
         // 执行普通队列 
-        runObserver()
+        runQueue()
     } else {
         // 在 tracking 中，添加到其队列
         // 之后不会像普通队列一样执行，而是等 runInAction 调用 fn 完毕后统一执行
@@ -179,25 +179,31 @@ function queueRunObserver(observer: Observer) {
 /**
  * 执行普通队列
  */
-function runObserver() {
+function runQueue() {
     queuedObservers.forEach(observer => {
-        if (observer.callback) {
-            try {
-                // 先把这个 observer 从所有绑定的 target -> key 中清空
-                clearBindings(observer)
-
-                currentObserver = observer
-
-                // 这里会放访问到当前 observer callback 函数内所有对象的 getter 方法，之后会调用 registerObserver 给访问到的 target -> key 绑定当前的 observer
-                observer.callback()
-            } finally {
-                currentObserver = null
-            }
-        }
+        runObserver(observer)
     })
 
     // 清空执行 observe 队列    
     queuedObservers.clear()
+}
+
+/**
+ * 执行 observer
+ */
+function runObserver(observer: Observer) {
+    if (observer.callback) {
+        // 先把这个 observer 从所有绑定的 target -> key 中清空
+        clearBindings(observer)
+        currentObserver = observer
+
+        try {
+            // 这里会放访问到当前 observer callback 函数内所有对象的 getter 方法，之后会调用 registerObserver 给访问到的 target -> key 绑定当前的 observer
+            observer.callback()
+        } finally {
+            currentObserver = null
+        }
+    }
 }
 
 /**
@@ -215,14 +221,7 @@ function runTrackingObserver() {
     }
 
     nowTrackingQueuedObservers.forEach(observer => {
-        if (observer.callback) {
-            try {
-                currentObserver = observer
-                observer.callback.apply(null)
-            } finally {
-                currentObserver = null
-            }
-        }
+        runObserver(observer)
     })
 
     // 清空执行 observe 队列    
