@@ -956,6 +956,7 @@ test('runInAction handle async function with runInAction', t => {
 
 test('branch judgment', t => {
     let value = 0
+    let runCount = 0
 
     const dynamicObj = observable({
         a: true,
@@ -964,6 +965,8 @@ test('branch judgment', t => {
     })
 
     observe(() => {
+        runCount++
+
         if (dynamicObj.a) {
             value = dynamicObj.b
         } else {
@@ -973,12 +976,17 @@ test('branch judgment', t => {
 
     return Promise.resolve()
         .then(() => t.true(value === 1))
+        .then(() => t.true(runCount === 1))
         .then(() => dynamicObj.c = 3) // nothing happend
         .then(() => t.true(value === 1))
+        .then(() => t.true(runCount === 1))
         .then(() => dynamicObj.a = false)
         .then(() => t.true(value === 3))
+        .then(() => t.true(runCount === 2))
         .then(() => dynamicObj.c = 4)
         .then(() => t.true(value === 4))
+        .then(() => t.true(runCount === 3))
         .then(() => dynamicObj.b = 5)
         .then(() => t.true(value === 4))
+        .then(() => t.true(runCount === 3))
 })

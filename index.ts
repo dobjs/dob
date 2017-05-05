@@ -90,7 +90,6 @@ function toObservable<T extends object>(obj: T): T {
 
                 // 如果改动了 length 属性，或者新值与旧值不同，触发可观察队列任务
                 // 这一步要在 Reflect.set 之后，确保触发时使用的是新值
-                // console.log(target, value, oldValue)
                 if (key === 'length' || value !== oldValue) {
                     queueRunObservers<T>(target, key)
                 }
@@ -150,7 +149,10 @@ function proxyResult(target: any, key: PropertyKey, result: any) {
 function queueRunObservers<T extends object>(target: T, key: PropertyKey) {
     const observersForKey = observers.get(target).get(key)
     if (observersForKey) {
-        observersForKey.forEach(queueRunObserver)
+        // observersForKey.forEach 过程中会被修改，所以 Array.From 一下防止死循环
+        Array.from(observersForKey).forEach(observer => {
+            queueRunObserver(observer)
+        })
     }
 }
 
@@ -181,8 +183,13 @@ function runObserver() {
     queuedObservers.forEach(observer => {
         if (observer.callback) {
             try {
+                // 先把这个 observer 从所有绑定的 target -> key 中清空
+                clearBindings(observer)
+
                 currentObserver = observer
-                observer.callback.apply(null)
+
+                // 这里会放访问到当前 observer callback 函数内所有对象的 getter 方法，之后会调用 registerObserver 给访问到的 target -> key 绑定当前的 observer
+                observer.callback()
             } finally {
                 currentObserver = null
             }
@@ -241,6 +248,8 @@ function registerObserver<T extends object>(target: T, key: PropertyKey) {
         // 如果不包含当前 observer，将它添加进去
         if (!observersForKey.has(currentObserver)) {
             observersForKey.add(currentObserver)
+
+            // 给当前 currentObserver 对象添加引用，方便 unobserver 的时候，直接遍历 observedKeys，从中删除自己的 observer 引用
             currentObserver.observedKeys.push(observersForKey)
         }
     }
@@ -254,15 +263,25 @@ function isObservable<T extends object>(obj: T) {
 }
 
 /**
- * 取消观察对象
+ * 清空 observer 当前所有绑定
  */
-function unobserve(observer: Observer) {
+function clearBindings(observer: Observer) {
     if (typeof observer === 'object') {
         if (observer.observedKeys) {
             observer.observedKeys.forEach(observersForKey => {
                 observersForKey.delete(observer)
             })
         }
+        observer.observedKeys = []
+    }
+}
+
+/**
+ * 取消观察
+ */
+function unobserve(observer: Observer) {
+    if (typeof observer === 'object') {
+        clearBindings(observer)
         observer.callback = observer.observedKeys = undefined
     }
 }
@@ -273,6 +292,7 @@ function unobserve(observer: Observer) {
 function observe(callback: Function, ...observeProxies: any[]) {
     const observer: Observer = {
         callback,
+        // 存储哪些 target -> key 的 map 对象绑定了当前 observe，便于取消时的查找
         observedKeys: [],
         unobserve: () => unobserve(observer)
     }

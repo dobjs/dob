@@ -1,29 +1,19 @@
 import { observe, observable, runInAction } from "./index"
 import * as _ from "lodash"
 
-const dynamicObject = observable({
-    name: '小明'
+const dynamicObj = observable({
+    a: true,
+    b: 1,
+    c: 2
 })
-
-function renderA() {
-    console.log('renderA', dynamicObject.name)
-}
-
-function renderB() {
-    console.log('renderB', dynamicObject.name)
-    renderA()
-}
 
 observe(() => {
-    renderA()
+    if (dynamicObj.a) {
+        console.log(dynamicObj.b)
+    } else {
+        console.log(dynamicObj.c)
+    }
 })
 
-const signal = observe(() => {
-    renderB()
-})
-
-signal.unobserve()
-
-setTimeout(() => {
-    dynamicObject.name = '小黑'
-}, 1000)
+dynamicObj.a = false
+dynamicObj.b = 3
