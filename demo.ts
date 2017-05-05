@@ -1,23 +1,29 @@
-import { observe, observable, Action } from "./index"
+import { observe, observable, runInAction } from "./index"
+import * as _ from "lodash"
 
-const dynamicObj = observable([1, 2, 3, 4, 5, 6])
-
-observe(() => {
-    dynamicObj.map(num => {
-        num
-    })
-    console.log(dynamicObj)
+const dynamicObject = observable({
+    name: '小明'
 })
 
-class A {
-    @Action run() {
-        this.a()
-        dynamicObj.splice(3, 0, 9)
-    }
-
-    @Action a() {
-
-    }
+function renderA() {
+    console.log('renderA', dynamicObject.name)
 }
 
-new A().run()
+function renderB() {
+    console.log('renderB', dynamicObject.name)
+    renderA()
+}
+
+observe(() => {
+    renderA()
+})
+
+const signal = observe(() => {
+    renderB()
+})
+
+signal.unobserve()
+
+setTimeout(() => {
+    dynamicObject.name = '小黑'
+}, 1000)

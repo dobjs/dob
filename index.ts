@@ -34,7 +34,6 @@ let trackingQueuedObservers = new WeakMap<Function | Promise<Function>, Set<Obse
 
 export interface Observer {
     callback: Function
-    proxies: any
     observedKeys: Array<Set<Observer>>
     // 是否仅观察一次
     once?: boolean
@@ -45,7 +44,7 @@ export interface Observer {
 /**
  * 获取可观察的对象
  */
-function observable<T extends object>(obj: T = {} as T): T {
+function observable<T extends object>(obj: T = {} as T): T & { $raw: T } {
     return proxies.get(obj) || toObservable(obj)
 }
 
@@ -91,6 +90,7 @@ function toObservable<T extends object>(obj: T): T {
 
                 // 如果改动了 length 属性，或者新值与旧值不同，触发可观察队列任务
                 // 这一步要在 Reflect.set 之后，确保触发时使用的是新值
+                // console.log(target, value, oldValue)
                 if (key === 'length' || value !== oldValue) {
                     queueRunObservers<T>(target, key)
                 }
@@ -182,7 +182,7 @@ function runObserver() {
         if (observer.callback) {
             try {
                 currentObserver = observer
-                observer.callback.apply(null, observer.proxies)
+                observer.callback.apply(null)
             } finally {
                 currentObserver = null
             }
@@ -211,7 +211,7 @@ function runTrackingObserver() {
         if (observer.callback) {
             try {
                 currentObserver = observer
-                observer.callback.apply(null, observer.proxies)
+                observer.callback.apply(null)
             } finally {
                 currentObserver = null
             }
@@ -263,7 +263,7 @@ function unobserve(observer: Observer) {
                 observersForKey.delete(observer)
             })
         }
-        observer.callback = observer.proxies = observer.observedKeys = undefined
+        observer.callback = observer.observedKeys = undefined
     }
 }
 
@@ -273,7 +273,6 @@ function unobserve(observer: Observer) {
 function observe(callback: Function, ...observeProxies: any[]) {
     const observer: Observer = {
         callback,
-        proxies: observeProxies,
         observedKeys: [],
         unobserve: () => unobserve(observer)
     }

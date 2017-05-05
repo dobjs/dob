@@ -439,23 +439,6 @@ test('should avoid infinite loops', t => {
         })
 })
 
-test('should accept a list of arguments and set the observer arguments to them', t => {
-    let data = 0
-    const dynamicObj1 = observable({ counter: 0 })
-    const dynamicObj2 = observable({ counter: 0 })
-    observe(setdata, dynamicObj1, dynamicObj2)
-
-    function setdata(state1: any, state2: any) {
-        data = state1.counter + state2.counter
-    }
-
-    return Promise.resolve()
-        .then(() => dynamicObj1.counter = 2)
-        .then(() => t.true(data === 2))
-        .then(() => dynamicObj2.counter = 1)
-        .then(() => t.true(data === 3))
-})
-
 test('should return an unobserve (object) signal', t => {
     let data = 0
     const dynamicObj = observable({ counter: 0 })
@@ -761,7 +744,6 @@ test('should unobserve the observed function', t => {
         .then(() => signal.unobserve())
         .then(() => {
             t.true(signal.callback === undefined)
-            t.true(signal.proxies === undefined)
             t.true(signal.observedKeys === undefined)
         })
         .then(() => dynamicObj.prop = 'World')
