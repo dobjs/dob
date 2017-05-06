@@ -67,7 +67,8 @@ function toObservable<T extends object>(obj: T): T {
                 }
 
                 // 将监听添加到这个 key 上，必须不在 runInAction 中才会跟踪
-                if (currentObserver && !currentTracking) {
+                // trackingDeep 只要非 0，说明 runInAction 结束了
+                if (currentObserver && trackingDeep === 0) {
                     registerObserver(target, key)
                 }
 

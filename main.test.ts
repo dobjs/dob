@@ -913,8 +913,8 @@ test('runInAction not handle async function!!', t => {
     })
 
     return Promise.resolve()
-        .then(() => t.true(runCount === 2))
-        .then(() => t.true(num === 1))
+        .then(() => t.true(runCount === 6))
+        .then(() => t.true(num === 5))
 })
 
 test('runInAction handle async function with runInAction', t => {
@@ -946,8 +946,8 @@ test('runInAction handle async function with runInAction', t => {
     })
 
     return Promise.resolve()
-        .then(() => t.true(runCount === 2))
-        .then(() => t.true(num === 1))
+        .then(() => t.true(runCount === 3))
+        .then(() => t.true(num === 5))
 })
 
 /**
