@@ -66,11 +66,7 @@ function toObservable<T extends object>(obj: T): T {
                     return target
                 }
 
-                // 将监听添加到这个 key 上，必须不在 runInAction 中才会跟踪
-                // trackingDeep 只要非 0，说明 runInAction 结束了
-                if (currentObserver && trackingDeep === 0) {
-                    registerObserver(target, key)
-                }
+                registerObserver(target, key)
 
                 let result = Reflect.get(target, key, receiver)
                 result = proxyResult(target, key, result)
@@ -235,23 +231,27 @@ function runTrackingObserver() {
  * 当前 observer（queueObserver触发） 注册到 observers 对应的 key 中。
  */
 function registerObserver<T extends object>(target: T, key: PropertyKey) {
-    if (currentObserver) {
-        const observersForTarget = observers.get(target)
-        let observersForKey = observersForTarget.get(key)
+    // 将监听添加到这个 key 上，必须不在 runInAction 中才会跟踪
+    // trackingDeep 只要非 0，说明 runInAction 结束了
+    if (!currentObserver || trackingDeep !== 0) {
+        return
+    }
 
-        // 如果没有定义这个 key 的 observer 集合，初始化一个新的
-        if (!observersForKey) {
-            observersForKey = new Set()
-            observersForTarget.set(key, observersForKey)
-        }
+    const observersForTarget = observers.get(target)
+    let observersForKey = observersForTarget.get(key)
 
-        // 如果不包含当前 observer，将它添加进去
-        if (!observersForKey.has(currentObserver)) {
-            observersForKey.add(currentObserver)
+    // 如果没有定义这个 key 的 observer 集合，初始化一个新的
+    if (!observersForKey) {
+        observersForKey = new Set()
+        observersForTarget.set(key, observersForKey)
+    }
 
-            // 给当前 currentObserver 对象添加引用，方便 unobserver 的时候，直接遍历 observedKeys，从中删除自己的 observer 引用
-            currentObserver.observedKeys.push(observersForKey)
-        }
+    // 如果不包含当前 observer，将它添加进去
+    if (!observersForKey.has(currentObserver)) {
+        observersForKey.add(currentObserver)
+
+        // 给当前 currentObserver 对象添加引用，方便 unobserver 的时候，直接遍历 observedKeys，从中删除自己的 observer 引用
+        currentObserver.observedKeys.push(observersForKey)
     }
 }
 
