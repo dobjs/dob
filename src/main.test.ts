@@ -1,5 +1,5 @@
 import test from 'ava'
-import { observe, observable, isObservable, extendObservable, runInAction, Action } from './index'
+import { observe, observable, isObservable, extendObservable, runInAction, Action, Static } from './index'
 
 // /**
 //  * observable
@@ -989,4 +989,24 @@ test('branch judgment', t => {
         .then(() => dynamicObj.b = 5)
         .then(() => t.true(value === 4))
         .then(() => t.true(runCount === 3))
+})
+
+/**
+ * Static
+ */
+test('Static will not tracking object', t => {
+    let runCount = 0
+    let result = ''
+    const dynamicObj = observable(Static({ name: 'b' }))
+
+    observe(() => {
+        result = dynamicObj.name
+        runCount++
+    })
+
+    dynamicObj.name = 'c'
+
+    return Promise.resolve()
+        .then(() => t.true(runCount === 1))
+        .then(() => t.true(result === 'b'))
 })

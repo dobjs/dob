@@ -31,6 +31,10 @@ let trackingDeep = 0
  * 所有 tracking 中队列的集合
  */
 let trackingQueuedObservers = new WeakMap<Function | Promise<Function>, Set<Observer>>()
+/**
+ * 忽略动态对象的 symbol
+ */
+const ignoreDynamicSymbol = Symbol()
 
 export interface Observer {
     callback: Function
@@ -52,6 +56,15 @@ function observable<T extends object>(obj: T = {} as T): T & { $raw: T } {
  * 生成可观察的对象
  */
 function toObservable<T extends object>(obj: T): T {
+    if (Object.getOwnPropertySymbols(obj).indexOf(ignoreDynamicSymbol) > -1) {
+        // 如果对象忽略了动态化，直接返回
+        return obj
+    }
+
+    // if (Reflect.getMetadata(ignoreDynamicSymbol, obj, propertyKey)) { 
+
+    // }
+
     let dynamicObject: T
 
     const builtIn = builtIns.get(obj.constructor)
@@ -378,4 +391,15 @@ function Action(target: any, propertyKey: string, descriptor: PropertyDescriptor
         }
     }
 }
-export { observable, observe, isObservable, extendObservable, runInAction, Action }
+
+/**
+ * Static，使装饰的对象不会监听
+ */
+function Static<T extends object>(obj: T): T {
+    Object.defineProperty(obj, ignoreDynamicSymbol, {
+        value: true
+    })
+    return obj
+}
+
+export { observable, observe, isObservable, extendObservable, runInAction, Action, Static }
