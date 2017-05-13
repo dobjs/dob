@@ -1,8 +1,9 @@
 {
   "name": "dynamic-object",
-  "version": "2.1.7",
+  "version": "2.1.8",
   "description": "",
   "main": "built/index.js",
+  "typings": "src/index.ts",
   "scripts": {
     "test": "tsc && ava",
     "prepublish": "rm -rf built && tsc",
