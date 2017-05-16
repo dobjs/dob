@@ -1,28 +1,14 @@
-import { observable, observe, Action, Static } from "./index"
+import { observable, observe, Action, Static } from "./index"  
 
-class Store {
-  obj = Static({
-    a: 1
-  })
+let array: any = [1, 2, 3, 4];
 
-  aa() { }
-  c = 5
-}
+array.name = "alibaba";
 
-const instance = new Store()
-
-class Test {
-  bind() {
-    console.log(instance.obj.a)
-  }
-
-  @Action run() {
-    instance.obj.a = 2
-  }
-}
+const obj = observable(array)
 
 observe(() => {
-  new Test().bind()
+  console.log(obj.length)
 })
 
-new Test().run()
+obj.push(3)
+console.log("console", obj.name)

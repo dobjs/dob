@@ -1,0 +1,11 @@
+language: node_js
+os:
+- linux
+install:
+- npm install yarn -g
+- yarn
+node_js:
+- 6.9.2
+- 7.3.0
+script:
+- npm test

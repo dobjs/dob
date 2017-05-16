@@ -1,5 +1,7 @@
 # dynamic-object
 
+<a href="https://travis-ci.org/ascoders/dynamic-object"><img src="https://img.shields.io/travis/ascoders/dynamic-object/master.svg?style=flat" alt="Build Status"></a>
+
 worked with `object` `array` `map` `weakMap` `set` `weakSet`
 
 ## observe
