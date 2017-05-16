@@ -1010,3 +1010,21 @@ test('Static will not tracking object', t => {
         .then(() => t.true(runCount === 1))
         .then(() => t.true(result === 'b'))
 })
+
+test('Static will not tracking map', t => {
+    let runCount = 0
+    let size = 0
+    const dynamicObj = observable(Static(new Map<string, string>()))
+
+    observe(() => {
+        size = dynamicObj.size
+        runCount++
+    })
+
+    dynamicObj.set("a", "a")
+    dynamicObj.set("b", "b")
+
+    return Promise.resolve()
+        .then(() => t.true(runCount === 1))
+        .then(() => t.true(size === 0))
+})

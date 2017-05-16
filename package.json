@@ -1,12 +1,12 @@
 {
   "name": "dynamic-object",
-  "version": "2.1.9",
+  "version": "2.1.10",
   "description": "",
   "main": "built/index.js",
   "typings": "src/index.ts",
   "scripts": {
     "test": "tsc && ava",
-    "prepublish": "rm -rf built && tsc",
+    "prepublish": "rm -rf built && tsc && babel built --out-dir built",
     "demo": "run-react -d"
   },
   "ava": {
@@ -28,7 +28,10 @@
     "ava": "^0.18.2",
     "react-dom": "^15.4.2",
     "run-react": "^1.0.1",
-    "typescript": "^2.2.1"
+    "typescript": "^2.2.1",
+    "babel-cli": "^6.24.0",
+    "babel-preset-es2015": "^6.24.0",
+    "babel-preset-stage-0": "^6.22.0"
   },
   "dependencies": {
     "@types/lodash": "^4.14.63",
