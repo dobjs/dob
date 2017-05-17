@@ -1,130 +1,54 @@
-# dynamic-object
+# 简介
 
-<a href="https://travis-ci.org/ascoders/dynamic-object"><img src="https://img.shields.io/travis/ascoders/dynamic-object/master.svg?style=flat" alt="Build Status"></a>
+## dynamic-object 是什么
 
-worked with `object` `array` `map` `weakMap` `set` `weakSet`.
+[dynamic-object](https://github.com/ascoders/dynamic-object) 是对象包装工具，顾名思义，让对象“动态”化。
 
-## observe
+这个库的功能与 [mobx](https://github.com/mobxjs/mobx) 很像，同时借鉴了 [nx-js](https://github.com/nx-js/observer-util) 实现理念。给力的地方在于，不支持 ie11 浏览器！非常激进，核心使用 `proxy`，抛弃兼容性换来的是超高的性能，以及完美的动态绑定。
 
-Observe will also be executed once at initialization
+核心用例：
 
 ```typescript
-import { observe, observable } from 'dynamic-object'
+import { observable, observe } from "dynamic-object"
 
 const dynamicObj = observable({
-    a: 1,
-    b: 2
+    a: 1
 })
 
 observe(() => {
-    console.log('dynamicObj.b change to', dynamicObj.b) 
+    console.log("dynamicObj.a has changed to", dynamicObj.a) 
 })
 
-dynamicObj.b = 4
-
-// # run
-// print 'dynamicObj.b change to 2'
-// print 'dynamicObj.b change to 4'
+dynamicObj.a = 2
 ```
 
-## runInAction
+控制台会输出两行：
+
+`dynamicObj.a has changed to 1`
+`dynamicObj.a has changed to 2`
+
+第一行是初始化时的输出，第二行是 `dynamicObj.a = 2` 这个赋值语句触发后，由于 console.log 所在闭包函数访问到了 `dynamicObj.a`，导致函数再次被执行。
+
+以上是这个库的核心功能，所有的一切都围绕这个功能展开。
+
+## 安装
+
+```bash
+yarn add dynamic-object --save
+```
+
+这个库导出的核心方法一共只有三个：
 
 ```typescript
-import { observe, observable, runInAction } from 'dynamic-object'
-
-const dynamicObj = observable({
-    a: 1,
-    b: 2
-})
-
-let runCount = 0
-
-observe(() => {
-    console.log('dynamicObj.b change to', dynamicObj.b)
-    runCount++
-})
-
-runInAction(()=>{
-    dynamicObj.b = 3
-    dynamicObj.b = 4
-    dynamicObj.b = 5
-    dynamicObj.b = 6
-    dynamicObj.b = 7 
-})
-
-console.log(runCount)
-
-// # run
-// print 'dynamicObj.b change to 2'
-// print 'dynamicObj.b change to 7'
-// print 2
+import { observe, observable, Action } from "dynamic-object"
 ```
 
-## unobserve
+`observe` 与 `observable` 在核心用例有所介绍，后续有详细说明。
 
-```typescript
-import { observe, observable } from 'dynamic-object'
+`Action` 可以作为函数或装饰器使用，作用是在函数体执行完后，统一触发一次 `observe`，是性能优化的必备工具。
 
-const dynamicObj = observable({
-    a: 1,
-    b: 2
-})
+## 稳定性
 
-const signal = observe(() => {
-    console.log('dynamicObj.b change to', dynamicObj.b) 
-})
+目前通过了 100%（50个）[测试用例](https://github.com/ascoders/dynamic-object/blob/master/src/main.test.ts)
 
-dynamicObj.b = 4
-
-setInterval(()=>{
-    signal.unobserve()
-    dynamicObj.b = 5 // nothing happened
-})
-
-// # run
-// print 'dynamicObj.b change to 2'
-// print 'dynamicObj.b change to 4'
-
-// the same as
-// setInterval(()=>{
-//     dynamicObj.b = 5 // nothing happened
-//     signal.unobserve()
-// })
-```
-
-## Action
-
-```typescript
-import { observe, observable, Action } from 'dynamic-object'
-
-const dynamicObj = observable({
-    a: 1,
-    b: 2
-})
-
-let runCount = 0
-
-observe(() => {
-    console.log('dynamicObj.b change to', dynamicObj.b)
-    runCount++
-})
-
-class CustomAction {
-    @Action someAction() {
-        dynamicObj.b = 3
-        dynamicObj.b = 4
-        dynamicObj.b = 5
-        dynamicObj.b = 6
-        dynamicObj.b = 7
-    }
-}
-
-const customAction = new CustomAction()
-customAction.someAction()
-
-console.log(runCount)
-
-// # run
-// print 'dynamicObj.b change to 2'
-// print 'dynamicObj.b change to 4'
-```
+---
