@@ -11,10 +11,6 @@ const proxies = new WeakMap()
  */
 const observers = new WeakMap<object, Map<PropertyKey, Set<Observer>>>()
 /**
- * 执行队列中的 observer
- */
-const queuedObservers = new Set<Observer>()
-/**
  * 当前 observer 对象
  */
 let currentObserver: Observer = null
