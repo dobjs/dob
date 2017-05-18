@@ -2,7 +2,7 @@
 
 下面以开发角度描述实现思路，同时作为反思，如果有更优的思路，我会随时更新。
 
-## 1 术语解释
+## 1. 术语解释
 
 本库包含许多抽象概念，为了简化描述，使用固定单词指代，约定如下：
 
@@ -12,7 +12,7 @@
 | observe | 监听其回调函数中**当前访问到的** observable 化的对象的修改，并在值变化时重新出发执行 |
 | observer | 指代 observe 中的回调函数 |
 
-## 2 总体思路
+## 2. 总体思路
 
 如果单纯的实现 `observable`，使用 proxy 很简单，可以完全监听对象的变化，难点在于如何在 `observe` 中执行依赖追踪，并当 `observable` 对象触发 `set` 时，触发对应 `observe` 中的 `observer`。
 
@@ -20,7 +20,7 @@
 
 我们必须依赖持久化变量才能做到这一点，因为 `observable` 的 `set` 过程，与 `observer` 的 `get` 的过程是分开的。
 
-## 3 定义持久化变量
+## 3. 定义持久化变量
 
 | 变量名 | 类型 |  含义  |
 | -------- | -------- | --------- |
@@ -28,19 +28,19 @@
 | observers | WeakMap<object, Map<PropertyKey, Set<Observer>>> | 任何对象的 `key` 只要被 `get`，就会被记录在这里，同时记录当前的 `observer`，当任意对象被 `set` 时，根据此 map 查询所有绑定的 `observer` 并执行，就达到 `observe` 的效果了 |
 | currentObserver | Observer | 当前的 `observer`。当执行 `observe` 时，当前 `observer` 指向其第一个回调函数，这样当代理被访问时，保证其绑定的 `observer` 是其当前所在的回调函数。 |
 
-## 4 从 observable 函数下手
+## 4. 从 observable 函数下手
 
 对于 `observable(obj)`，按照以下步骤分析：
 
-### 4.1 去重
+### 4.1. 去重
 
 如果传入的 `obj` 本身已是 `proxy`，也就是存在于 `proxies`，直接返回 `proxies.get(obj)`。这种情况考虑到可能将对象 `observable` 执行了多次。（`proxies` 保存原对象与代理各一份，保证传入的是已代理的原对象，还是代理本身，都可以被查找到）
 
-### 4.2 new Proxy
+### 4.2. new Proxy
 
 如果没有重复，`new Proxy` 生成代理返作为返回值。代理涉及到三处监听处理：`get` `set` `deleteProperty`。
 
-### 4.3 get 处理
+### 4.3. get 处理
 
 先判断 `currentObserver` 是否为空，如果为空，说明是在 `observer` 之外访问了对象，此时不做理会。
 
