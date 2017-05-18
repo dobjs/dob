@@ -11,7 +11,7 @@ const proxies = new WeakMap()
  */
 const observers = new WeakMap<object, Map<PropertyKey, Set<Observer>>>()
 /**
- * 待执行的观察队列
+ * 执行队列中的 observer
  */
 const queuedObservers = new Set<Observer>()
 /**
@@ -172,30 +172,13 @@ function queueRunObservers<T extends object>(target: T, key: PropertyKey) {
  */
 function queueRunObserver(observer: Observer) {
     if (!currentTracking) {
-        // 在普通执行队列中添加
-        // 为 Set 类型，不会添加重复的 observer
-        queuedObservers.add(observer)
-
-        // 执行普通队列 
-        runQueue()
+        runObserver(observer)
     } else {
         // 在 tracking 中，添加到其队列
         // 之后不会像普通队列一样执行，而是等 runInAction 调用 fn 完毕后统一执行
         const nowTrackingQueuedObservers = trackingQueuedObservers.get(currentTracking)
         nowTrackingQueuedObservers.add(observer)
     }
-}
-
-/**
- * 执行普通队列
- */
-function runQueue() {
-    queuedObservers.forEach(observer => {
-        runObserver(observer)
-    })
-
-    // 清空执行 observe 队列    
-    queuedObservers.clear()
 }
 
 /**

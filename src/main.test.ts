@@ -435,7 +435,7 @@ test('should avoid infinite loops', t => {
         .then(() => t.true(dynamicObj2.prop === 'World!'))
         .then(() => {
             t.true(numOfRuns1 === 3)
-            t.true(numOfRuns2 === 5)
+            t.true(numOfRuns2 === 3)
         })
 })
 

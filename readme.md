@@ -27,6 +27,7 @@ dynamicObj.a = 2
 控制台会输出两行：
 
 `dynamicObj.a has changed to 1`
+
 `dynamicObj.a has changed to 2`
 
 第一行是初始化时的输出，第二行是 `dynamicObj.a = 2` 这个赋值语句触发后，由于 console.log 所在闭包函数访问到了 `dynamicObj.a`，导致函数再次被执行。
