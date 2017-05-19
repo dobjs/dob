@@ -42,6 +42,12 @@
 
 ### 4.3. get 处理
 
+```javascript
+get(target, key, receiver)
+```
+
+#### 非 Map WeakMap Set WeakSet 的情况
+
 先判断 `currentObserver` 是否为空，如果为空，说明是在 `observer` 之外访问了对象，此时不做理会。
 
 如果 `currentObserver` 不为空，将 `object` + `key` -> `currentObserver` 的映射记录到 `observers` 对象中。同时为 `currentObserver.observedKeys` 添加当前的映射引用，当 `unobserve` 时，需要读取 `observer.observedKeys` 属性，将 `observers` 中所有此 `observer` 的依赖关系删除。
@@ -51,4 +57,19 @@
 1. 如果在 `proxies` 存在，直接返回 `proxy` 引用。eg： `const name = obj.name`，这时 `name` 变量也是一个代理，其依赖也可追踪。
 2. 如果在 `proxies` 不存在，将这个对象重新按照如上流程处理一遍，**这就是惰性代理**，比如访问到 `a.b.c`，那么会分别将 `a` `b` `c` 各走一遍 get 处理，这样无论其中哪一环，都是代理对象，可追踪，相反，如果 `a` 对象还存在其他字段，因为没有被访问到，所以不会进行处理，其值也不是代理，因为没有访问的对象也没必要追踪。
 
-### 4.4 set 处理
+#### Map WeakMap Set WeakSet
+
+### 4.4. set 处理
+
+```javascript
+set(target, key, value, receiver)
+```
+
+#### 非 Map WeakMap Set WeakSet 的情况
+
+如果新值与旧值不同，或 `key === "length"` 时，就认为产生了变化，找到当前 `object` + `key` 对应的 `observers` 队列依次执行即可。有两个注意点：
+
+1. 执行前先将当前执行的 `observer` 绑定关系清空：因为 `observer` 时会触发新一轮绑定，这样实现了条件的动态绑定。
+2. 执行前设置 `currentObserver` 为当前 `observer`，再执行 `observer` 时就可以将 `set` 正确绑定上。
+
+#### Map WeakMap Set WeakSet
