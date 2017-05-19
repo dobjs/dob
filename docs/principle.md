@@ -73,3 +73,7 @@ set(target, key, value, receiver)
 2. 执行前设置 `currentObserver` 为当前 `observer`，再执行 `observer` 时就可以将 `set` 正确绑定上。
 
 #### Map WeakMap Set WeakSet
+
+### 4.5 deleteProperty
+
+删除属性时，直接触发对应 `observer`。
