@@ -1,5 +1,7 @@
 # 原理
 
+dynamic-object 只对外暴露了三个 api：`observable` `observe` `Action`，分别是 **动态化对象**、 **变化监听** 与 **懒追踪辅助函数**。
+
 下面以开发角度描述实现思路，同时作为反思，如果有更优的思路，我会随时更新。
 
 ## 1. 术语解释
@@ -186,4 +188,60 @@ handleClick() {
 
 ## 8. dynamic-react
 
-TODO
+dynamic-react 是 dynamic-object 在 react 上的应用，类似于 mobx-react 相比于 mobx。实现思路与 mobx-react 很接近，但是简化了许多。
+
+dynamic-react 只暴露了两个接口 `Provider` 与 `Connect`，分别用于 **数据初始化** 与 **绑定更新与依赖注入**
+
+### 8.1 从 Provider 开始
+
+Provider 将接收到的所有参数全局透传到组件，因此实现很简单，将接收到的所有字段存在 context 中即可。
+
+### 8.2 Connect 的依赖注入
+
+这个装饰器用于 react 组件，分别提供了绑定更新与依赖注入的功能。
+
+由于 dynamic-react 是与 dynamic-object 结合使用的，因此会将全量 store 数据注入到 react 组件中，由于依赖追踪的特性，不会造成不必要的渲染。
+
+注入通过高阶组件方式，从 context 中取出 Provider 阶段注入的值，直接灌给自组件即可，注意组件自身的 props 需要覆盖注入数据：
+
+```typescript
+export default function Connect(componentClass: any): any {
+    return class InjectWrapper extends React.Component<any, any>{
+        // 取 context
+        static contextTypes = {
+            dyStores: React.PropTypes.object
+        }
+
+        render() {
+            return React.createElement(componentClass, {
+                ...this.context.dyStores,
+                ...this.props,
+            })
+        }
+    }
+}
+```
+
+### 8.3 Connect 的绑定更新
+
+见如上代码，我们通过拿到当前子组件的实例：`componentClass.prototype || componentClass` 将其生命周期函数重写为，先执行自定义函数钩子，再执行其自身，而且自定义函数钩子绑定上当前 `this`，可以在自定义勾子修改当前实例的任意字段，后续重写 render 也是依赖此实现的。
+
+#### 8.3.1 willMount 生命周期钩子
+
+最重要阶段是在 willMount 生命周期完成的，因为对于 `observer` 来说，只要在初始化时绑定了引用，之后更新都是从 `observe` 中自动触发的。
+
+整体思路是复写 render 方法：
+
+1. 在第一次执行时，通过 `observe` 包裹住原始 render 方法执行，因此绑定了依赖，将此时 render 结果直接返回即可。
+2. 非第一次执行，是由第一次执行时 `observe` 自动触发的（或者 state、props 传参变化，这些不管），此时可以确定是由数据流变动导致的刷新，因此可以调用 `componentWillReact` 生命周期。然后调用 `forceUpdate` 生命周期，因为重写了 render 的缘故，视图不会自动刷新。
+3. 由 state、props 变化导致的刷新，只要返回原始 render 即可。
+
+> 注意第一次调用时，无论如何会触发一次 `observer`，为了忽略此次渲染，我们设置一个是否渲染的 flag，当 observer 渲染了，普通 render 就不再执行，由此避免 `observe` 初始化必定执行一次带来初始渲染两次的问题。
+
+#### 8.3.2 其他生命周期钩子
+
+在 `componentWillUnmount` 时 `unobserve` 掉当前组件的依赖追踪，给 `shouldComponentUpdate` 加上 pureRender，以及在 `componentDidMount` 与 `componentDidUpdate` 时通知 devTools 刷新，这里与 mobx-react 实现思路完全一致。
+
+## 9. 写在最后
+
+最后给出 dynamic-object 的[项目地址](https://github.com/ascoders/dynamic-object)，欢迎提出建议和把玩。
