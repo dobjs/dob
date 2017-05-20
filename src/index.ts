@@ -357,7 +357,7 @@ function runInAction(fn: () => any | Promise<any>) {
 /**
  * Action 装饰器，自带 runInAction 效果
  */
-function Action(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+function actionDecorator(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const func = descriptor.value
     return {
         get() {
@@ -371,6 +371,15 @@ function Action(target: any, propertyKey: string, descriptor: PropertyDescriptor
     }
 }
 
+function Action(fn: () => any | Promise<any>): void
+function Action(target: any, propertyKey: string, descriptor: PropertyDescriptor): any
+function Action(arg1: any, arg2?: any, arg3?: any) {
+    if (arg2 === undefined) {
+        return runInAction.call(this, arg1)
+    }
+    return actionDecorator.call(this, arg1, arg2, arg3)
+}
+
 /**
  * Static，使装饰的对象不会监听
  */
@@ -381,4 +390,4 @@ function Static<T extends object>(obj: T): T {
     return obj
 }
 
-export { observable, observe, isObservable, extendObservable, runInAction, Action, Static }
+export { observable, observe, isObservable, extendObservable, Action, Static }

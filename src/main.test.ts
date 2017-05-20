@@ -1,5 +1,5 @@
 import test from 'ava'
-import { observe, observable, isObservable, extendObservable, runInAction, Action, Static } from './index'
+import { observe, observable, isObservable, extendObservable, Action, Static } from './index'
 
 // /**
 //  * observable
@@ -59,7 +59,7 @@ test('should return false if a non observable is passed as argument', t => {
 })
 
 /**
- * runInAction
+ * Action
  */
 
 test('observe run sync', t => {
@@ -103,7 +103,7 @@ test('observe run any time', t => {
         .then(() => t.true(runCount === 3))
 })
 
-test('runInAction', t => {
+test('Action', t => {
     let runCount = 0
     let count = 0
     const dynamicObj = observable({ number: 1 })
@@ -114,7 +114,7 @@ test('runInAction', t => {
         count += dynamicObj.number
     })
 
-    runInAction(() => {
+    Action(() => {
         dynamicObj.number = 2
         dynamicObj.number = 3
     })
@@ -128,7 +128,7 @@ test('runInAction', t => {
  * Action
  */
 
-test('Action with runInAction work', t => {
+test('Action with Action work', t => {
     let runCount = 0
     let data = 0
     const dynamicObj = observable({ counter: 0 })
@@ -396,7 +396,7 @@ test('should rerun maximum once per stack', t => {
             t.true(data === 0)
         })
         .then(() => {
-            runInAction(() => {
+            Action(() => {
                 dynamicObj.prop1 = 1
                 dynamicObj.prop2 = 3
                 dynamicObj.prop1 = 2
@@ -772,7 +772,7 @@ test('should not unobserve if the function is registered for the stack, because 
         .then(() => t.true(numOfRuns === 2))
 })
 
-test('should unobserve even if the function is registered for the stack, when use runInAction', t => {
+test('should unobserve even if the function is registered for the stack, when use Action', t => {
     let data: number
     const dynamicObj = observable({ prop: 0 })
 
@@ -787,7 +787,7 @@ test('should unobserve even if the function is registered for the stack, when us
 
     return Promise.resolve()
         .then(() => {
-            runInAction(() => {
+            Action(() => {
                 dynamicObj.prop = 2 // not run
                 signal.unobserve()
             })
@@ -859,7 +859,7 @@ test('will trace dependency in anywhere', t => {
         .then(() => t.true(runCount === 3))
 })
 
-test('runInAction will not trace dependency', t => {
+test('Action will not trace dependency', t => {
     let runCount = 0
 
     const dynamicObj = observable({
@@ -871,7 +871,7 @@ test('runInAction will not trace dependency', t => {
         // use a
         dynamicObj.a
 
-        runInAction(() => {
+        Action(() => {
             dynamicObj.a = dynamicObj.b
         })
 
@@ -885,9 +885,9 @@ test('runInAction will not trace dependency', t => {
 })
 
 /**
- * runInAction handle async
+ * Action handle async
  */
-test('runInAction not handle async function!!', t => {
+test('Action not handle async function!!', t => {
     let runCount = 0
     let num = 0
 
@@ -903,7 +903,7 @@ test('runInAction not handle async function!!', t => {
         runCount++
     })
 
-    runInAction(async () => {
+    Action(async () => {
         dynamicObj.a = 1
         await Promise.resolve()
         dynamicObj.a = 2
@@ -917,7 +917,7 @@ test('runInAction not handle async function!!', t => {
         .then(() => t.true(num === 5))
 })
 
-test('runInAction handle async function with runInAction', t => {
+test('Action handle async function with Action', t => {
     let runCount = 0
     let num = 0
 
@@ -933,11 +933,11 @@ test('runInAction handle async function with runInAction', t => {
         runCount++
     })
 
-    runInAction(async () => {
+    Action(async () => {
         dynamicObj.a = 1
         await Promise.resolve()
 
-        runInAction(() => {
+        Action(() => {
             dynamicObj.a = 2
             dynamicObj.a = 3
             dynamicObj.a = 4
