@@ -146,7 +146,7 @@ class Test {
 
 ### 7.1 缺点
 
-我很明确这样做的缺点，同时也是 `mobx` 库一直没有解决的问题，那就是对于异步 action 无可奈何（除非为异步 action 分段使用 `Action`，这也是 mobx 官方推荐的方式，也有 babel 插件来解决，但这样很 hack）。
+`Action` 的概念存在一个严重的缺点（但不致命），同时也是 `mobx` 库一直没有解决的问题，那就是对于异步 action 无可奈何（除非为异步 action 分段使用 `Action`，这也是 mobx 官方推荐的方式，也有 babel 插件来解决，但这样很 hack）。
 
 我们思考如下代码：
 
@@ -176,9 +176,14 @@ handleClick() {
 
 `getUser` 与 `getArticle` 都是异步的，如果我们将缓存队列共用一个，那么 `getArticle` 执行到 `await` 时，顺便会邪恶的把 `getUser` 队列中 `observer` 给执行了，纵使 `getUser` 的 `await` 还没有结束（可能出现 loading 在数据还没加载完成就消失）。
 
-有人说，将 `getUser` 与 `getArticle` 队列分开不就行了吗？是的，但目前 javascript 还做不到这一点，见此处讨论（https://github.com/mobxjs/mobx/issues/905）。无论是 `defineProperty` 还是 `proxy`，都无法在 `set` 触发时，知道自己是从哪个闭包中被触发的。只知道触发的对象，以及被访问的 key，是没办法将 `getUser` `getArticle`
+有人说，将 `getUser` 与 `getArticle` 队列分开不就行了吗？是的，但目前 javascript 还做不到这一点，见[此处讨论](https://github.com/mobxjs/mobx/issues/905)。无论是 `defineProperty` 还是 `proxy`，都无法在 `set` 触发时，知道自己是从哪个闭包中被触发的。只知道触发的对象，以及被访问的 key，是没办法将 `getUser` `getArticle`
 放在不同队列执行 `observer` 的。
 
 目前我的做法与 mobx 一样，`async` 函数会打破 `Action` 的庇护，失去了收集后统一执行的特性，但保证了程序的正确运行。目前的解决方法是，为同步区域再套一层 `Action`，或者干脆将异步与同步分开写！
 
-> 说实话，这个问题被 redux 巧妙规避了，我们必须将这个函数拆成两个 dispatch。回头想想，如果我们也这么做，也完全可以规避这个问题，拆成两个 action 即可！但我希望有一天，能找到完美的解决方法。
+> 说实话，这个问题被 redux 用概念巧妙规避了，我们必须将这个函数拆成两个 dispatch。回头想想，如果我们也这么做，也完全可以规避这个问题，拆成两个 action 即可！但我希望有一天，能找到完美的解决方法。
+> 另外希望表达一点，redux 的成功在于定义了许多概念与规则，只要我们遵守，就能写出维护性很棒的代码，其实 oo 思想也是一样！我们在使用 oo 时，将对 fp 的耐心拿出来，一样能写出维护性很棒的代码。
+
+## dynamic-react
+
+TODO
