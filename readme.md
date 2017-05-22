@@ -654,7 +654,3 @@ export default function Connect(componentClass: any): any {
 #### 5.8.3.2 其他生命周期钩子
 
 在 `componentWillUnmount` 时 `unobserve` 掉当前组件的依赖追踪，给 `shouldComponentUpdate` 加上 pureRender，以及在 `componentDidMount` 与 `componentDidUpdate` 时通知 devTools 刷新，这里与 mobx-react 实现思路完全一致。
-
-# 6. 写在最后
-
-最后给出 dynamic-object 的[项目地址](https://github.com/ascoders/dynamic-object)，欢迎提出建议和把玩。
