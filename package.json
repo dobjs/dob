@@ -7,7 +7,7 @@
   "scripts": {
     "test": "tsc && ava",
     "prepublish": "rm -rf built && tsc && babel built --out-dir built",
-    "demo": "run-react -d"
+    "demo": "run-react start"
   },
   "ava": {
     "files": [
@@ -26,12 +26,12 @@
   "homepage": "https://github.com/ascoders/dependency-inject#readme",
   "devDependencies": {
     "ava": "^0.18.2",
-    "react-dom": "^15.4.2",
-    "run-react": "^1.0.1",
-    "typescript": "^2.2.1",
     "babel-cli": "^6.24.0",
     "babel-preset-es2015": "^6.24.0",
-    "babel-preset-stage-0": "^6.22.0"
+    "babel-preset-stage-0": "^6.22.0",
+    "react-dom": "^15.4.2",
+    "run-react": "^2.0.1",
+    "typescript": "^2.2.1"
   },
   "dependencies": {
     "@types/lodash": "^4.14.63",

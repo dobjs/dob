@@ -1,14 +1,14 @@
 # observable
 
-## 概念
+# 概念
  
 `observable` 使用 proxy，返回对象代理，目的是监听对象的一举一动。
 
-### 功能
+## 功能
 
 `observable` 支持 object、array、Map、WeakMap、Set、WeakSet，支持动态绑定、条件分支
 
-#### 支持类型
+### 支持类型
 
 `dynamic-object` 支持情况如下表：
 
@@ -58,7 +58,7 @@ dynamicObj.testMap.set("foo", "has")
 
 如果希望合并后三次输出，请使用 [Action](action)
 
-#### 动态绑定
+### 动态绑定
 
 对于没有初始化的变量，也可以依赖追踪：
 
@@ -79,7 +79,7 @@ dynamicObj.a = 1
 `dynamicObj.a has changed to undefined`
 `dynamicObj.a has changed to 1`
 
-#### 条件分支
+### 条件分支
 
 ```typescript
 import { observable, observe } from "dynamic-object"
@@ -106,7 +106,7 @@ dynamicObj.b = 3
 
 初始 `dynamicObj.a === true` 所以与 a,b 这两个属性绑定，当设置 a 为 false 后，转而与 a,c 这两个属性绑定，此时再修改 b 不会有效果。
 
-### 注意点
+## 注意点
  
 只有使用  `observable`  包裹的对象，才能在 `observe` 中生效绑定，比如下面的代码是无效的：
 
