@@ -905,16 +905,17 @@ test('Action not handle async function!!', t => {
 
     Action(async () => {
         dynamicObj.a = 1
-        await Promise.resolve()
         dynamicObj.a = 2
+        await Promise.resolve()
         dynamicObj.a = 3
         dynamicObj.a = 4
         dynamicObj.a = 5
+        dynamicObj.a = 6
     })
 
     return Promise.resolve()
         .then(() => t.true(runCount === 6))
-        .then(() => t.true(num === 5))
+        .then(() => t.true(num === 6))
 })
 
 test('Action handle async function with Action', t => {

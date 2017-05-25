@@ -7,7 +7,7 @@
   "scripts": {
     "test": "tsc && ava",
     "prepublish": "rm -rf built && tsc && babel built --out-dir built",
-    "demo": "run-react start"
+    "start": "run-react start"
   },
   "ava": {
     "files": [
