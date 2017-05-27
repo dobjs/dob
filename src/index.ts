@@ -70,8 +70,8 @@ function toObservable<T extends object>(obj: T): T {
     } else if (!builtIn) {
         dynamicObject = new Proxy(obj, {
             get(target, key, receiver) {
-                // 如果 key 是 $raw，直接返回原始对象
-                if (key === '$raw') {
+                // 如果 key 是 $raw，或者在 Action 中，直接返回原始对象
+                if (key === '$raw' || trackingDeep !== 0) {
                     return target
                 }
 
