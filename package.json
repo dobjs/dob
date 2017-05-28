@@ -1,6 +1,6 @@
 {
   "name": "dynamic-object",
-  "version": "2.1.12",
+  "version": "2.1.13",
   "description": "",
   "main": "built/index.js",
   "typings": "src/index.ts",
