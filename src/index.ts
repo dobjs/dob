@@ -1,4 +1,7 @@
-import builtIns from './built-ins'
+import { Map as ImmutableMap } from "immutable"
+import builtIns from "./built-ins"
+
+declare type Func = () => any
 
 /**
  * 存储所有代理
@@ -9,15 +12,15 @@ const proxies = new WeakMap()
  * 存储所有要代理原始的对象
  * 以对象每个 key 存储监听事件
  */
-const observers = new WeakMap<object, Map<PropertyKey, Set<Observer>>>()
+const observers = new WeakMap<object, Map<PropertyKey, Set<IObserver>>>()
 /**
  * 当前 observer 对象
  */
-let currentObserver: Observer = null
+let currentObserver: IObserver = null
 /**
  * 当前 tracking
  */
-let currentTracking: Function | Promise<Function> = null
+let currentTracking: Func | Promise<Func> = null
 /**
  * tracking 深入，比如每次调用 runInAction 深入增加 1，调用完 -1，深入为 0 时表示执行完了
  * 当 currentTracking 队列存在，且 trackingDeep === 0 时，表示操作队列完毕
@@ -26,25 +29,25 @@ let trackingDeep = 0
 /**
  * 所有 tracking 中队列的集合
  */
-let trackingQueuedObservers = new WeakMap<Function | Promise<Function>, Set<Observer>>()
+const trackingQueuedObservers = new WeakMap<Func | Promise<Func>, Set<IObserver>>()
 /**
  * 忽略动态对象的 symbol
  */
 const ignoreDynamicSymbol = Symbol()
 
-export interface Observer {
-    callback: Function
-    observedKeys: Array<Set<Observer>>
+export interface IObserver {
+    callback: Func
+    observedKeys: Array<Set<IObserver>>
     // 是否仅观察一次
     once?: boolean
     // 取消观察对象，比取消观察队列更彻底
-    unobserve?: Function
+    unobserve?: Func
 }
 
 /**
  * 获取可观察的对象
  */
-function observable<T extends object>(obj: T = {} as T): T & { $raw: T } {
+function observable<T extends object>(obj: T = {} as any): T & { $raw: T } {
     return proxies.get(obj) || toObservable(obj)
 }
 
@@ -57,21 +60,21 @@ function toObservable<T extends object>(obj: T): T {
         return obj
     }
 
-    // if (Reflect.getMetadata(ignoreDynamicSymbol, obj, propertyKey)) { 
+    // if (Reflect.getMetadata(ignoreDynamicSymbol, obj, propertyKey)) {
 
     // }
 
     let dynamicObject: T
 
     const builtIn = builtIns.get(obj.constructor)
-    if (typeof builtIn === 'function' || typeof builtIn === 'object') {
+    if (typeof builtIn === "function" || typeof builtIn === "object") {
         // 处理 map weakMap set weakSet
         dynamicObject = builtIn(obj, registerObserver, queueRunObservers, proxyResult)
     } else if (!builtIn) {
         dynamicObject = new Proxy(obj, {
             get(target, key, receiver) {
                 // 如果 key 是 $raw，或者在 Action 中，直接返回原始对象
-                if (key === '$raw') {
+                if (key === "$raw") {
                     return target
                 }
 
@@ -88,7 +91,7 @@ function toObservable<T extends object>(obj: T): T {
                 const oldValue = Reflect.get(target, key, receiver)
 
                 // 如果新值是对象，优先取原始对象
-                if (typeof value === 'object' && value) {
+                if (typeof value === "object" && value) {
                     value = value.$raw || value
                 }
 
@@ -96,7 +99,7 @@ function toObservable<T extends object>(obj: T): T {
 
                 // 如果改动了 length 属性，或者新值与旧值不同，触发可观察队列任务
                 // 这一步要在 Reflect.set 之后，确保触发时使用的是新值
-                if (key === 'length' || value !== oldValue) {
+                if (key === "length" || value !== oldValue) {
                     queueRunObservers<T>(target, key)
                 }
 
@@ -137,7 +140,7 @@ function proxyResult(target: any, key: PropertyKey, result: any) {
     }
 
     // 如果取的值是对象，优先取代理对象
-    const resultIsObject = typeof result === 'object' && result
+    const resultIsObject = typeof result === "object" && result
     const existProxy = resultIsObject && proxies.get(result)
 
     if (resultIsObject) {
@@ -166,7 +169,7 @@ function queueRunObservers<T extends object>(target: T, key: PropertyKey) {
  * 将 observer 添加到队列中
  * 为什么要单独列出来，因为 observe 时会先执行一次当前 observe，调用的就是此函数
  */
-function queueRunObserver(observer: Observer) {
+function queueRunObserver(observer: IObserver) {
     if (!currentTracking) {
         runObserver(observer)
     } else {
@@ -180,7 +183,7 @@ function queueRunObserver(observer: Observer) {
 /**
  * 执行 observer
  */
-function runObserver(observer: Observer) {
+function runObserver(observer: IObserver) {
     if (observer.callback) {
         // 先把这个 observer 从所有绑定的 target -> key 中清空
         clearBindings(observer)
@@ -213,7 +216,7 @@ function runTrackingObserver() {
         runObserver(observer)
     })
 
-    // 清空执行 observe 队列    
+    // 清空执行 observe 队列
     nowTrackingQueuedObservers.clear()
 }
 
@@ -257,8 +260,8 @@ function isObservable<T extends object>(obj: T) {
 /**
  * 清空 observer 当前所有绑定
  */
-function clearBindings(observer: Observer) {
-    if (typeof observer === 'object') {
+function clearBindings(observer: IObserver) {
+    if (typeof observer === "object") {
         if (observer.observedKeys) {
             observer.observedKeys.forEach(observersForKey => {
                 observersForKey.delete(observer)
@@ -271,8 +274,8 @@ function clearBindings(observer: Observer) {
 /**
  * 取消观察
  */
-function unobserve(observer: Observer) {
-    if (typeof observer === 'object') {
+function unobserve(observer: IObserver) {
+    if (typeof observer === "object") {
         clearBindings(observer)
         observer.callback = observer.observedKeys = undefined
     }
@@ -281,8 +284,8 @@ function unobserve(observer: Observer) {
 /**
  * 观察
  */
-function observe(callback: Function, ...observeProxies: any[]) {
-    const observer: Observer = {
+function observe(callback: Func, ...observeProxies: any[]) {
+    const observer: IObserver = {
         callback,
         // 存储哪些 target -> key 的 map 对象绑定了当前 observe，便于取消时的查找
         observedKeys: [],

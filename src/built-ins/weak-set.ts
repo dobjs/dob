@@ -2,24 +2,26 @@ const native: WeakSet<any> & {
     [x: string]: any
 } = WeakSet.prototype
 
-const getters = ['has']
-const all = ['add', 'delete'].concat(getters)
+const getters = ["has"]
+const all = ["add", "delete"].concat(getters)
 
-interface customObject {
+interface IcustomObject {
     $raw: any
     [x: string]: any
 }
 
-export default function shim<T extends customObject>(target: T & WeakSet<any>, registerObserver: any, queueObservers: any, proxyResult: any) {
+export default function shim<T extends IcustomObject>(target: T & WeakSet<any>, registerObserver: any, queueObservers: any, proxyResult: any) {
     target.$raw = {}
 
-    for (let method of all) {
+    for (const method of all) {
+        // tslint:disable-next-line:space-before-function-paren only-arrow-functions
         target.$raw[method] = function () {
             native[method].apply(target, arguments)
         }
     }
 
-    for (let getter of getters) {
+    for (const getter of getters) {
+        // tslint:disable-next-line:space-before-function-paren only-arrow-functions
         target[getter] = function (value: string) {
             let result = native[getter].apply(this, arguments)
             result = proxyResult(this, value, result)
@@ -30,6 +32,7 @@ export default function shim<T extends customObject>(target: T & WeakSet<any>, r
         }
     }
 
+    // tslint:disable-next-line:space-before-function-paren only-arrow-functions
     target.add = function (value: string) {
         const has = this.has(value)
         const result = native.add.apply(this, arguments)
@@ -39,6 +42,7 @@ export default function shim<T extends customObject>(target: T & WeakSet<any>, r
         return result
     }
 
+    // tslint:disable-next-line:space-before-function-paren only-arrow-functions
     target.delete = function (value: string) {
         const has = this.has(value)
         const result = native.delete.apply(this, arguments)
