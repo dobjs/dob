@@ -1,7 +1,29 @@
-import { Map as ImmutableMap } from "immutable"
 import builtIns from "./built-ins"
+import { immutableSet, initImmutable, onSnapshot, registerChildsImmutable } from "./immutable"
+import { isPrimitive } from "./utils"
+
+/**
+ * ========================
+ * 定义
+ * ========================
+ */
 
 declare type Func = () => any
+
+export interface IObserver {
+    callback: Func
+    observedKeys: Array<Set<IObserver>>
+    // 是否仅观察一次
+    once?: boolean
+    // 取消观察对象，比取消观察队列更彻底
+    unobserve?: Func
+}
+
+/**
+ * ========================
+ * 全局变量
+ * ========================
+ */
 
 /**
  * 存储所有代理
@@ -35,20 +57,29 @@ const trackingQueuedObservers = new WeakMap<Func | Promise<Func>, Set<IObserver>
  */
 const ignoreDynamicSymbol = Symbol()
 
-export interface IObserver {
-    callback: Func
-    observedKeys: Array<Set<IObserver>>
-    // 是否仅观察一次
-    once?: boolean
-    // 取消观察对象，比取消观察队列更彻底
-    unobserve?: Func
-}
+/**
+ * ========================
+ * 函数
+ * ========================
+ */
 
 /**
  * 获取可观察的对象
  */
-function observable<T extends object>(obj: T = {} as any): T & { $raw: T } {
-    return proxies.get(obj) || toObservable(obj)
+function observable<T extends object>(obj: T = {} as any): T {
+    if (isPrimitive(obj)) {
+        throw Error(`${obj} 是基本类型，dynamic-object 仅支持非基本类型`)
+    }
+
+    if (proxies.has(obj)) {
+        return proxies.get(obj)
+    }
+
+    // 生成 immutable 对象
+    initImmutable(obj)
+
+    // proxy 惰性封装
+    return toObservable(obj)
 }
 
 /**
@@ -60,9 +91,8 @@ function toObservable<T extends object>(obj: T): T {
         return obj
     }
 
-    // if (Reflect.getMetadata(ignoreDynamicSymbol, obj, propertyKey)) {
-
-    // }
+    // 将子元素注册到 immutable，子元素可以找到其根节点对象，以及路径
+    registerChildsImmutable(obj)
 
     let dynamicObject: T
 
@@ -94,6 +124,8 @@ function toObservable<T extends object>(obj: T): T {
                 if (typeof value === "object" && value) {
                     value = value.$raw || value
                 }
+
+                immutableSet(target, key, value)
 
                 const result = Reflect.set(target, key, value, receiver)
 
@@ -393,4 +425,4 @@ function Static<T extends object>(obj: T): T {
     return obj
 }
 
-export { observable, observe, isObservable, extendObservable, Action, Static }
+export { observable, observe, isObservable, extendObservable, Action, Static, onSnapshot, proxies }

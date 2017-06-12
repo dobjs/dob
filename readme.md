@@ -2,11 +2,11 @@
 
 <a href="https://travis-ci.org/ascoders/dynamic-object"><img src="https://img.shields.io/travis/ascoders/dynamic-object/master.svg?style=flat" alt="Build Status"></a>
 
-## 1.1. dynamic-object 是什么
+## 1.1. dynamic-object
 
-[dynamic-object](https://github.com/ascoders/dynamic-object) 是对象包装工具，顾名思义，让对象“动态”化。
+利用 `proxy` 完整实现的 `object.observer`.
 
-这个库的功能与 [mobx](https://github.com/mobxjs/mobx) 很像，同时借鉴了 [nx-js](https://github.com/nx-js/observer-util) 实现理念。给力的地方在于，不支持 ie11 浏览器！非常激进，核心使用 `proxy`，抛弃兼容性换来的是超高的性能，以及完美的动态绑定。
+> 这个库的功能与 [mobx](https://github.com/mobxjs/mobx) 很像，同时借鉴了 [nx-js](https://github.com/nx-js/observer-util) 实现理念。给力的地方在于，不支持 ie11 浏览器！非常激进，核心使用 `proxy`，抛弃兼容性换来的是超高的性能，以及完美的动态绑定。
 
 核心用例：
 
@@ -20,19 +20,15 @@ const dynamicObj = observable({
 observe(() => {
     console.log("dynamicObj.a has changed to", dynamicObj.a) 
 })
+// output: dynamicObj.a has changed to 1
 
 dynamicObj.a = 2
+// output: `dynamicObj.a has changed to 2`
 ```
 
-控制台会输出两行：
+第一次是初始化时的输出，第二次是 `dynamicObj.a = 2` 这个赋值语句触发后，由于 console.log 所在闭包函数访问到了 `dynamicObj.a`，导致函数再次被执行。
 
-`dynamicObj.a has changed to 1`
-
-`dynamicObj.a has changed to 2`
-
-第一行是初始化时的输出，第二行是 `dynamicObj.a = 2` 这个赋值语句触发后，由于 console.log 所在闭包函数访问到了 `dynamicObj.a`，导致函数再次被执行。
-
-以上是这个库的核心功能，所有的一切都围绕这个功能展开。
+以上是这个库的核心功能，一切都围绕这个功能展开。
 
 ## 1.2. 安装
 
@@ -40,7 +36,7 @@ dynamicObj.a = 2
 yarn add dynamic-object --save
 ```
 
-这个库导出的核心方法一共只有三个：
+导出的核心方法一共三个：
 
 ```typescript
 import { observe, observable, Action } from "dynamic-object"
@@ -53,6 +49,8 @@ import { observe, observable, Action } from "dynamic-object"
 ## 1.3. 稳定性
 
 目前通过了 100%（50个）[测试用例](https://github.com/ascoders/dynamic-object/blob/master/src/main.test.ts)
+
+---
 
 # 2. 核心 api - observable
  
@@ -408,5 +406,3 @@ ReactDOM.render(
 ## 4.5. 特点
 
 在 `@Connect` 时，不需要传入注入数据的名称，由于自动依赖收集的缘故，所有数据都会全量注入，但更新粒度会自动控制在最小，做到了方便开发，同时提升效率。
-
----
