@@ -1,5 +1,5 @@
 import test from "ava"
-import { Action, extendObservable, isObservable, observable, observe, Static } from "./index"
+import { Action, extendObservable, isObservable, observable, observe, Static } from "../index"
 
 // /**
 //  * observable
@@ -648,7 +648,9 @@ test("should not observe non value changing mutations", t => {
 
 test("should observe map array", t => {
     let data: number
-    const dynamicObj = observable(new Map<string, number[]>([["a", [1, 2, 3]]]))
+    const dynamicObj = observable(new Map<string, number[]>([
+        ["a", [1, 2, 3]]
+    ]))
     observe(() => data = dynamicObj.get("a").length)
 
     return Promise.resolve()

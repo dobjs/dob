@@ -1,3 +1,5 @@
+import { immutableDelete, immutableSet, registerChildsImmutable } from "../immutable"
+
 const native: Map<any, any> & {
     [x: string]: any
 } = Map.prototype
@@ -46,6 +48,7 @@ export default function shim<T extends IcustomObject>(target: T & Map<any, any>,
     target.set = function (key: string, value: any) {
         const oldValue = this.get(key)
         const result = native.set.apply(this, arguments)
+
         if (oldValue !== value) {
             queueObservers(this, key)
             queueObservers(this, masterKey)
@@ -57,6 +60,7 @@ export default function shim<T extends IcustomObject>(target: T & Map<any, any>,
     target.delete = function (key: string) {
         const has = this.has(key)
         const result = native.delete.apply(this, arguments)
+
         if (has) {
             queueObservers(this, key)
             queueObservers(this, masterKey)
