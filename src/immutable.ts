@@ -232,7 +232,8 @@ export function createReduxStore(stores: { [name: string]: any }, enhancer?: any
 
     combineActions[key] = actions
 
-    allReducers[key] = (state = observableStore, action: any) => {
+    // ... 用法是为了取消引用问题，因为直接修改原对象，初始状态应该是个快照
+    allReducers[key] = (state = { ...observableStore }, action: any) => {
       if (action.type.indexOf(".") === -1) {
         return state
       }

@@ -1,5 +1,14 @@
 {
     "entrys": [
-        "src/demo/index.tsx"
+        "src/demo/todo-mvc/index.tsx"
+    ],
+    "rules": [
+        {
+            "test": ".css$",
+            "use": [
+                "style-loader",
+                "css-loader"
+            ]
+        }
     ]
 }

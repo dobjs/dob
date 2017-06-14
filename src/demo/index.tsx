@@ -1,8 +1,7 @@
 import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { connect, Provider } from "react-redux"
-import { applyMiddleware, combineReducers, compose, createStore } from "redux"
-import { createReduxStore, getSnapshot, isObservable, observable, onSnapshot } from "../index"
+import { createReduxStore } from "../index"
 
 import UserStore from "./user-store"
 
@@ -21,6 +20,9 @@ class App extends React.PureComponent<any, any> {
     setTimeout(() => {
       this.props.dispatch(combineActions.user.setName("小李子"))
     }, 1000)
+    setTimeout(() => {
+      this.props.dispatch(combineActions.user.setName("小黑子"))
+    }, 2000)
   }
 
   public render() {

@@ -16,6 +16,9 @@
     "max-line-length": [
       150
     ],
-    "arrow-parens": false
+    "arrow-parens": false,
+    "indent": [
+      2
+    ]
   }
 }
