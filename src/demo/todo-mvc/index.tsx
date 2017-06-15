@@ -1,19 +1,14 @@
 import * as React from "react"
 import { render } from "react-dom"
+import { connect, Provider } from "react-redux"
+
 import App from "./containers/app"
 
-import { connect, Provider } from "react-redux"
-import { createReduxStore } from "../../index"
-
-import Todo from "./stores/todo"
+import { store } from "./stores"
 
 declare const require: any
 // tslint:disable-next-line:no-var-requires
 require("todomvc-app-css/index.css")
-
-const { store, combineActions } = createReduxStore({
-    todo: Todo
-})
 
 render(
     <Provider store={store}>

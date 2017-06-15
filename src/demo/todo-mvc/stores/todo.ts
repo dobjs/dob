@@ -23,7 +23,10 @@ export default class TODO {
     }
 
     public deleteTodo(id: number) {
-        //
+        const findIndex = this.store.todos.findIndex(todo => todo.id === id)
+        if (findIndex !== -1) {
+            this.store.todos.splice(findIndex, 1)
+        }
     }
 
     public editTodo(id: number, text: string) {

@@ -5,6 +5,10 @@ import { isPrimitive } from "./utils"
 
 declare const window: any
 
+declare interface IObjectType<T> {
+  new (): T
+}
+
 /**
  * observable 包裹的对象，对应 immutable 结构
  */

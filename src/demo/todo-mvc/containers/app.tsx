@@ -4,6 +4,7 @@ import { bindActionCreators } from "redux"
 import * as TodoActions from "../actions"
 import Header from "../components/header"
 import MainSection from "../components/main-section"
+import { combineActions } from "../stores"
 
 const App = (props: any) => (
   <div>
@@ -17,7 +18,7 @@ const mapStateToProps = (state: any) => ({
 })
 
 const mapDispatchToProps = (dispatch: any) => ({
-  actions: bindActionCreators(TodoActions as any, dispatch)
+  actions: bindActionCreators(combineActions.todo as any, dispatch)
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

@@ -10,5 +10,9 @@
                 "css-loader"
             ]
         }
+    ],
+    "dlls": [
+        "react",
+        "react-dom"
     ]
 }
