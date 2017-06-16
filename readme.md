@@ -24,6 +24,8 @@ dynamicObj.a = 2
 // output: `dynamicObj.a has changed to 2`
 ```
 
+> [在线 Demo](https://jsfiddle.net/1q772uL0/1/)
+
 ## 安装
 
 ```bash
@@ -60,3 +62,7 @@ yarn add dynamic-object --save
 支持以 mutable 方式管理数据流，但 vm 层对接到 redux，虽然以可变方式修改数据，但会自动生成不可变数据！
 
 > 直接查看 [在线 Demo]() TODO
+
+# unpkg
+
+https://unpkg.com/dynamic-object@2.1.15/built/bundle.js
