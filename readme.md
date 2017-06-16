@@ -361,10 +361,10 @@ export class UserStore {
 }
 
 export class UserAction {
-    @inject(UserStore) UserStore: UserStore
+    @inject(UserStore) userStore: UserStore
 
     @Action setName (name: string) {
-        this.store.name = name
+        this.userStore.name = name
     }
 }
 
