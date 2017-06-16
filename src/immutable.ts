@@ -1,7 +1,7 @@
 import * as Immutable from "immutable"
 import { applyMiddleware, combineReducers, compose, createStore } from "redux"
 import { isObservable, originObjects, proxies } from "./observer"
-import { isPrimitive } from "./utils"
+import { createThunkMiddleware, isPrimitive } from "./utils"
 
 declare const window: any
 
@@ -26,6 +26,11 @@ const nodeInfos = new Map<object, {
  * 存储所有 observer 对象对应的 callback
  */
 const snapshots = new Map<any, Set<any>>()
+
+/**
+ * 标记为 async method
+ */
+const asyncSymbol = Symbol()
 
 /**
  * 初始化 immutable 对象
@@ -223,13 +228,17 @@ export function createReduxStore(stores: { [name: string]: any }, enhancer?: any
     Object.getOwnPropertyNames(Object.getPrototypeOf(storeInstance))
       .filter(methodName => methodName !== "constructor")
       .forEach(methodName => {
-        const action = storeInstance[methodName]
-
-        // 新增 actions，用来 dispatch
-        actions[methodName] = (...args: any[]) => {
-          return {
-            type: key + "." + methodName,
-            payload: args
+        if (storeInstance[asyncSymbol] && storeInstance[asyncSymbol].has(methodName)) { // 异步函数
+          // 对于异步函数，是有副作用的，这里不能修改 store，修改了会报错
+          // 直接执行没有问题，需要 return
+          actions[methodName] = storeInstance[methodName]
+        } else { // 同步函数
+          // 新增 actions，用来 dispatch
+          actions[methodName] = (...args: any[]) => {
+            return {
+              type: key + "." + methodName,
+              payload: args
+            }
           }
         }
       })
@@ -264,9 +273,23 @@ export function createReduxStore(stores: { [name: string]: any }, enhancer?: any
   const rootReducer = combineReducers(reducers)
 
   const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
-  const store = enhancer ? createStore(rootReducer, composeEnhancers(applyMiddleware(enhancer))) : createStore(rootReducer, composeEnhancers())
+  const store = enhancer ?
+    createStore(rootReducer, composeEnhancers(applyMiddleware(enhancer, createThunkMiddleware))) :
+    createStore(rootReducer, composeEnhancers(applyMiddleware(createThunkMiddleware)))
+
   return {
     store,
     combineActions
   }
+}
+
+/**
+ * 标记 method 为 async
+ */
+export const Task = (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+  if (!target[asyncSymbol]) {
+    target[asyncSymbol] = new Set()
+  }
+
+  target[asyncSymbol].add(propertyKey)
 }

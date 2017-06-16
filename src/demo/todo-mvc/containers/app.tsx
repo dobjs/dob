@@ -8,7 +8,7 @@ import { combineActions } from "../stores"
 
 const App = (props: any) => (
   <div>
-    <Header addTodo={props.actions.addTodo} />
+    <Header addTodoTask={props.actions.addTodoTask} />
     <MainSection todos={props.todos} actions={props.actions} />
   </div>
 )

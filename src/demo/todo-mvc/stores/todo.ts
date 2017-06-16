@@ -1,4 +1,4 @@
-import { observable } from "../../../index"
+import { observable, Task } from "../../../index"
 
 export default class TODO {
     private store = observable({
@@ -9,8 +9,14 @@ export default class TODO {
         }]
     })
 
-    public findTodoById(id: number) {
-        return this.store.todos.find(todo => todo.id === id)
+    @Task public addTodoTask(text: string) {
+        return async (dispatch: any, getState: any) => {
+            await new Promise(resolve => setTimeout(resolve, 100))
+            dispatch({
+                type: "todo.addTodo",
+                payload: [text]
+            })
+        }
     }
 
     public addTodo(text: string) {
@@ -45,5 +51,9 @@ export default class TODO {
 
     public clearCompleted() {
         this.store.todos = this.store.todos.filter(todo => todo.completed === false)
+    }
+
+    private findTodoById(id: number) {
+        return this.store.todos.find(todo => todo.id === id)
     }
 }

@@ -4,7 +4,7 @@ import TodoTextInput from "./todo-text-input"
 export default class Header extends React.PureComponent<any, any> {
   public handleSave = (text: string) => {
     if (text.length !== 0) {
-      this.props.addTodo(text)
+      this.props.addTodoTask(text)
     }
   }
 
