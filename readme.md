@@ -361,7 +361,7 @@ export class UserStore {
 }
 
 export class UserAction {
-    @inject(Store) UserStore: Store
+    @inject(UserStore) UserStore: UserStore
 
     @Action setName (name: string) {
         this.store.name = name
