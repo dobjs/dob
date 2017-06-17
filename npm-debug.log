@@ -1,0 +1,146 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/Users/huangziyi/.nvm/versions/node/v5.12.0/bin/node',
+1 verbose cli   '/Users/huangziyi/.nvm/versions/node/v5.12.0/bin/npm',
+1 verbose cli   'publish' ]
+2 info using npm@3.8.6
+3 info using node@v5.12.0
+4 verbose publish [ '.' ]
+5 silly cache add args [ '.', null ]
+6 verbose cache add spec .
+7 silly cache add parsed spec Result {
+7 silly cache add   raw: '.',
+7 silly cache add   scope: null,
+7 silly cache add   name: null,
+7 silly cache add   rawSpec: '.',
+7 silly cache add   spec: '/Users/huangziyi/workspace/dynamic-object',
+7 silly cache add   type: 'directory' }
+8 verbose addLocalDirectory /Users/huangziyi/.npm/dynamic-object/2.1.16/package.tgz not in flight; packing
+9 verbose correctMkdir /Users/huangziyi/.npm correctMkdir not in flight; initializing
+10 info lifecycle dynamic-object@2.1.16~prepublish: dynamic-object@2.1.16
+11 verbose lifecycle dynamic-object@2.1.16~prepublish: unsafe-perm in lifecycle true
+12 verbose lifecycle dynamic-object@2.1.16~prepublish: PATH: /Users/huangziyi/.nvm/versions/node/v5.12.0/lib/node_modules/npm/bin/node-gyp-bin:/Users/huangziyi/workspace/dynamic-object/node_modules/.bin:/Users/huangziyi/.nvm/versions/node/v5.12.0/bin:/Users/huangziyi/.nvm/versions/node/v5.12.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+13 verbose lifecycle dynamic-object@2.1.16~prepublish: CWD: /Users/huangziyi/workspace/dynamic-object
+14 silly lifecycle dynamic-object@2.1.16~prepublish: Args: [ '-c',
+14 silly lifecycle   'rm -rf built && tsc && babel built --out-dir built && npm run build' ]
+15 silly lifecycle dynamic-object@2.1.16~prepublish: Returned: code: 0  signal: null
+16 verbose tar pack [ '/Users/huangziyi/.npm/dynamic-object/2.1.16/package.tgz',
+16 verbose tar pack   '/Users/huangziyi/workspace/dynamic-object' ]
+17 verbose tarball /Users/huangziyi/.npm/dynamic-object/2.1.16/package.tgz
+18 verbose folder /Users/huangziyi/workspace/dynamic-object
+19 verbose addLocalTarball adding from inside cache /Users/huangziyi/.npm/dynamic-object/2.1.16/package.tgz
+20 verbose correctMkdir /Users/huangziyi/.npm correctMkdir not in flight; initializing
+21 silly cache afterAdd dynamic-object@2.1.16
+22 verbose afterAdd /Users/huangziyi/.npm/dynamic-object/2.1.16/package/package.json not in flight; writing
+23 verbose correctMkdir /Users/huangziyi/.npm correctMkdir not in flight; initializing
+24 verbose afterAdd /Users/huangziyi/.npm/dynamic-object/2.1.16/package/package.json written
+25 silly publish { name: 'dynamic-object',
+25 silly publish   version: '2.1.16',
+25 silly publish   description: '<a href="https://travis-ci.org/ascoders/dynamic-object"><img src="https://img.shields.io/travis/ascoders/dynamic-object/master.svg?style=flat" alt="Build Status"></a>',
+25 silly publish   main: 'built/index.js',
+25 silly publish   typings: 'src/index.ts',
+25 silly publish   scripts:
+25 silly publish    { test: 'tsc && ava',
+25 silly publish      prepublish: 'rm -rf built && tsc && babel built --out-dir built && npm run build',
+25 silly publish      start: 'run-react start',
+25 silly publish      tslint: 'tslint \'./src/**/*.?(ts|tsx)\'',
+25 silly publish      build: 'webpack --config built/scripts/webpack.config.js' },
+25 silly publish   ava: { files: [ 'built/**/*.test.js' ] },
+25 silly publish   repository:
+25 silly publish    { type: 'git',
+25 silly publish      url: 'git+https://github.com/ascoders/dependency-inject.git' },
+25 silly publish   author: '',
+25 silly publish   license: 'ISC',
+25 silly publish   bugs: { url: 'https://github.com/ascoders/dependency-inject/issues' },
+25 silly publish   homepage: 'https://github.com/ascoders/dependency-inject#readme',
+25 silly publish   devDependencies:
+25 silly publish    { '@types/classnames': '^2.2.0',
+25 silly publish      '@types/node': '^7.0.31',
+25 silly publish      '@types/react': '^15.0.27',
+25 silly publish      '@types/react-dom': '^15.5.0',
+25 silly publish      '@types/webpack': '^2.2.15',
+25 silly publish      ava: '^0.18.2',
+25 silly publish      'babel-cli': '^6.24.0',
+25 silly publish      'babel-preset-es2015': '^6.24.0',
+25 silly publish      'babel-preset-stage-0': '^6.22.0',
+25 silly publish      classnames: '^2.2.5',
+25 silly publish      'css-loader': '^0.28.4',
+25 silly publish      'pre-commit': '^1.2.2',
+25 silly publish      'react-dom': '^15.5.4',
+25 silly publish      'react-redux': '^5.0.5',
+25 silly publish      'run-react': '^2.0.1',
+25 silly publish      'style-loader': '^0.18.2',
+25 silly publish      'todomvc-app-css': '^2.1.0',
+25 silly publish      tslint: '^5.4.3',
+25 silly publish      typescript: '^2.3.4',
+25 silly publish      webpack: '^2.6.1' },
+25 silly publish   dependencies:
+25 silly publish    { '@types/lodash': '^4.14.63',
+25 silly publish      immutable: '^3.8.1',
+25 silly publish      lodash: '^4.17.4',
+25 silly publish      react: '^15.5.4',
+25 silly publish      redux: '^3.6.0' },
+25 silly publish   'pre-commit': [ 'tslint' ],
+25 silly publish   readme: '# 简介\n\n<a href="https://travis-ci.org/ascoders/dynamic-object"><img src="https://img.shields.io/travis/ascoders/dynamic-object/master.svg?style=flat" alt="Build Status"></a>\n\n`dynamic-object` 利用 `proxy` 完整实现了 `object.observer`。主要为 react 提供数据流功能。可以结合 `dynamic-react` 以 mutable 方式为 react 组织数据流；同时也支持融合 redux，结合 mutable 与 immutable 的优势，以 mutable 方式组织 store，以 immutable 方式更新数据。\n\n> 功能与 [mobx](https://github.com/mobxjs/mobx) 很像，同时借鉴了 [nx-js](https://github.com/nx-js/observer-util) 实现理念。给力的地方在于，不支持 ie11 浏览器！非常激进，核心使用 `proxy`，抛弃兼容性换来的是超高的性能，以及完美的动态绑定。\n\n核心用例：\n\n```typescript\nimport { observable, observe } from "dynamic-object"\n\nconst dynamicObj = observable({\n    a: 1\n})\n\nobserve(() => {\n    console.log("dynamicObj.a has changed to", dynamicObj.a) \n})\n// output: dynamicObj.a has changed to 1\n\ndynamicObj.a = 2\n// output: `dynamicObj.a has changed to 2`\n```\n\n> [在线 Demo](https://jsfiddle.net/1q772uL0/17/)\n\n## 安装\n\n```bash\nyarn add dynamic-object --save\n```\n\n## 稳定性\n\n目前通过了 100%（50个）[测试用例](https://github.com/ascoders/dynamic-object/blob/master/src/main.test.ts)\n\n## 功能\n\n### 结合 dynamic-react\n\n以 mutable 方式管理数据流，vm 层使用 dynamic-react，只有使用到的变量发生变动，才会触发更新！\n\n- [快速入门](./docs/mutable-quick-start.md)\n\n> 直接查看 [在线 Demo]() TODO\n\n#### Api\n\n`observable`、`observe`: 产生对象的代理、动态跟踪代理对象变化；`dynamic-react`: 将代理对象结合到 react 当中，自动、精确的更新组件；`Action`: 建议所有修改收敛在 action 中，且支持更新合并。\n\n- [observable, observe](./docs/observable.md)\n- [unobserbe](./docs/unobserve.md)\n- [dynamic-react](./docs/dynamic-react.md)\n- [Action](./docs/action.md)\n\n> [代码原理解析](./docs/principle.md)\n\n### 结合 react-redux\n\n支持以 mutable 方式管理数据流，但 vm 层对接到 redux，虽然以可变方式修改数据，但会自动生成不可变数据！\n\n> 直接查看 [在线 Demo]() TODO\n\n# unpkg\n\nhttps://unpkg.com/dynamic-object@2.1.15/built/bundle.js\n',
+25 silly publish   readmeFilename: 'readme.md',
+25 silly publish   gitHead: 'b12e8f954939d56d913360d028ddc05bc661afaa',
+25 silly publish   _id: 'dynamic-object@2.1.16',
+25 silly publish   _shasum: 'b57c43392495220750db962cf8c268fd02219d2b',
+25 silly publish   _from: '.' }
+26 verbose getPublishConfig undefined
+27 silly mapToRegistry name dynamic-object
+28 silly mapToRegistry using default registry
+29 silly mapToRegistry registry https://registry.npmjs.org/
+30 silly mapToRegistry data Result {
+30 silly mapToRegistry   raw: 'dynamic-object',
+30 silly mapToRegistry   scope: null,
+30 silly mapToRegistry   name: 'dynamic-object',
+30 silly mapToRegistry   rawSpec: '',
+30 silly mapToRegistry   spec: 'latest',
+30 silly mapToRegistry   type: 'tag' }
+31 silly mapToRegistry uri https://registry.npmjs.org/dynamic-object
+32 verbose publish registryBase https://registry.npmjs.org/
+33 silly publish uploading /Users/huangziyi/.npm/dynamic-object/2.1.16/package.tgz
+34 verbose request uri https://registry.npmjs.org/dynamic-object
+35 verbose request sending authorization for write operation
+36 info attempt registry request try #1 at 10:41:00
+37 verbose request using bearer token for auth
+38 verbose request id 4cb6b4f90d9a4201
+39 http request PUT https://registry.npmjs.org/dynamic-object
+40 http 403 https://registry.npmjs.org/dynamic-object
+41 verbose headers { 'content-type': 'application/json',
+41 verbose headers   'cache-control': 'max-age=300',
+41 verbose headers   'content-length': '96',
+41 verbose headers   'accept-ranges': 'bytes',
+41 verbose headers   date: 'Sat, 17 Jun 2017 02:41:02 GMT',
+41 verbose headers   via: '1.1 varnish',
+41 verbose headers   connection: 'keep-alive',
+41 verbose headers   'x-served-by': 'cache-hkg6820-HKG',
+41 verbose headers   'x-cache': 'MISS',
+41 verbose headers   'x-cache-hits': '0',
+41 verbose headers   'x-timer': 'S1497667261.258833,VS0,VE1356',
+41 verbose headers   vary: 'Accept-Encoding' }
+42 verbose request invalidating /Users/huangziyi/.npm/registry.npmjs.org/dynamic-object on PUT
+43 error publish Failed PUT 403
+44 verbose stack Error: "You cannot publish over the previously published version 2.1.16." : dynamic-object
+44 verbose stack     at makeError (/Users/huangziyi/.nvm/versions/node/v5.12.0/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:264:12)
+44 verbose stack     at CachingRegistryClient.<anonymous> (/Users/huangziyi/.nvm/versions/node/v5.12.0/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:252:14)
+44 verbose stack     at Request._callback (/Users/huangziyi/.nvm/versions/node/v5.12.0/lib/node_modules/npm/node_modules/npm-registry-client/lib/request.js:172:14)
+44 verbose stack     at Request.self.callback (/Users/huangziyi/.nvm/versions/node/v5.12.0/lib/node_modules/npm/node_modules/request/request.js:199:22)
+44 verbose stack     at emitTwo (events.js:100:13)
+44 verbose stack     at Request.emit (events.js:185:7)
+44 verbose stack     at Request.<anonymous> (/Users/huangziyi/.nvm/versions/node/v5.12.0/lib/node_modules/npm/node_modules/request/request.js:1036:10)
+44 verbose stack     at emitOne (events.js:95:20)
+44 verbose stack     at Request.emit (events.js:182:7)
+44 verbose stack     at IncomingMessage.<anonymous> (/Users/huangziyi/.nvm/versions/node/v5.12.0/lib/node_modules/npm/node_modules/request/request.js:963:12)
+45 verbose statusCode 403
+46 verbose pkgid dynamic-object
+47 verbose cwd /Users/huangziyi/workspace/dynamic-object
+48 error Darwin 16.5.0
+49 error argv "/Users/huangziyi/.nvm/versions/node/v5.12.0/bin/node" "/Users/huangziyi/.nvm/versions/node/v5.12.0/bin/npm" "publish"
+50 error node v5.12.0
+51 error npm  v3.8.6
+52 error code E403
+53 error "You cannot publish over the previously published version 2.1.16." : dynamic-object
+54 error If you need help, you may report this error at:
+54 error     <https://github.com/npm/npm/issues>
+55 verbose exit [ 1, true ]
