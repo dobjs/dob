@@ -44,8 +44,8 @@ yarn add dynamic-object --save
 
 - [快速入门](./docs/mutable-quick-start.md)
 
-> 直接查看 [在线 Demo](https://jsfiddle.net/yp90Lep9/3/)
-> [分型 Demo]
+> 直接查看 [在线 Demo](https://jsfiddle.net/yp90Lep9/20/)
+> [分型 Demo](https://jsfiddle.net/g19ehhgu/2/)
 
 #### Api
 
@@ -55,6 +55,12 @@ yarn add dynamic-object --save
 - [unobserbe](./docs/unobserve.md)
 - [dynamic-react](./docs/dynamic-react.md)
 - [Action](./docs/action.md)
+
+### 结合 dependency-inject
+
+以依赖注入的方式管理 store 与 action
+
+> 直接查看 [在线 Demo](https://jsfiddle.net/bmea0pat/19/)
 
 ### 结合 react-redux
 
