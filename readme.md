@@ -24,7 +24,7 @@ dynamicObj.a = 2
 // output: `dynamicObj.a has changed to 2`
 ```
 
-> [在线 Demo](https://jsfiddle.net/1q772uL0/16/)
+> [在线 Demo](https://jsfiddle.net/1q772uL0/17/)
 
 ## 安装
 

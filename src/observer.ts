@@ -79,9 +79,6 @@ function observable<T extends object>(obj: T = {} as any): T {
     return proxies.get(obj)
   }
 
-  // 生成 immutable 对象
-  initImmutable(obj)
-
   // proxy 惰性封装
   return toObservable(obj)
 }

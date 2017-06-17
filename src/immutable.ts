@@ -52,6 +52,7 @@ export function initImmutable(obj: object) {
  * 当访问 setter 后，我们可以找到其根对象和路径，采取 immutable 更新
  */
 export function registerChildsImmutable(obj: any) {
+  // 先认为根对象就是自己
   let rootObj = obj
 
   Object.keys(obj).forEach(key => {
@@ -107,7 +108,8 @@ export function immutableSet(target: any, key: PropertyKey, value: any) {
   }
 
   if (!immutables.has(rootObj)) {
-    throw Error(`${rootObj} 找不到根对象`)
+    // 找不到根对象，说明很可能是没有使用 createReduxStore 注册，那就不管了
+    return
   }
 
   const rootImmutableObj = immutables.get(rootObj)
@@ -147,7 +149,8 @@ export function immutableDelete(target: any, key: PropertyKey) {
   }
 
   if (!immutables.has(rootObj)) {
-    throw Error(`${rootObj} 找不到根对象`)
+    // 找不到根对象，说明很可能是没有使用 createReduxStore 注册，那就不管了
+    return
   }
 
   const rootImmutableObj = immutables.get(rootObj)
@@ -219,6 +222,9 @@ export function createReduxStore(stores: { [name: string]: any }, enhancer?: any
         // 如果是 observable，说明这是个 store
         if (isObservable(property)) {
           observableStore = property
+          const obj = originObjects.get(property)
+          // 初始化 immutable，从此只要这个对象变动，就会生成新 immutable
+          initImmutable(obj)
         }
       }
     }
