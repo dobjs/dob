@@ -1,5 +1,6 @@
 import { createReduxStore, getSnapshot, onSnapshot, Task } from "./immutable"
-import { Action, extendObservable, IObserver, isObservable, observable, observe, Static } from "./observer"
+import { Action, extendObservable, isObservable, observable, observe, Static } from "./observer"
+import { IObserver } from "./utils"
 
 export {
     observable,

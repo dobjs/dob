@@ -1,65 +1,6 @@
 import builtIns from "./built-ins"
 import { immutableDelete, immutableSet, initImmutable, registerChildsImmutable } from "./immutable"
-import { isPrimitive } from "./utils"
-
-/**
- * ========================
- * 定义
- * ========================
- */
-
-declare type Func = () => any
-
-export interface IObserver {
-  callback: Func
-  observedKeys: Array<Set<IObserver>>
-  // 是否仅观察一次
-  once?: boolean
-  // 取消观察对象，比取消观察队列更彻底
-  unobserve?: Func
-}
-
-/**
- * ========================
- * 全局变量
- * ========================
- */
-
-/**
- * 存储所有代理
- * key：代理 + 原始对象
- */
-const proxies = new WeakMap()
-/**
- * 所有代理 -> 原是对象的映射
- */
-const originObjects = new WeakMap()
-/**
- * 存储所有要代理原始的对象
- * 以对象每个 key 存储监听事件
- */
-const observers = new WeakMap<object, Map<PropertyKey, Set<IObserver>>>()
-/**
- * 当前 observer 对象
- */
-let currentObserver: IObserver = null
-/**
- * 当前 tracking
- */
-let currentTracking: Func | Promise<Func> = null
-/**
- * tracking 深入，比如每次调用 runInAction 深入增加 1，调用完 -1，深入为 0 时表示执行完了
- * 当 currentTracking 队列存在，且 trackingDeep === 0 时，表示操作队列完毕
- */
-let trackingDeep = 0
-/**
- * 所有 tracking 中队列的集合
- */
-const trackingQueuedObservers = new WeakMap<Func | Promise<Func>, Set<IObserver>>()
-/**
- * 忽略动态对象的 symbol
- */
-const ignoreDynamicSymbol = Symbol()
+import { Func, globalState, IObserver, isPrimitive } from "./utils"
 
 /**
  * ========================
@@ -75,8 +16,8 @@ function observableObject<T extends object>(obj: T = {} as any): T {
     throw Error(`${obj} 是基本类型，dynamic-object 仅支持非基本类型`)
   }
 
-  if (proxies.has(obj)) {
-    return proxies.get(obj)
+  if (globalState.proxies.has(obj)) {
+    return globalState.proxies.get(obj)
   }
 
   // proxy 惰性封装
@@ -87,7 +28,7 @@ function observableObject<T extends object>(obj: T = {} as any): T {
  * 将 class 改造为可观察对象
  */
 function observableObjectDecorator(target: any) {
-  function wrap(msg: string) {
+  function wrap() {
     return observableObject(new target())
   }
   return wrap as any
@@ -97,7 +38,7 @@ function observableObjectDecorator(target: any) {
  * 生成可观察的对象
  */
 function toObservable<T extends object>(obj: T): T {
-  if (Object.getOwnPropertySymbols(obj).indexOf(ignoreDynamicSymbol) > -1) {
+  if (Object.getOwnPropertySymbols(obj).indexOf(globalState.ignoreDynamicSymbol) > -1) {
     // 如果对象忽略了动态化，直接返回
     return obj
   }
@@ -166,11 +107,11 @@ function toObservable<T extends object>(obj: T): T {
     dynamicObject = obj
   }
 
-  proxies.set(obj, dynamicObject)
-  proxies.set(dynamicObject, dynamicObject)
-  originObjects.set(dynamicObject, obj)
+  globalState.proxies.set(obj, dynamicObject)
+  globalState.proxies.set(dynamicObject, dynamicObject)
+  globalState.originObjects.set(dynamicObject, obj)
 
-  observers.set(obj, new Map())
+  globalState.observers.set(obj, new Map())
 
   return dynamicObject
 }
@@ -186,7 +127,7 @@ function proxyResult(target: any, key: PropertyKey, result: any) {
 
   // 如果取的值是对象，优先取代理对象
   const resultIsObject = typeof result === "object" && result
-  const existProxy = resultIsObject && proxies.get(result)
+  const existProxy = resultIsObject && globalState.proxies.get(result)
 
   if (resultIsObject) {
     return existProxy || toObservable(result)
@@ -201,7 +142,7 @@ function proxyResult(target: any, key: PropertyKey, result: any) {
  * 而是在整个函数体执行完毕后，收集完了队列再统一执行一遍
  */
 function queueRunObservers<T extends object>(target: T, key: PropertyKey) {
-  const observersForKey = observers.get(target).get(key)
+  const observersForKey = globalState.observers.get(target).get(key)
   if (observersForKey) {
     // observersForKey.forEach 过程中会被修改，所以 Array.From 一下防止死循环
     Array.from(observersForKey).forEach(observer => {
@@ -215,12 +156,12 @@ function queueRunObservers<T extends object>(target: T, key: PropertyKey) {
  * 为什么要单独列出来，因为 observe 时会先执行一次当前 observe，调用的就是此函数
  */
 function queueRunObserver(observer: IObserver) {
-  if (!currentTracking) {
+  if (!globalState.currentTracking) {
     runObserver(observer)
   } else {
     // 在 tracking 中，添加到其队列
     // 之后不会像普通队列一样执行，而是等 runInAction 调用 fn 完毕后统一执行
-    const nowTrackingQueuedObservers = trackingQueuedObservers.get(currentTracking)
+    const nowTrackingQueuedObservers = globalState.trackingQueuedObservers.get(globalState.currentTracking)
     nowTrackingQueuedObservers.add(observer)
   }
 }
@@ -232,13 +173,13 @@ function runObserver(observer: IObserver) {
   if (observer.callback) {
     // 先把这个 observer 从所有绑定的 target -> key 中清空
     clearBindings(observer)
-    currentObserver = observer
+    globalState.currentObserver = observer
 
     try {
       // 这里会放访问到当前 observer callback 函数内所有对象的 getter 方法，之后会调用 registerObserver 给访问到的 target -> key 绑定当前的 observer
       observer.callback()
     } finally {
-      currentObserver = null
+      globalState.currentObserver = null
     }
   }
 }
@@ -247,11 +188,11 @@ function runObserver(observer: IObserver) {
  * 执行跟踪队列
  */
 function runTrackingObserver() {
-  if (trackingDeep !== 0) {
+  if (globalState.trackingDeep !== 0) {
     return
   }
 
-  const nowTrackingQueuedObservers = trackingQueuedObservers.get(currentTracking)
+  const nowTrackingQueuedObservers = globalState.trackingQueuedObservers.get(globalState.currentTracking)
 
   if (!nowTrackingQueuedObservers) {
     return
@@ -273,11 +214,11 @@ function runTrackingObserver() {
 function registerObserver<T extends object>(target: T, key: PropertyKey) {
   // 将监听添加到这个 key 上，必须不在 runInAction 中才会跟踪
   // trackingDeep 只要非 0，说明 runInAction 结束了
-  if (!currentObserver || trackingDeep !== 0) {
+  if (!globalState.currentObserver || globalState.trackingDeep !== 0) {
     return
   }
 
-  const observersForTarget = observers.get(target)
+  const observersForTarget = globalState.observers.get(target)
   let observersForKey = observersForTarget.get(key)
 
   // 如果没有定义这个 key 的 observer 集合，初始化一个新的
@@ -287,11 +228,11 @@ function registerObserver<T extends object>(target: T, key: PropertyKey) {
   }
 
   // 如果不包含当前 observer，将它添加进去
-  if (!observersForKey.has(currentObserver)) {
-    observersForKey.add(currentObserver)
+  if (!observersForKey.has(globalState.currentObserver)) {
+    observersForKey.add(globalState.currentObserver)
 
     // 给当前 currentObserver 对象添加引用，方便 unobserver 的时候，直接遍历 observedKeys，从中删除自己的 observer 引用
-    currentObserver.observedKeys.push(observersForKey)
+    globalState.currentObserver.observedKeys.push(observersForKey)
   }
 }
 
@@ -299,7 +240,7 @@ function registerObserver<T extends object>(target: T, key: PropertyKey) {
  * 是否是可观察对象
  */
 function isObservable<T extends object>(obj: T) {
-  return (proxies.get(obj) === obj)
+  return (globalState.proxies.get(obj) === obj)
 }
 
 /**
@@ -354,26 +295,26 @@ function extendObservable<T, P>(originObj: T, targetObj: P) {
  * @todo: 目前仅支持同步，还未找到支持异步的方案！
  */
 function runInAction(fn: () => any | Promise<any>) {
-  trackingDeep += 1
+  globalState.trackingDeep += 1
 
-  if (trackingDeep === 1) {
+  if (globalState.trackingDeep === 1) {
     // 目前会忽略所有嵌套 tracking（runInAction 内调用 runInAction），deep 为 1 时表示时第一个 tracking 调用
     // TODO: 当调用 await 时立刻执行队列，再继续积攒队列执行，让所有异步队列分隔开执行
-    currentTracking = fn
-    trackingQueuedObservers.set(fn, new Set())
+    globalState.currentTracking = fn
+    globalState.trackingQueuedObservers.set(fn, new Set())
   }
 
   const result = fn()
 
-  trackingDeep -= 1
+  globalState.trackingDeep -= 1
 
   // 执行跟踪的队列
   runTrackingObserver()
 
   // 清空队列
-  if (trackingDeep === 0) {
-    currentTracking = null
-    trackingQueuedObservers.delete(fn)
+  if (globalState.trackingDeep === 0) {
+    globalState.currentTracking = null
+    globalState.trackingQueuedObservers.delete(fn)
   }
 
   return result
@@ -443,10 +384,17 @@ function observable<T>(target: T = {} as any): T {
  * Static，使装饰的对象不会监听
  */
 function Static<T extends object>(obj: T): T {
-  Object.defineProperty(obj, ignoreDynamicSymbol, {
+  Object.defineProperty(obj, globalState.ignoreDynamicSymbol, {
     value: true
   })
   return obj
 }
 
-export { observable, observe, isObservable, extendObservable, Action, Static, proxies, originObjects }
+export {
+  observable,
+  observe,
+  isObservable,
+  extendObservable,
+  Action,
+  Static
+}

@@ -1,7 +1,7 @@
 import * as Immutable from "immutable"
 import { applyMiddleware, combineReducers, compose, createStore } from "redux"
-import { isObservable, originObjects, proxies } from "./observer"
-import { createThunkMiddleware, isPrimitive } from "./utils"
+import { isObservable } from "./observer"
+import { createThunkMiddleware, globalState, isPrimitive } from "./utils"
 
 declare const window: any
 
@@ -123,12 +123,13 @@ export function immutableSet(target: any, key: PropertyKey, value: any) {
   immutables.set(rootObj, newImmutableObj)
 
   // 找到这个对象的 snapshotCallback 并触发
-  if (proxies.has(rootObj)) {
-    const proxy = proxies.get(rootObj)
+  if (globalState.proxies.has(rootObj)) {
+    const proxy = globalState.proxies.get(rootObj)
     if (snapshots.has(proxy)) {
       const snapshot = snapshots.get(proxy)
+      const objectJs = newImmutableObj.toJS()
       snapshot.forEach(each => {
-        each(newImmutableObj.toJS())
+        each(objectJs)
       })
     }
   }
@@ -164,12 +165,13 @@ export function immutableDelete(target: any, key: PropertyKey) {
   immutables.set(rootObj, newImmutableObj)
 
   // 找到这个对象的 snapshotCallback 并触发
-  if (proxies.has(rootObj)) {
-    const proxy = proxies.get(rootObj)
+  if (globalState.proxies.has(rootObj)) {
+    const proxy = globalState.proxies.get(rootObj)
     if (snapshots.has(proxy)) {
       const snapshot = snapshots.get(proxy)
+      const objectJs = newImmutableObj.toJS()
       snapshot.forEach(each => {
-        each(newImmutableObj.toJS())
+        each(objectJs)
       })
     }
   }
@@ -191,7 +193,7 @@ export function onSnapshot<T extends object>(obj: T, callback: (snapshot?: T) =>
  * 获取对象的快照
  */
 export function getSnapshot(proxyObj: any) {
-  const obj = originObjects.get(proxyObj)
+  const obj = globalState.originObjects.get(proxyObj)
   return immutables.get(obj).toJS()
 }
 
@@ -222,7 +224,7 @@ export function createReduxStore(stores: { [name: string]: any }, enhancer?: any
         // 如果是 observable，说明这是个 store
         if (isObservable(property)) {
           observableStore = property
-          const obj = originObjects.get(property)
+          const obj = globalState.originObjects.get(property)
           // 初始化 immutable，从此只要这个对象变动，就会生成新 immutable
           initImmutable(obj)
         }
