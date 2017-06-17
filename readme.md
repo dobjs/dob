@@ -1,4 +1,4 @@
-# 简介
+# dynamic-object
 
 <a href="https://travis-ci.org/ascoders/dynamic-object"><img src="https://img.shields.io/travis/ascoders/dynamic-object/master.svg?style=flat" alt="Build Status"></a>
 
@@ -44,7 +44,8 @@ yarn add dynamic-object --save
 
 - [快速入门](./docs/mutable-quick-start.md)
 
-> 直接查看 [在线 Demo](https://jsfiddle.net/yp90Lep9/20/)
+> [在线 Demo](https://jsfiddle.net/yp90Lep9/20/)
+> 
 > [分型 Demo](https://jsfiddle.net/g19ehhgu/2/)
 
 #### Api
