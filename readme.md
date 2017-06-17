@@ -44,7 +44,8 @@ yarn add dynamic-object --save
 
 - [快速入门](./docs/mutable-quick-start.md)
 
-> 直接查看 [在线 Demo]() TODO
+> 直接查看 [在线 Demo](https://jsfiddle.net/yp90Lep9/3/)
+> [分型 Demo]
 
 #### Api
 
@@ -55,14 +56,17 @@ yarn add dynamic-object --save
 - [dynamic-react](./docs/dynamic-react.md)
 - [Action](./docs/action.md)
 
-> [代码原理解析](./docs/principle.md)
-
 ### 结合 react-redux
 
 支持以 mutable 方式管理数据流，但 vm 层对接到 redux，虽然以可变方式修改数据，但会自动生成不可变数据！
+
+- [createReduxStore](./docs/createReduxStore.md)
+- [task](./docs/task.md)
 
 > 直接查看 [在线 Demo]() TODO
 
 # unpkg
 
 https://unpkg.com/dynamic-object@2.1.15/built/bundle.js
+
+[实现原理解析](./docs/principle.md)

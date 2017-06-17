@@ -70,7 +70,7 @@ const ignoreDynamicSymbol = Symbol()
 /**
  * 获取可观察的对象
  */
-function observable<T extends object>(obj: T = {} as any): T {
+function observableObject<T extends object>(obj: T = {} as any): T {
   if (isPrimitive(obj)) {
     throw Error(`${obj} 是基本类型，dynamic-object 仅支持非基本类型`)
   }
@@ -81,6 +81,16 @@ function observable<T extends object>(obj: T = {} as any): T {
 
   // proxy 惰性封装
   return toObservable(obj)
+}
+
+/**
+ * 将 class 改造为可观察对象
+ */
+function observableObjectDecorator(target: any) {
+  function wrap(msg: string) {
+    return observableObject(new target())
+  }
+  return wrap as any
 }
 
 /**
@@ -409,6 +419,9 @@ function actionDecorator(target: any, propertyKey: string, descriptor: PropertyD
   }
 }
 
+/**
+ * action 方法，支持 decorator 与 函数
+ */
 function Action(fn: () => any | Promise<any>): void
 function Action(target: any, propertyKey: string, descriptor: PropertyDescriptor): any
 function Action(arg1: any, arg2?: any, arg3?: any) {
@@ -416,6 +429,14 @@ function Action(arg1: any, arg2?: any, arg3?: any) {
     return runInAction.call(this, arg1)
   }
   return actionDecorator.call(this, arg1, arg2, arg3)
+}
+
+function observable<T>(target: T = {} as any): T {
+  if (typeof target === "function") { // 挂在 class 的 decorator
+    return observableObjectDecorator(target)
+  } else {  // 包裹变量的
+    return observableObject(target as any) as T
+  }
 }
 
 /**

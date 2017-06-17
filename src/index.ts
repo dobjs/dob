@@ -16,6 +16,6 @@ export {
     createReduxStore,
     Task,
 
-    // interface
+    /** interface */
     IObserver
 }
