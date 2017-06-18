@@ -86,10 +86,10 @@ export class UserStore {
 }
 
 export class UserAction {
-    @inject(Store) UserStore: Store
+    @inject(UserStore) userStore: UserStore
 
     @Action setName (name: string) {
-        this.store.name = name
+        this.userStore.name = name
     }
 }
 
@@ -114,7 +114,7 @@ class App extends React.Component {
 
     render() {
         return (
-            <span>{this.props.name}</span>
+            <span>{this.props.store.name}</span>
         )
     }
 }

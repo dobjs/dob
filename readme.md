@@ -42,11 +42,9 @@ yarn add dynamic-object --save
 
 以 mutable 方式管理数据流，vm 层使用 dynamic-react，只有使用到的变量发生变动，才会触发更新！
 
-- [快速入门](./docs/mutable-quick-start.md)
+查看 [在线 Demo](https://jsfiddle.net/yp90Lep9/20/)，支持分型的 [分型 Demo](https://jsfiddle.net/g19ehhgu/2/)
 
-> [在线 Demo](https://jsfiddle.net/yp90Lep9/20/)
-> 
-> [分型 Demo](https://jsfiddle.net/g19ehhgu/2/)
+- [快速入门](./docs/mutable-quick-start.md)
 
 #### Api
 
@@ -59,21 +57,19 @@ yarn add dynamic-object --save
 
 ### 结合 dependency-inject
 
-以依赖注入的方式管理 store 与 action
-
-> 直接查看 [在线 Demo](https://jsfiddle.net/bmea0pat/19/)
+以依赖注入的方式管理 store 与 action，直接查看 [在线 Demo](https://jsfiddle.net/bmea0pat/21/)
 
 ### 结合 react-redux
 
-支持以 mutable 方式管理数据流，但 vm 层对接到 redux，虽然以可变方式修改数据，但会自动生成不可变数据！
+支持以 mutable 方式管理数据流，但 vm 层对接到 redux，虽然以可变方式修改数据，但会自动生成不可变数据！[在线 Demo](https://jsfiddle.net/56saqqvw/5/)
 
 - [createReduxStore](./docs/createReduxStore.md)
 - [task](./docs/task.md)
 
-> 直接查看 [在线 Demo]() TODO
+也可以 fork 本项目，`npm start` 就可以打开 [redux todoMVC](./src/demo/todo-mvc)！数据层依然是 mutable。
 
 # unpkg
 
-https://unpkg.com/dynamic-object@2.1.15/built/bundle.js
+https://unpkg.com/dynamic-object@2.1.19/built/bundle.js
 
 [实现原理解析](./docs/principle.md)
