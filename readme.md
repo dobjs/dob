@@ -42,7 +42,7 @@ yarn add dynamic-object --save
 
 以 mutable 方式管理数据流，vm 层使用 dynamic-react，只有使用到的变量发生变动，才会触发更新！
 
-查看 [在线 Demo](https://jsfiddle.net/yp90Lep9/20/)，支持分型的 [分型 Demo](https://jsfiddle.net/g19ehhgu/2/)
+查看 [在线 Demo](https://jsfiddle.net/yp90Lep9/20/)，支持分型的 [分型 Demo](https://jsfiddle.net/g19ehhgu/9/)
 
 - [快速入门](./docs/mutable-quick-start.md)
 
@@ -57,7 +57,7 @@ yarn add dynamic-object --save
 
 ### 结合 dependency-inject
 
-以依赖注入的方式管理 store 与 action，直接查看 [在线 Demo](https://jsfiddle.net/bmea0pat/21/)
+以依赖注入的方式管理 store 与 action，直接查看 [在线 Demo](https://jsfiddle.net/bmea0pat/21/)，快速结合 [分型 demo](https://jsfiddle.net/ppt3ztx7/3/)
 
 ### 结合 react-redux
 
