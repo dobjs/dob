@@ -36,15 +36,20 @@ const asyncSymbol = Symbol()
  * 初始化 immutable 对象
  */
 export function initImmutable(obj: object) {
-  // switch (obj.constructor) {
-  //   case Array:
-  //     immutables.set(obj, Immutable.fromJS(obj))
-  //     break
-  //   case Object:
-  //     immutables.set(obj, Immutable.fromJS(obj))
-  //     break
-  // }
-  immutables.set(obj, Immutable.fromJS(obj))
+  if (immutables.has(obj)) {
+    return
+  }
+
+  switch (obj.constructor) {
+    case Array:
+      immutables.set(obj, Immutable.fromJS(obj))
+      break
+    case Object:
+      immutables.set(obj, Immutable.fromJS(obj))
+      break
+    default: // 剩下自定义 class new 出来的，需要特殊处理才能解析
+      immutables.set(obj, Immutable.fromJS(JSON.parse(JSON.stringify(obj))))
+  }
 }
 
 /**
@@ -180,12 +185,21 @@ export function immutableDelete(target: any, key: PropertyKey) {
 /**
  * 监听对象快照
  */
-export function onSnapshot<T extends object>(obj: T, callback: (snapshot?: T) => void) {
-  if (!snapshots.has(obj)) {
-    snapshots.set(obj, new Set())
+export function onSnapshot<T extends object>(proxy: T, callback: (snapshot?: T) => void) {
+  const obj = globalState.originObjects.get(proxy)
+
+  if (!obj) {
+    throw Error("请传入 observable 函数返回的对象")
   }
 
-  const snapshot = snapshots.get(obj)
+  // 初始化 immutable，从此只要这个对象变动，就会生成新 immutable
+  initImmutable(obj)
+
+  if (!snapshots.has(proxy)) {
+    snapshots.set(proxy, new Set())
+  }
+
+  const snapshot = snapshots.get(proxy)
   snapshot.add(callback)
 }
 
@@ -218,16 +232,13 @@ export function createReduxStore(stores: { [name: string]: any }, enhancer?: any
     let observableStore: any = null
 
     // 直接遍历获取 store
-    for (const field in storeInstance) {
-      if (storeInstance.hasOwnProperty(field)) {
-        const property = storeInstance[field]
-        // 如果是 observable，说明这是个 store
-        if (isObservable(property)) {
-          observableStore = property
-          const obj = globalState.originObjects.get(property)
-          // 初始化 immutable，从此只要这个对象变动，就会生成新 immutable
-          initImmutable(obj)
-        }
+    for (const value of storeInstance) {
+      // 如果是 observable，说明这是个 store
+      if (isObservable(value)) {
+        observableStore = value
+        const obj = globalState.originObjects.get(value)
+        // 初始化 immutable，从此只要这个对象变动，就会生成新 immutable
+        initImmutable(obj)
       }
     }
 
