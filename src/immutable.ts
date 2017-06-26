@@ -232,13 +232,18 @@ export function createReduxStore(stores: { [name: string]: any }, enhancer?: any
     let observableStore: any = null
 
     // 直接遍历获取 store
-    for (const value of storeInstance) {
-      // 如果是 observable，说明这是个 store
-      if (isObservable(value)) {
-        observableStore = value
-        const obj = globalState.originObjects.get(value)
-        // 初始化 immutable，从此只要这个对象变动，就会生成新 immutable
-        initImmutable(obj)
+    window.xx = storeInstance
+    for (const field in storeInstance) {
+      if (storeInstance.hasOwnProperty(field)) {
+        const value = storeInstance[field]
+
+        // 如果是 observable，说明这是个 store
+        if (isObservable(value)) {
+          observableStore = value
+          const obj = globalState.originObjects.get(value)
+          // 初始化 immutable，从此只要这个对象变动，就会生成新 immutable
+          initImmutable(obj)
+        }
       }
     }
 
