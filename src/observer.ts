@@ -156,20 +156,19 @@ function queueRunObservers<T extends object>(target: T, key: PropertyKey) {
  * 为什么要单独列出来，因为 observe 时会先执行一次当前 observe，调用的就是此函数
  */
 function queueRunObserver(observer: IObserver) {
-  if (!globalState.currentTracking) {
+  if (globalState.inBatch === 0) {
     runObserver(observer)
   } else {
     // 在 tracking 中，添加到其队列
     // 之后不会像普通队列一样执行，而是等 runInAction 调用 fn 完毕后统一执行
-    const nowTrackingQueuedObservers = globalState.trackingQueuedObservers.get(globalState.currentTracking)
-    nowTrackingQueuedObservers.add(observer)
+    globalState.queuedObservers.add(observer)
   }
 }
 
 /**
  * 执行 observer
  */
-function runObserver(observer: IObserver) {
+export function runObserver(observer: IObserver) {
   if (observer.callback) {
     if (observer.delay === undefined || observer.delay === null) {
       // 如果没有延迟，立刻执行
@@ -203,36 +202,14 @@ function runObserverCallback(observer: IObserver) {
 }
 
 /**
- * 执行跟踪队列
- */
-function runTrackingObserver() {
-  if (globalState.trackingDeep !== 0) {
-    return
-  }
-
-  const nowTrackingQueuedObservers = globalState.trackingQueuedObservers.get(globalState.currentTracking)
-
-  if (!nowTrackingQueuedObservers) {
-    return
-  }
-
-  nowTrackingQueuedObservers.forEach(observer => {
-    runObserver(observer)
-  })
-
-  // 清空执行 observe 队列
-  nowTrackingQueuedObservers.clear()
-}
-
-/**
  * 注册监听函数
  * observers 存储了全局要监听的对象和用户定义的回调函数，这个函数将
  * 当前 observer（queueObserver触发） 注册到 observers 对应的 key 中。
  */
 function registerObserver<T extends object>(target: T, key: PropertyKey) {
   // 将监听添加到这个 key 上，必须不在 runInAction 中才会跟踪
-  // trackingDeep 只要非 0，说明 runInAction 结束了
-  if (!globalState.currentObserver || globalState.trackingDeep !== 0) {
+  // inBatch 只要非 0，说明 runInAction 结束了
+  if (!globalState.currentObserver || globalState.inBatch !== 0) {
     return
   }
 
@@ -315,29 +292,13 @@ function extendObservable<T, P>(originObj: T, targetObj: P) {
  * @todo: 目前仅支持同步，还未找到支持异步的方案！
  */
 function runInAction(fn: () => any | Promise<any>) {
-  globalState.trackingDeep += 1
+  startBatch()
 
-  if (globalState.trackingDeep === 1) {
-    // 目前会忽略所有嵌套 tracking（runInAction 内调用 runInAction），deep 为 1 时表示时第一个 tracking 调用
-    // TODO: 当调用 await 时立刻执行队列，再继续积攒队列执行，让所有异步队列分隔开执行
-    globalState.currentTracking = fn
-    globalState.trackingQueuedObservers.set(fn, new Set())
+  try {
+    return fn()
+  } finally {
+    endBatch()
   }
-
-  const result = fn()
-
-  globalState.trackingDeep -= 1
-
-  // 执行跟踪的队列
-  runTrackingObserver()
-
-  // 清空队列
-  if (globalState.trackingDeep === 0) {
-    globalState.currentTracking = null
-    globalState.trackingQueuedObservers.delete(fn)
-  }
-
-  return result
 
   // if (typeof result === 'object' && result.then) {
   //     // result 为 async，或者返回了 promise
@@ -361,6 +322,33 @@ function runInAction(fn: () => any | Promise<any>) {
 
   //     return result
   // }
+}
+
+/**
+ * 开始批量执行队列
+ */
+function startBatch() {
+  if (globalState.inBatch === 0) {
+    // 如果正在从 0 开始新的队列，清空原有队列
+    globalState.queuedObservers = new Set()
+  }
+
+  globalState.inBatch++
+}
+
+/**
+ * 结束批量执行队列
+ */
+function endBatch() {
+  if (--globalState.inBatch === 0) {
+    // 执行跟踪的队列
+    globalState.queuedObservers.forEach(observer => {
+      runObserver(observer)
+    })
+
+    // 清空执行 observe 队列
+    globalState.queuedObservers.clear()
+  }
 }
 
 /**
@@ -416,5 +404,7 @@ export {
   isObservable,
   extendObservable,
   Action,
-  Static
+  Static,
+  startBatch,
+  endBatch
 }

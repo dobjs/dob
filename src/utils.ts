@@ -69,18 +69,14 @@ class GlobalState {
    */
   public currentObserver: IObserver = null
   /**
-   * 当前 tracking
+   * 批量执行深入，比如每次调用 runInAction 深入 +1，调用完 -1，深入为 0 时表示执行完了
+   * 当 inBatch === 0 时，表示操作队列完毕
    */
-  public currentTracking: Func | Promise<Func> = null
+  public inBatch = 0
   /**
-   * tracking 深入，比如每次调用 runInAction 深入增加 1，调用完 -1，深入为 0 时表示执行完了
-   * 当 currentTracking 队列存在，且 trackingDeep === 0 时，表示操作队列完毕
+   * 所有 tracking 中等执行队列的集合
    */
-  public trackingDeep = 0
-  /**
-   * 所有 tracking 中队列的集合
-   */
-  public trackingQueuedObservers = new WeakMap<Func | Promise<Func>, Set<IObserver>>()
+  public queuedObservers = new Set<IObserver>()
   /**
    * 忽略动态对象的 symbol
    */
