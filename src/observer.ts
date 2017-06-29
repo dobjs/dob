@@ -171,16 +171,34 @@ function queueRunObserver(observer: IObserver) {
  */
 function runObserver(observer: IObserver) {
   if (observer.callback) {
-    // 先把这个 observer 从所有绑定的 target -> key 中清空
-    clearBindings(observer)
-    globalState.currentObserver = observer
+    if (observer.delay === undefined || observer.delay === null) {
+      // 如果没有延迟，立刻执行
+      runObserverCallback(observer)
+    } else {
+      if (observer.timeout) {
+        clearTimeout(observer.timeout)
+      }
 
-    try {
-      // 这里会放访问到当前 observer callback 函数内所有对象的 getter 方法，之后会调用 registerObserver 给访问到的 target -> key 绑定当前的 observer
-      observer.callback()
-    } finally {
-      globalState.currentObserver = null
+      observer.timeout = setTimeout(() => {
+        runObserverCallback(observer)
+      }, observer.delay)
     }
+  }
+}
+
+/**
+ * 执行 observer callback
+ */
+function runObserverCallback(observer: IObserver) {
+  // 先把这个 observer 从所有绑定的 target -> key 中清空
+  clearBindings(observer)
+  globalState.currentObserver = observer
+
+  try {
+    // 这里会放访问到当前 observer callback 函数内所有对象的 getter 方法，之后会调用 registerObserver 给访问到的 target -> key 绑定当前的 observer
+    observer.callback()
+  } finally {
+    globalState.currentObserver = null
   }
 }
 
@@ -269,13 +287,15 @@ function unobserve(observer: IObserver) {
 
 /**
  * 观察
+ * TODO: delay 如果非 null 或 undefined，表示这个 observe 不会在数据变更后立刻执行，而是在一定时间内 hold 所有修改，之后再执行，比较适合在其中发请求，比如 autoComplete
  */
-function observe(callback: Func, ...observeProxies: any[]) {
+function observe(callback: Func, delay?: number) {
   const observer: IObserver = {
     callback,
     // 存储哪些 target -> key 的 map 对象绑定了当前 observe，便于取消时的查找
     observedKeys: [],
-    unobserve: () => unobserve(observer)
+    unobserve: () => unobserve(observer),
+    delay
   }
   queueRunObserver(observer)
   return observer

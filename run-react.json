@@ -1,6 +1,6 @@
 {
     "entrys": [
-        "src/demo/todo-mvc/index.tsx"
+        "src/demo/observe-async/index.tsx"
     ],
     "rules": [
         {

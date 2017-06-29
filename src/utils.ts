@@ -5,10 +5,18 @@ export declare type Func = () => any
 export interface IObserver {
   callback: Func
   observedKeys: Array<Set<IObserver>>
-  // 是否仅观察一次
-  once?: boolean
-  // 取消观察对象，比取消观察队列更彻底
+  /**
+   * 不再监听的函数
+   */
   unobserve?: Func
+  /**
+   * 延迟执行 callback
+   */
+  delay?: number
+  /**
+   * 延时执行的 timeout
+   */
+  timeout?: any
 }
 
 /**
@@ -88,3 +96,9 @@ if (globalOrWindow[tag]) {
 }
 
 export { globalState }
+
+/**
+ * 空函数
+ */
+// tslint:disable-next-line:no-empty
+export const noop = () => { };
