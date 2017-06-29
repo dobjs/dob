@@ -1,6 +1,6 @@
 {
     "entrys": [
-        "src/demo/observe-async/index.tsx"
+        "src/demo/atom/index.tsx"
     ],
     "rules": [
         {

@@ -1,6 +1,6 @@
 {
   "name": "dynamic-object",
-  "version": "2.1.19",
+  "version": "2.1.20",
   "description": "",
   "main": "built/index.js",
   "typings": "src/index.ts",
@@ -28,7 +28,6 @@
   "homepage": "https://github.com/ascoders/dependency-inject#readme",
   "devDependencies": {
     "@types/classnames": "^2.2.0",
-    "@types/node": "^7.0.31",
     "@types/react": "^15.0.27",
     "@types/react-dom": "^15.5.0",
     "@types/webpack": "^2.2.15",
@@ -50,6 +49,7 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.63",
+    "@types/node": "^7.0.31",
     "immutable": "^3.8.1",
     "lodash": "^4.17.4",
     "mobx": "^3.1.16",
