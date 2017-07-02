@@ -61,7 +61,7 @@ yarn add dynamic-object --save
 
 ### 结合 react-redux
 
-支持以 mutable 方式管理数据流，但 vm 层对接到 redux，虽然以可变方式修改数据，但会自动生成不可变数据！[在线 Demo](https://jsfiddle.net/56saqqvw/5/)
+支持以 mutable 方式管理数据流，但 vm 层对接到 redux，虽然以可变方式修改数据，但会自动生成不可变数据！[在线 Demo](https://jsfiddle.net/56saqqvw/7/)
 
 - [createReduxStore](./docs/createReduxStore.md)
 - [task](./docs/task.md)
