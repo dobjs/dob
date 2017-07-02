@@ -1,5 +1,5 @@
 import * as React from "react"
-import { SHOW_ACTIVE, SHOW_ALL, SHOW_COMPLETED } from "../constants/todo-filters"
+import { SHOW_ACTIVE, SHOW_ALL, SHOW_COMPLETED } from "../const"
 import Footer from "./footer"
 import TodoItem from "./todo-item"
 

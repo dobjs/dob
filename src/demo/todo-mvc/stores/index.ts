@@ -1,8 +1,8 @@
 import { createReduxStore } from "../../../index"
 import Todo from "./todo"
 
-const { store, combineActions } = createReduxStore({
+const { store, actions } = createReduxStore({
   todo: Todo
 })
 
-export { store, combineActions }
+export { store, actions }

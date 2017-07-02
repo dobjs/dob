@@ -1,6 +1,6 @@
 {
     "entrys": [
-        "src/demo/atom/index.tsx"
+        "src/demo/todo-mvc/index.tsx"
     ],
     "rules": [
         {

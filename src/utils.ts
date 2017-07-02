@@ -2,6 +2,14 @@ const tag = "ascoders-dynamic-object"
 
 export declare type Func = () => any
 
+export declare interface IObjectType<T> {
+  new (): T
+}
+
+export declare type ICombineActions<T> = {
+  [P in keyof T]?: IObjectType<T[P]>
+}
+
 export interface IObserver {
   callback: Func
   observedKeys: Array<Set<IObserver>>

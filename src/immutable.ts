@@ -1,7 +1,7 @@
 import * as Immutable from "immutable"
-import { applyMiddleware, combineReducers, compose, createStore } from "redux"
+import { applyMiddleware, bindActionCreators, combineReducers, compose, createStore } from "redux"
 import { isObservable } from "./observer"
-import { createThunkMiddleware, globalState, isPrimitive } from "./utils"
+import { createThunkMiddleware, globalState, ICombineActions, isPrimitive } from "./utils"
 
 declare const window: any
 
@@ -214,14 +214,12 @@ export function getSnapshot(proxyObj: any) {
 /**
  * 创建 redux store
  */
-export function createReduxStore(stores: { [name: string]: any }, enhancer?: any) {
-  const combineActions: {
-    [namespace: string]: any
-  } = {}
+export function createReduxStore<T>(stores: ICombineActions<T>, enhancer?: any) {
+  const combineActions: any = {}
 
   const reducers = Object.keys(stores).reduce((allReducers, key) => {
     const storeClass = stores[key]
-    const storeInstance = new storeClass()
+    const storeInstance = new storeClass() as any // 修正定义
 
     // 用来 dispatch 的 actions
     const actions: {
@@ -232,7 +230,6 @@ export function createReduxStore(stores: { [name: string]: any }, enhancer?: any
     let observableStore: any = null
 
     // 直接遍历获取 store
-    window.xx = storeInstance
     for (const field in storeInstance) {
       if (storeInstance.hasOwnProperty(field)) {
         const value = storeInstance[field]
@@ -303,7 +300,14 @@ export function createReduxStore(stores: { [name: string]: any }, enhancer?: any
 
   return {
     store,
-    combineActions
+    /**
+     * action 集合，已经绑定了 dispatch，直接调用
+     */
+    actions: Object.keys(combineActions).reduce((actions, key) => {
+      const waitBindAction = combineActions[key]
+      actions[key] = bindActionCreators(waitBindAction as any, store.dispatch)
+      return actions
+    }, {} as any) as T
   }
 }
 

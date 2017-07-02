@@ -1,6 +1,6 @@
 import * as classnames from "classnames"
 import * as React from "react"
-import { SHOW_ACTIVE, SHOW_ALL, SHOW_COMPLETED } from "../constants/todo-filters"
+import { SHOW_ACTIVE, SHOW_ALL, SHOW_COMPLETED } from "../const"
 
 const FILTER_TITLES = {
   [SHOW_ALL]: "All",
