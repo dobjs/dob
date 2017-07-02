@@ -3319,7 +3319,7 @@ mkdirp@0.5.x, "mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.0, mkd
 
 mobx@^3.1.16:
   version "3.1.16"
-  resolved "http://registry.npm.alibaba-inc.com/mobx/download/mobx-3.1.16.tgz#7ef06b6de7cba31d2ca872484d47ee36265d7768"
+  resolved "https://registry.yarnpkg.com/mobx/-/mobx-3.1.16.tgz#7ef06b6de7cba31d2ca872484d47ee36265d7768"
 
 ms@0.7.1:
   version "0.7.1"
