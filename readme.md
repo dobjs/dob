@@ -9,7 +9,7 @@
 核心用例：
 
 ```typescript
-import { observable, observe } from "dynamic-object"
+import { observable, observe } from "dob"
 
 const dynamicObj = observable({
     a: 1
@@ -29,8 +29,12 @@ dynamicObj.a = 2
 ## 安装
 
 ```bash
-yarn add dynamic-object --save
+yarn add dob --save
 ```
+
+> 新包名 dob 取代原先 dynamic-object
+>
+> dob = **d**ynamic-**ob**ject  = **d**ynamic-**ob**sverable
 
 ## 稳定性
 
