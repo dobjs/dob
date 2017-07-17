@@ -45,7 +45,7 @@
     "todomvc-app-css": "^2.1.0",
     "tslint": "^5.4.3",
     "typescript": "^2.3.4",
-    "webpack": "^2.6.1"
+    "webpack": "^3.3.0"
   },
   "dependencies": {
     "@types/lodash": "^4.14.63",
