@@ -40,7 +40,7 @@
     "pre-commit": "^1.2.2",
     "react-dom": "^15.5.4",
     "react-redux": "^5.0.5",
-    "run-react": "^2.0.1",
+    "run-react": "^2.0.5",
     "style-loader": "^0.18.2",
     "todomvc-app-css": "^2.1.0",
     "tslint": "^5.4.3",
