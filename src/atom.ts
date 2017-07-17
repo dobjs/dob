@@ -46,14 +46,10 @@ export class Atom {
    * 上报：响应变量发生了修改，会重新触发 observe
    */
   public reportChanged() {
-    startBatch()
-
     // 执行它
     this.observers.forEach(observer => {
       runObserver(observer)
     })
-
-    endBatch()
   }
 
   /**
