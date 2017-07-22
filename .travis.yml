@@ -2,9 +2,8 @@ language: node_js
 os:
 - linux
 install:
-- npm install yarn -g
-- yarn
+- npm install
 node_js:
-- 7.3.0
+- 8
 script:
 - npm test

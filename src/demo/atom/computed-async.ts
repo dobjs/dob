@@ -64,7 +64,7 @@ class ComputedAsync<T> implements IComputedAsyncValue<T> {
       this.atom.reportChanged();
     }
 
-    const current = <T>(f: (arg: T) => void) => (arg: T) => {
+    const current = <P>(f: (arg: P) => void) => (arg: P) => {
       if (this.version === thisVersion) {
         f(arg)
       }

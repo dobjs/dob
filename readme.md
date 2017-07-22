@@ -38,7 +38,7 @@ yarn add dob --save
 
 ## 稳定性
 
-目前通过了 100%（50个）[测试用例](https://github.com/ascoders/dynamic-object/blob/master/src/main.test.ts)
+目前通过了 100%（53个）[测试用例](https://github.com/ascoders/dynamic-object/blob/master/src/main.test.ts)
 
 ## 功能
 

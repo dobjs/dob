@@ -282,6 +282,7 @@ function observe(callback: Func, delay?: number) {
  * extend 一个可观察对象
  */
 function extendObservable<T, P>(originObj: T, targetObj: P) {
+  // tslint:disable-next-line:prefer-object-spread
   return runInAction(() => Object.assign(originObj, targetObj))
 }
 

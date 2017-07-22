@@ -329,12 +329,12 @@ test("should not observe set operations without a value change", t => {
 
     let numOfRuns = 0
 
-    function test() {
+    function testObserve() {
         data = dynamicObj.prop
         numOfRuns++
     }
 
-    observe(test)
+    observe(testObserve)
 
     return Promise.resolve()
         .then(() => t.true(data === "prop"))
@@ -384,12 +384,12 @@ test("should rerun maximum once per stack", t => {
 
     let numOfRuns = 0
 
-    function test() {
+    function testObserve() {
         data = dynamicObj.prop1 + dynamicObj.prop2
         numOfRuns++
     }
 
-    observe(test)
+    observe(testObserve)
 
     return Promise.resolve()
         .then(() => {
@@ -735,12 +735,12 @@ test("should unobserve the observed function", t => {
 
     let numOfRuns = 0
 
-    function test() {
+    function testObserve() {
         data = dynamicObj.prop
         numOfRuns++
     }
 
-    const signal = observe(test)
+    const signal = observe(testObserve)
 
     return Promise.resolve()
         .then(() => dynamicObj.prop = "Hello")
@@ -760,12 +760,12 @@ test("should not unobserve if the function is registered for the stack, because 
 
     let numOfRuns = 0
 
-    function test() {
+    function testObserve() {
         data = dynamicObj.prop
         numOfRuns++
     }
 
-    const signal = observe(test)
+    const signal = observe(testObserve)
 
     return Promise.resolve()
         .then(() => {
@@ -781,12 +781,12 @@ test("should unobserve even if the function is registered for the stack, when us
 
     let numOfRuns = 0
 
-    function test() {
+    function testObserve() {
         data = dynamicObj.prop
         numOfRuns++
     }
 
-    const signal = observe(test)
+    const signal = observe(testObserve)
 
     return Promise.resolve()
         .then(() => {
