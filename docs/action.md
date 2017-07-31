@@ -7,7 +7,7 @@
 ## 作为函数使用
 
 ```typescript
-import { observe, observable, Action } from 'dynamic-object'
+import { observe, observable, Action } from 'dob'
 
 const dynamicObj = observable({
     a: 1
@@ -33,7 +33,7 @@ Action(()=> {
 ## 作为装饰器使用
 
 ```typescript
-import { observe, observable, Action } from 'dynamic-object'
+import { observe, observable, Action } from 'dob'
 
 const dynamicObj = observable({
     a: 1

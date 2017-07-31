@@ -10,7 +10,7 @@
 
 ### 支持类型
 
-`dynamic-object` 支持情况如下表：
+`dob` 支持情况如下表：
 
 
 | 类型 | 支持程度 |
@@ -26,7 +26,7 @@
 以下是例子：
 
 ```typescript
-import { observable, observe } from "dynamic-object"
+import { observable, observe } from "dob"
 
 const dynamicObj = observable({
 	testNestObj: {
@@ -63,7 +63,7 @@ dynamicObj.testMap.set("foo", "has")
 对于没有初始化的变量，也可以依赖追踪：
 
 ```typescript
-import { observable, observe } from "dynamic-object"
+import { observable, observe } from "dob"
 
 const dynamicObj = observable({})
 
@@ -82,7 +82,7 @@ dynamicObj.a = 1
 ### 条件分支
 
 ```typescript
-import { observable, observe } from "dynamic-object"
+import { observable, observe } from "dob"
 
 const dynamicObj = observable({
     a: true,
@@ -111,7 +111,7 @@ dynamicObj.b = 3
 只有使用  `observable`  包裹的对象，才能在 `observe` 中生效绑定，比如下面的代码是无效的：
 
 ```typescript
-import { observe } from "dynamic-object"
+import { observe } from "dob"
 
 const obj = {
     a: 1

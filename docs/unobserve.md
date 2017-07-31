@@ -6,7 +6,7 @@
 ## 示例
 
 ```typescript
-import { observe, observable } from 'dynamic-object'
+import { observe, observable } from 'dob'
 
 const dynamicObj = observable({
     a: 1

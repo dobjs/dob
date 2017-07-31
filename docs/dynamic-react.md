@@ -2,7 +2,7 @@
 
 ## 概念
  
-`dynamic-react` 是连接 `dynamic-object` 与 `react` 的桥梁。
+`dynamic-react` 是连接 `dob` 与 `react` 的桥梁。
 
 ## 安装
 
@@ -15,7 +15,7 @@ yarn add dynamic-react --save
 最简单的用法如下：
  
 ```javascript
-import { Action, observable } from 'dynamic-object'
+import { Action, observable } from 'dob'
 import { Provider, Connect } from 'dynamic-react'
 
 @observable
@@ -77,7 +77,7 @@ yarn add dependency-inject --save
 先创建 `store.js`
  
 ```javascript
-import { Action, observable } from 'dynamic-object'
+import { Action, observable } from 'dob'
 import { inject, Container } from 'dependency-inject'
 
 @observable

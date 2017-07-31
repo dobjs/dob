@@ -3,7 +3,7 @@
 最简单的用法如下：
  
 ```javascript
-import { Action, observable } from 'dynamic-object'
+import { Action, observable } from 'dob'
 import { Provider, Connect } from 'dynamic-react'
 
 @observable
@@ -65,7 +65,7 @@ yarn add dependency-inject --save
 先创建 `store.js`
  
 ```javascript
-import { Action } from 'dynamic-object'
+import { Action } from 'dob'
 import { inject, Container } from 'dependency-inject'
 
 @observable

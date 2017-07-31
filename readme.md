@@ -1,8 +1,8 @@
-# dynamic-object
+# dob
 
-<a href="https://travis-ci.org/ascoders/dynamic-object"><img src="https://img.shields.io/travis/ascoders/dynamic-object/master.svg?style=flat" alt="Build Status"></a>
+<a href="https://travis-ci.org/ascoders/dob"><img src="https://img.shields.io/travis/ascoders/dob/master.svg?style=flat" alt="Build Status"></a>
 
-`dynamic-object` 利用 `proxy` 完整实现了 `object.observer`。主要为 react 提供数据流功能。可以结合 `dynamic-react` 以 mutable 方式为 react 组织数据流；同时也支持融合 redux，结合 mutable 与 immutable 的优势，以 mutable 方式组织 store，以 immutable 方式更新数据。
+`dob` 利用 `proxy` 完整实现了 `object.observer`。主要为 react 提供数据流功能。可以结合 `dynamic-react` 以 mutable 方式为 react 组织数据流；同时也支持融合 redux，结合 mutable 与 immutable 的优势，以 mutable 方式组织 store，以 immutable 方式更新数据。
 
 > 功能与 [mobx](https://github.com/mobxjs/mobx) 很像，同时借鉴了 [nx-js](https://github.com/nx-js/observer-util) 实现理念。给力的地方在于，不支持 ie11 浏览器！非常激进，核心使用 `proxy`，抛弃兼容性换来的是超高的性能，以及完美的动态绑定。
 
@@ -32,13 +32,9 @@ dynamicObj.a = 2
 yarn add dob --save
 ```
 
-> 新包名 dob 取代原先 dynamic-object
->
-> dob = **d**ynamic-**ob**ject  = **d**ynamic-**ob**sverable
-
 ## 稳定性
 
-目前通过了 100%（53个）[测试用例](https://github.com/ascoders/dynamic-object/blob/master/src/main.test.ts)
+目前通过了 100%（53个）[测试用例](https://github.com/ascoders/dob/blob/master/src/main.test.ts)
 
 ## 功能
 
@@ -74,6 +70,6 @@ yarn add dob --save
 
 # unpkg
 
-https://unpkg.com/dynamic-object@2.1.19/built/bundle.js
+https://unpkg.com/dob@2.1.19/built/bundle.js
 
 [实现原理解析](./docs/principle.md)

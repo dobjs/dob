@@ -1,6 +1,6 @@
 # 原理
 
-dynamic-object 只对外暴露了三个 api：`observable` `observe` `Action`，分别是 **动态化对象**、 **变化监听** 与 **懒追踪辅助函数**。
+dob 只对外暴露了三个 api：`observable` `observe` `Action`，分别是 **动态化对象**、 **变化监听** 与 **懒追踪辅助函数**。
 
 下面以开发角度描述实现思路，同时作为反思，如果有更优的思路，我会随时更新。
 
@@ -10,7 +10,7 @@ dynamic-object 只对外暴露了三个 api：`observable` `observe` `Action`，
 
 | 单词 | 含义 |
 | -------- | -------- |
-| observable | dynamic-object 提供的最重要功能，将对象动态化的函数 |
+| observable | dob 提供的最重要功能，将对象动态化的函数 |
 | observe | 监听其回调函数中**当前访问到的** observable 化的对象的修改，并在值变化时重新出发执行 |
 | observer | 指代 observe 中的回调函数 |
 
@@ -83,7 +83,7 @@ set(target, key, value, receiver)
 有人会有疑惑，为什么 `observe` 要立即执行内部回调呢？如果初始化不不输出，结果可能会好看一些：
 
 ```typescript
-import { observable, observe } from "dynamic-object"
+import { observable, observe } from "dob"
 
 const dynamicObj = observable({
     a: 1
@@ -144,7 +144,7 @@ class Test {
 
 当调用 `setUser` 时，其内部又调用了 `setName`，那么执行 `setUser` 时，`trackingDeep` 为 1，之后又执行到 `setName` 使得 `trackingDeep` 变成 2，内层 `Action` 执行完毕，`trackingDeep` 变回 1，此时队列不会执行，调用栈回退到 `setName` 后，`trackingDeep` 终于变成 0，队列执行，此时`observer` 仅触发了一次。
 
-> Tips: 这里有个优化点，当 `trackingDeep` 不为 0 时，终止 `dynamic-object` 的依赖收集行为。这么做的好处是，当 react render 函数中，同步调用 action 时，不会绑定到这个 action 用到的变量。
+> Tips: 这里有个优化点，当 `trackingDeep` 不为 0 时，终止 `dob` 的依赖收集行为。这么做的好处是，当 react render 函数中，同步调用 action 时，不会绑定到这个 action 用到的变量。
 
 ### 7.1 缺点
 
@@ -188,7 +188,7 @@ handleClick() {
 
 ## 8. dynamic-react
 
-dynamic-react 是 dynamic-object 在 react 上的应用，类似于 mobx-react 相比于 mobx。实现思路与 mobx-react 很接近，但是简化了许多。
+dynamic-react 是 dob 在 react 上的应用，类似于 mobx-react 相比于 mobx。实现思路与 mobx-react 很接近，但是简化了许多。
 
 dynamic-react 只暴露了两个接口 `Provider` 与 `Connect`，分别用于 **数据初始化** 与 **绑定更新与依赖注入**
 
@@ -200,7 +200,7 @@ Provider 将接收到的所有参数全局透传到组件，因此实现很简�
 
 这个装饰器用于 react 组件，分别提供了绑定更新与依赖注入的功能。
 
-由于 dynamic-react 是与 dynamic-object 结合使用的，因此会将全量 store 数据注入到 react 组件中，由于依赖追踪的特性，不会造成不必要的渲染。
+由于 dynamic-react 是与 dob 结合使用的，因此会将全量 store 数据注入到 react 组件中，由于依赖追踪的特性，不会造成不必要的渲染。
 
 注入通过高阶组件方式，从 context 中取出 Provider 阶段注入的值，直接灌给自组件即可，注意组件自身的 props 需要覆盖注入数据：
 
@@ -244,4 +244,4 @@ export default function Connect(componentClass: any): any {
 
 ## 9. 写在最后
 
-最后给出 dynamic-object 的[项目地址](https://github.com/ascoders/dynamic-object)，欢迎提出建议和把玩。
+最后给出 dob 的[项目地址](https://github.com/ascoders/dob)，欢迎提出建议和把玩。

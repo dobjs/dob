@@ -1,9 +1,9 @@
-const tag = "ascoders-dynamic-object"
+const tag = "ascoders-dob"
 
 export declare type Func = () => any
 
 export declare interface IObjectType<T> {
-  new (): T
+  new(): T
 }
 
 export declare type ICombineActions<T> = {
