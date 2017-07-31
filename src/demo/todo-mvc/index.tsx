@@ -16,10 +16,3 @@ render(
     </Provider>,
     document.getElementById("react-dom")
 )
-
-import * as mobx from "mobx"
-import * as dynamicObject from "../../index"
-
-declare const window: any
-window.dynamicObject = dynamicObject
-window.mobx = mobx
