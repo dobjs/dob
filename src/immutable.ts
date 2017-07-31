@@ -6,7 +6,7 @@ import { createThunkMiddleware, globalState, ICombineActions, isPrimitive } from
 declare const window: any
 
 declare interface IObjectType<T> {
-  new (): T
+  new(): T
 }
 
 /**
