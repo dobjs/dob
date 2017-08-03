@@ -1036,3 +1036,24 @@ test("Static will not tracking map", t => {
         .then(() => t.true(runCount === 1))
         .then(() => t.true(size === 0))
 })
+
+test("nested observe should eventually run", t => {
+    const dynamicObj = observable({
+        a: "1",
+        b: "2",
+        c: "3"
+    })
+    let str = ""
+    observe(() => {
+        str += dynamicObj.a
+
+        observe(() => {
+            str += dynamicObj.b
+        })
+
+        str += dynamicObj.c
+    })
+
+    return Promise.resolve()
+        .then(() => t.true(str === "132"))
+})
