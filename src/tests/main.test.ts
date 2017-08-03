@@ -887,7 +887,7 @@ test("Action will not trace dependency", t => {
     dynamicObj.b = 2
 
     return Promise.resolve()
-        .then(() => t.true(runCount === 2))
+        .then(() => t.true(runCount === 1))
 })
 
 /**

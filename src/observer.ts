@@ -2,6 +2,8 @@ import builtIns from "./built-ins"
 import { immutableDelete, immutableSet, initImmutable, registerChildsImmutable } from "./immutable"
 import { Func, globalState, IObserver, isPrimitive } from "./utils"
 
+const MAX_RUN_COUNT = 1000
+
 /**
  * ========================
  * 函数
@@ -156,12 +158,12 @@ function queueRunObservers<T extends object>(target: T, key: PropertyKey) {
  * 为什么要单独列出来，因为 observe 时会先执行一次当前 observe，调用的就是此函数
  */
 function queueRunObserver(observer: IObserver) {
+  // 先加入队列
+  globalState.actionQueuedObservers.add(observer)
+
   if (globalState.inBatch === 0) {
-    runObserver(observer)
-  } else {
-    // 在 tracking 中，添加到其队列
-    // 之后不会像普通队列一样执行，而是等 runInAction 调用 fn 完毕后统一执行
-    globalState.queuedObservers.add(observer)
+    // 执行队列
+    runActionObserveQueue()
   }
 }
 
@@ -172,23 +174,54 @@ export function runObserver(observer: IObserver) {
   if (observer.callback) {
     if (observer.delay === undefined || observer.delay === null) {
       // 如果没有延迟，立刻执行
-      runObserverCallback(observer)
+      runObserverQueued(observer)
     } else {
       if (observer.timeout) {
         clearTimeout(observer.timeout)
       }
 
       observer.timeout = setTimeout(() => {
-        runObserverCallback(observer)
+        runObserverQueued(observer)
       }, observer.delay)
     }
   }
 }
 
 /**
+ * 队列执行 observer
+ * 除了 action 队列以外，每个 observer 还有自己的小队列，在 observe 嵌套时，可以控制 observe 执行时机，比如把子 observe return 掉，放到上一层 observe 队列中，等上一层 observe 执行完了再执行
+ */
+function runObserverQueued(observer: IObserver) {
+  if (!globalState.queuedObserversMap.has(observer)) {
+    globalState.queuedObserversMap.set(observer, new Set([observer]))
+  }
+
+  const observerQueue = globalState.queuedObserversMap.get(observer)
+  // 大部分时候，这里等价于 runObserverCallback(observer)，但这样做为了便于插入执行队列
+  observerQueue.forEach(eachObserver => {
+    runObserverCallback(eachObserver)
+  })
+
+  Promise.resolve().then(() => {
+    observerQueue.clear()
+    globalState.queuedObserversMap.delete(observer)
+  })
+}
+
+/**
  * 执行 observer callback
  */
 function runObserverCallback(observer: IObserver) {
+  // 如果当前存在 globalState.currentObserver，说明在一个 observer 中，将此 observer 放入队列，等待当前 observer 执行完再执行
+  // 如果在 runInAction 情况下，这个 observer 本身就在后面要执行，那本次不执行，set.add 也不会重复添加，等待 Set.prototype.forEach 后续调用
+  if (globalState.currentObserver !== null) {
+    if (!globalState.queuedObserversMap.has(globalState.currentObserver)) {
+      globalState.queuedObserversMap.set(globalState.currentObserver, new Set())
+    }
+    globalState.queuedObserversMap.get(globalState.currentObserver).add(observer)
+    return
+  }
+
   // 先把这个 observer 从所有绑定的 target -> key 中清空
   clearBindings(observer)
   globalState.currentObserver = observer
@@ -199,6 +232,32 @@ function runObserverCallback(observer: IObserver) {
   } finally {
     globalState.currentObserver = null
   }
+}
+
+/**
+ * 执行待执行的 observer 队列
+ * 如果在 action 中，继续添加到 actionQueuedObservers
+ * 如果不在 action 中，添加一个直接执行
+ */
+function runActionObserveQueue() {
+  // 执行跟踪的队列
+  let currentRunCount = 0
+
+  globalState.actionQueuedObservers.forEach(observer => {
+    currentRunCount++
+
+    if (currentRunCount >= MAX_RUN_COUNT) {
+      // tslint:disable-next-line:no-console
+      console.warn("执行次数达到上限，可能存在死循环")
+      globalState.actionQueuedObservers.clear()
+      return
+    }
+
+    runObserver(observer)
+  })
+
+  // 清空执行 observe 队列
+  globalState.actionQueuedObservers.clear()
 }
 
 /**
@@ -264,7 +323,7 @@ function unobserve(observer: IObserver) {
 
 /**
  * 观察
- * TODO: delay 如果非 null 或 undefined，表示这个 observe 不会在数据变更后立刻执行，而是在一定时间内 hold 所有修改，之后再执行，比较适合在其中发请求，比如 autoComplete
+ * delay 如果非 null 或 undefined，表示这个 observe 不会在数据变更后立刻执行，而是在一定时间内 hold 所有修改，之后再执行，比较适合在其中发请求，比如 autoComplete
  */
 function observe(callback: Func, delay?: number) {
   const observer: IObserver = {
@@ -290,7 +349,7 @@ function extendObservable<T, P>(originObj: T, targetObj: P) {
  * 在这里执行的方法，会在执行完后统一执行 observe
  * 注意：如果不用此方法包裹，同步执行代码会触发等同次数的 observe，而不会自动合并!
  * 同时，在此方法中使用到的变量不会触发依赖追踪！
- * @todo: 目前仅支持同步，还未找到支持异步的方案！
+ * @TODO: 目前仅支持同步，还未找到支持异步的方案！
  */
 function runInAction(fn: () => any | Promise<any>) {
   startBatch()
@@ -331,7 +390,7 @@ function runInAction(fn: () => any | Promise<any>) {
 function startBatch() {
   if (globalState.inBatch === 0) {
     // 如果正在从 0 开始新的队列，清空原有队列
-    globalState.queuedObservers = new Set()
+    globalState.actionQueuedObservers = new Set()
   }
 
   globalState.inBatch++
@@ -342,13 +401,7 @@ function startBatch() {
  */
 function endBatch() {
   if (--globalState.inBatch === 0) {
-    // 执行跟踪的队列
-    globalState.queuedObservers.forEach(observer => {
-      runObserver(observer)
-    })
-
-    // 清空执行 observe 队列
-    globalState.queuedObservers.clear()
+    runActionObserveQueue()
   }
 }
 

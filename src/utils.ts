@@ -1,3 +1,4 @@
+import { IObserver } from "./utils";
 const tag = "ascoders-dob"
 
 export declare type Func = () => any
@@ -84,11 +85,15 @@ class GlobalState {
   /**
    * 所有 tracking 中等执行队列的集合
    */
-  public queuedObservers = new Set<IObserver>()
+  public actionQueuedObservers = new Set<IObserver>()
   /**
    * 忽略动态对象的 symbol
    */
   public ignoreDynamicSymbol = Symbol()
+  /**
+   * 各 observer 的待执行队列
+   */
+  public queuedObserversMap = new Map<IObserver, Set<IObserver>>()
 }
 
 let globalState = new GlobalState()
