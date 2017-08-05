@@ -16,31 +16,3 @@ render(
     </Provider>,
     document.getElementById("react-dom")
 )
-
-// import { observable, observe } from "../../index"
-
-// const obj = observable({
-//     a: "1",
-//     b: "2",
-//     c: "3",
-//     d: "4",
-//     e: "5"
-// })
-
-// observe(() => {
-//     console.log(obj.a)
-
-//     observe(() => {
-//         console.log(obj.b)
-
-//         // observe(() => {
-//         //     console.log(obj.c)
-//         // })
-
-//         // console.log(obj.d)
-//     })
-
-//     console.log(obj.e)
-// })
-
-// obj.a = "1-1"

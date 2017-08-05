@@ -158,70 +158,82 @@ function queueRunObservers<T extends object>(target: T, key: PropertyKey) {
  * 为什么要单独列出来，因为 observe 时会先执行一次当前 observe，调用的就是此函数
  */
 function queueRunObserver(observer: IObserver) {
-  // 先加入队列
-  globalState.actionQueuedObservers.add(observer)
-
-  if (globalState.inBatch === 0) {
-    // 执行队列
-    runActionObserveQueue()
+  if (globalState.inBatch !== 0) {
+    // 在 Action 中，直接加入队列
+    globalState.observerQueue.add(observer)
+  } else {
+    // 不在 Action 中，如果队列已经有值了，添加到队列并执行队列；如果队列无值，则直接执行
+    if (globalState.observerQueue.size === 0) {
+      runObserverAsync(observer)
+    } else {
+      globalState.observerQueue.add(observer)
+      runActionObserveQueue()
+    }
   }
 }
 
 /**
  * 执行 observer
  */
-export function runObserver(observer: IObserver) {
+export function runObserverAsync(observer: IObserver) {
   if (observer.callback) {
     if (observer.delay === undefined || observer.delay === null) {
       // 如果没有延迟，立刻执行
-      runObserverQueued(observer)
+      runObserver(observer)
     } else {
       if (observer.timeout) {
         clearTimeout(observer.timeout)
       }
 
       observer.timeout = setTimeout(() => {
-        runObserverQueued(observer)
+        runObserver(observer)
       }, observer.delay)
     }
   }
 }
 
 /**
- * 队列执行 observer
- * 除了 action 队列以外，每个 observer 还有自己的小队列，在 observe 嵌套时，可以控制 observe 执行时机，比如把子 observe return 掉，放到上一层 observe 队列中，等上一层 observe 执行完了再执行
+ * 准备执行 observer
  */
-function runObserverQueued(observer: IObserver) {
-  if (!globalState.queuedObserversMap.has(observer)) {
-    globalState.queuedObserversMap.set(observer, new Set([observer]))
+function runObserver(observer: IObserver) {
+  // 如果已经在 observer 中，那就在待执行队列直接新增一项，返回
+  // 上一层 runObserver 执行完后会执行待执行队列
+  if (globalState.currentObserver !== null) {
+    globalState.nestedObserverQueue.add(observer)
+    return
   }
 
-  const observerQueue = globalState.queuedObserversMap.get(observer)
-  // 大部分时候，这里等价于 runObserverCallback(observer)，但这样做为了便于插入执行队列
-  observerQueue.forEach(eachObserver => {
-    runObserverCallback(eachObserver)
-  })
+  // 直接执行当前 observer
+  // 执行当前 observer 时，可能存在嵌套 observe 的情况，此时待执行队列会插入值，执行完之后，依次以当前函数执行待执行队列
+  runObserverActual(observer)
 
-  Promise.resolve().then(() => {
-    observerQueue.clear()
-    globalState.queuedObserversMap.delete(observer)
+  // 开始执行待执行队列
+  // 队列执行次数
+  let currentRunCount = 0
+
+  // 复制一份队列，防止嵌套 observe 时，不断在 nestedObserverQueue 添加 observer 导致死循环
+  // 复制完后，原队列清空，让执行时加在干净的新队列
+  const nestedObserverQueueCopy = Array.from(globalState.nestedObserverQueue)
+  globalState.nestedObserverQueue.clear()
+
+  nestedObserverQueueCopy.forEach(eachObserver => {
+    currentRunCount++
+
+    if (currentRunCount >= MAX_RUN_COUNT) {
+      // tslint:disable-next-line:no-console
+      console.warn("执行次数达到上限，可能存在死循环")
+      globalState.nestedObserverQueue.clear()
+      return
+    }
+
+    runObserver(eachObserver)
   })
 }
 
 /**
- * 执行 observer callback
+ * 开始执行 observer
  */
-function runObserverCallback(observer: IObserver) {
-  // 如果当前存在 globalState.currentObserver，说明在一个 observer 中，将此 observer 放入队列，等待当前 observer 执行完再执行
-  // 如果在 runInAction 情况下，这个 observer 本身就在后面要执行，那本次不执行，set.add 也不会重复添加，等待 Set.prototype.forEach 后续调用
-  if (globalState.currentObserver !== null) {
-    if (!globalState.queuedObserversMap.has(globalState.currentObserver)) {
-      globalState.queuedObserversMap.set(globalState.currentObserver, new Set())
-    }
-    globalState.queuedObserversMap.get(globalState.currentObserver).add(observer)
-    return
-  }
-
+function runObserverActual(observer: IObserver) {
   // 先把这个 observer 从所有绑定的 target -> key 中清空
   clearBindings(observer)
   globalState.currentObserver = observer
@@ -240,24 +252,24 @@ function runObserverCallback(observer: IObserver) {
  * 如果不在 action 中，添加一个直接执行
  */
 function runActionObserveQueue() {
-  // 执行跟踪的队列
+  // 队列执行次数
   let currentRunCount = 0
 
-  globalState.actionQueuedObservers.forEach(observer => {
+  globalState.observerQueue.forEach(observer => {
     currentRunCount++
 
     if (currentRunCount >= MAX_RUN_COUNT) {
       // tslint:disable-next-line:no-console
       console.warn("执行次数达到上限，可能存在死循环")
-      globalState.actionQueuedObservers.clear()
+      globalState.observerQueue.clear()
       return
     }
 
-    runObserver(observer)
+    runObserverAsync(observer)
   })
 
   // 清空执行 observe 队列
-  globalState.actionQueuedObservers.clear()
+  globalState.observerQueue.clear()
 }
 
 /**
@@ -390,7 +402,7 @@ function runInAction(fn: () => any | Promise<any>) {
 function startBatch() {
   if (globalState.inBatch === 0) {
     // 如果正在从 0 开始新的队列，清空原有队列
-    globalState.actionQueuedObservers = new Set()
+    globalState.observerQueue = new Set()
   }
 
   globalState.inBatch++

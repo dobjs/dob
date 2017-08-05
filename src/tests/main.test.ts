@@ -878,7 +878,8 @@ test("Action will not trace dependency", t => {
         dynamicObj.a
 
         Action(() => {
-            dynamicObj.a = dynamicObj.b
+            // tslint:disable-next-line:no-unused-expression
+            dynamicObj.b
         })
 
         runCount++
@@ -1041,19 +1042,34 @@ test("nested observe should eventually run", t => {
     const dynamicObj = observable({
         a: "1",
         b: "2",
-        c: "3"
+        c: "3",
+        d: "4"
     })
     let str = ""
     observe(() => {
         str += dynamicObj.a
 
         observe(() => {
-            str += dynamicObj.b
+            str += 5
+            observe(() => {
+                str += dynamicObj.b
+            })
+            str += 6
         })
 
-        str += dynamicObj.c
+        observe(() => {
+            str += 8
+            observe(() => {
+                str += dynamicObj.c
+            })
+            str += 9
+        })
+
+        str += dynamicObj.d
     })
 
+    dynamicObj.a = "2"
+
     return Promise.resolve()
-        .then(() => t.true(str === "132"))
+        .then(() => t.true(str === "1456289324562893"))
 })

@@ -1,4 +1,4 @@
-import { endBatch, runObserver, startBatch } from "./observer"
+import { endBatch, runObserverAsync, startBatch } from "./observer"
 import { Func, globalState, IObserver, noop } from "./utils"
 
 /**
@@ -48,7 +48,7 @@ export class Atom {
   public reportChanged() {
     // 执行它
     this.observers.forEach(observer => {
-      runObserver(observer)
+      runObserverAsync(observer)
     })
   }
 

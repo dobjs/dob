@@ -83,17 +83,17 @@ class GlobalState {
    */
   public inBatch = 0
   /**
-   * 所有 tracking 中等执行队列的集合
+   * 所有 action 中等执行队列的集合
    */
-  public actionQueuedObservers = new Set<IObserver>()
+  public observerQueue = new Set<IObserver>()
   /**
    * 忽略动态对象的 symbol
    */
   public ignoreDynamicSymbol = Symbol()
   /**
-   * 各 observer 的待执行队列
+   * observe 嵌套 observe 时，临时缓存下来的 observer 队列，等待上一层 observe 执行完后再执行
    */
-  public queuedObserversMap = new Map<IObserver, Set<IObserver>>()
+  public nestedObserverQueue = new Set<IObserver>()
 }
 
 let globalState = new GlobalState()
