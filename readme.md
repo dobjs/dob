@@ -50,7 +50,7 @@ Here is a basic [demo](https://jsfiddle.net/bmea0pat/21/), and here is a [demo](
 
 ### Combining react-redux
 
-Here is a basic [在线 Demo](https://jsfiddle.net/56saqqvw/7/)
+Here is a basic [demo](https://jsfiddle.net/56saqqvw/7/)
 
 - [createReduxStore](./docs/createReduxStore.md)
 - [task](./docs/task.md)
