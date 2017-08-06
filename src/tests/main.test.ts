@@ -514,28 +514,6 @@ test("should not observe non value changing mutations", t => {
         })
 })
 
-/**
- * WeakSet
- */
-
-test("should observe mutations", t => {
-    let data: boolean
-    const value = {}
-    const dynamicObj = observable(new Set())
-    observe(() => data = dynamicObj.has(value))
-
-    return Promise.resolve()
-        .then(() => t.false(data))
-        .then(() => dynamicObj.add(value))
-        .then(() => t.true(data))
-        .then(() => dynamicObj.delete(value))
-        .then(() => t.false(data))
-})
-
-/**
- * WeakSet
- */
-
 test("should observe mutations", t => {
     let data: boolean
     const value = {}
@@ -577,6 +555,24 @@ test("should not observe non value changing mutations", t => {
             t.false(data)
             t.true(numOfRuns === 3)
         })
+})
+
+/**
+ * WeakSet
+ */
+
+test("weakSet should observe mutations", t => {
+    let data: boolean
+    const value = {}
+    const dynamicObj = observable(new WeakSet())
+    observe(() => data = dynamicObj.has(value))
+
+    return Promise.resolve()
+        .then(() => t.false(data))
+        .then(() => dynamicObj.add(value))
+        .then(() => t.true(data))
+        .then(() => dynamicObj.delete(value))
+        .then(() => t.false(data))
 })
 
 /**
