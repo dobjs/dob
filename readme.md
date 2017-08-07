@@ -30,7 +30,7 @@ npm i dob
 
 ## Apis
 
-You can read [Quick start](./docs/mutable-quick-start.md) first, then read them:
+You can read [quick start](./docs/mutable-quick-start.md) first, then read them:
 
 - [observable, observe](./docs/observable.md)
 - [unobserbe](./docs/unobserve.md)
