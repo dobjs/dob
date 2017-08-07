@@ -101,7 +101,7 @@ dynamicObj.a = 2
 这两个都是很好的问题，但结论是：初始化执行是必要的：
 
 1. 如果初始化不执行，就没有办法执行初始数据绑定，那么后续的赋值完全找不到对应的 `observer` 是什么（除非做静态分析，但稍稍复杂些就不可能了）。
-2. 结合 react 时，通过生命周期 mixins 来覆写 `render` 函数，将初始化的 `observe` 绑定与后续 `render` 函数分离，达到**首次 render 是 `observe` 初始化触发，后续 render 依靠依赖追踪自动触发** 的效果，在 `dynamic-react` 章节会有深入介绍。
+2. 结合 react 时，通过生命周期 mixins 来覆写 `render` 函数，将初始化的 `observe` 绑定与后续 `render` 函数分离，达到**首次 render 是 `observe` 初始化触发，后续 render 依靠依赖追踪自动触发** 的效果，在 `dob-react` 章节会有深入介绍。
 
 ## 6. Action
 
@@ -186,11 +186,11 @@ handleClick() {
 > 说实话，这个问题被 redux 用概念巧妙规避了，我们必须将这个函数拆成两个 dispatch。回头想想，如果我们也这么做，也完全可以规避这个问题，拆成两个 action 即可！但我希望有一天，能找到完美的解决方法。
 > 另外希望表达一点，redux 的成功在于定义了许多概念与规则，只要我们遵守，就能写出维护性很棒的代码，其实 oo 思想也是一样！我们在使用 oo 时，将对 fp 的耐心拿出来，一样能写出维护性很棒的代码。
 
-## 8. dynamic-react
+## 8. dob-react
 
-dynamic-react 是 dob 在 react 上的应用，类似于 mobx-react 相比于 mobx。实现思路与 mobx-react 很接近，但是简化了许多。
+dob-react 是 dob 在 react 上的应用，类似于 mobx-react 相比于 mobx。实现思路与 mobx-react 很接近，但是简化了许多。
 
-dynamic-react 只暴露了两个接口 `Provider` 与 `Connect`，分别用于 **数据初始化** 与 **绑定更新与依赖注入**
+dob-react 只暴露了两个接口 `Provider` 与 `Connect`，分别用于 **数据初始化** 与 **绑定更新与依赖注入**
 
 ### 8.1 从 Provider 开始
 
@@ -200,7 +200,7 @@ Provider 将接收到的所有参数全局透传到组件，因此实现很简�
 
 这个装饰器用于 react 组件，分别提供了绑定更新与依赖注入的功能。
 
-由于 dynamic-react 是与 dob 结合使用的，因此会将全量 store 数据注入到 react 组件中，由于依赖追踪的特性，不会造成不必要的渲染。
+由于 dob-react 是与 dob 结合使用的，因此会将全量 store 数据注入到 react 组件中，由于依赖追踪的特性，不会造成不必要的渲染。
 
 注入通过高阶组件方式，从 context 中取出 Provider 阶段注入的值，直接灌给自组件即可，注意组件自身的 props 需要覆盖注入数据：
 

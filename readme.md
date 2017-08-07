@@ -38,9 +38,9 @@ You can read [Quick start](./docs/mutable-quick-start.md) first, then read them:
 
 ## Combination
 
-### Combining dynamic-react
+### Combining dob-react
 
-[Quick start](./docs/dynamic-react.md)
+[Quick start](./docs/dob-react.md)
 
 Here is a basic [demo](https://jsfiddle.net/yp90Lep9/20/), and here is a [demo](https://jsfiddle.net/g19ehhgu/9/) with fractal.
 

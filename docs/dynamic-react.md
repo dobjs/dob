@@ -1,13 +1,13 @@
-# dynamic-react
+# dob-react
 
 ## 概念
  
-`dynamic-react` 是连接 `dob` 与 `react` 的桥梁。
+`dob-react` 是连接 `dob` 与 `react` 的桥梁。
 
 ## 安装
 
 ```bash
-yarn add dynamic-react --save
+yarn add dob-react --save
 ```
 
 ## 快速入手
@@ -16,7 +16,7 @@ yarn add dynamic-react --save
  
 ```javascript
 import { Action, observable } from 'dob'
-import { Provider, Connect } from 'dynamic-react'
+import { Provider, Connect } from 'dob-react'
 
 @observable
 export class UserStore {
@@ -103,7 +103,7 @@ export { container }
 再创建 `app.js`
 
 ```javascript
-import { Provider, Connect } from 'dynamic-react'
+import { Provider, Connect } from 'dob-react'
 import { UserStore, UserAction, container } from './store'
 
 @Connect

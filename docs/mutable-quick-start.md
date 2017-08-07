@@ -4,7 +4,7 @@
  
 ```javascript
 import { Action, observable } from 'dob'
-import { Provider, Connect } from 'dynamic-react'
+import { Provider, Connect } from 'dob-react'
 
 @observable
 export class UserStore {
@@ -91,7 +91,7 @@ export { container }
 再创建 `app.js`
 
 ```javascript
-import { Provider, Connect } from 'dynamic-react'
+import { Provider, Connect } from 'dob-react'
 import { UserStore, UserAction, container } from './store'
 
 @Connect
