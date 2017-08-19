@@ -3,7 +3,7 @@
   "version": "2.2.5",
   "description": "",
   "main": "built/index.js",
-  "typings": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
     "test": "tsc && nyc --reporter=lcov --reporter=text --reporter=json ava",
     "posttest": "codecov -f coverage/*.json -t bc4c34e2-24cb-4b05-8b97-7f30395e642b",
