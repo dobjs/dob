@@ -1,4 +1,4 @@
-import { Action, Atom, IObserver, observable, observe } from "../../index"
+import { Action, Atom, observable, observe } from "../../index"
 
 export function isPromiseLike<T>(result: PromiseLike<T> | T): result is PromiseLike<T> {
   return result && typeof (result as any).then === "function";
@@ -43,7 +43,7 @@ class ComputedAsync<T> implements IComputedAsyncValue<T> {
   private atom: Atom;
   private cachedValue: T;
   private version = 0;
-  private monitor: IObserver;
+  private monitor: any;
 
   constructor(private options: IComputedAsyncOptions<T>) {
     this.atom = new Atom(() => this.wake(), () => this.sleep());

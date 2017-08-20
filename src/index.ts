@@ -1,7 +1,7 @@
 import { Atom } from "./atom"
 import { createReduxStore, getSnapshot, onSnapshot, Task } from "./immutable"
-import { Action, extendObservable, isObservable, observable, observe, Static } from "./observer"
-import { IObserver } from "./utils"
+import { Action, isObservable, observable, observe, Static } from "./observer"
+import { Reaction } from "./reaction"
 
 export {
     observable,
@@ -10,7 +10,6 @@ export {
 
     isObservable,
     Static,
-    extendObservable,
 
     getSnapshot,
     onSnapshot,
@@ -20,6 +19,5 @@ export {
 
     Atom,
 
-    /** interface */
-    IObserver
+    Reaction
 }

@@ -1,14 +1,15 @@
-import { endBatch, runObserverAsync, startBatch } from "./observer"
-import { Func, globalState, IObserver, noop } from "./utils"
+import { endBatch, runReactionAsync, startBatch } from "./observer"
+import { Reaction } from "./reaction"
+import { Func, globalState, noop } from "./utils"
 
 /**
  * getter setter 控制器
  */
 export class Atom {
   /**
-   * 与这个 atom 相关的 observers
+   * 与这个 atom 相关的 reactions
    */
-  public observers = new Set<IObserver>()
+  public reactions = new Set<Reaction>()
 
   private onBecomeObservedHandler: Func
   private onBecomeUnobservedHandler: Func
@@ -29,9 +30,9 @@ export class Atom {
   public reportObserved() {
     startBatch()
 
-    if (globalState.currentObserver) {
-      // 绑定上当前 observer
-      this.observers.add(globalState.currentObserver)
+    if (globalState.currentReaction) {
+      // 绑定上当前 reaction
+      this.reactions.add(globalState.currentReaction)
     }
 
     if (!this.isBeingTracked) {
@@ -47,8 +48,8 @@ export class Atom {
    */
   public reportChanged() {
     // 执行它
-    this.observers.forEach(observer => {
-      runObserverAsync(observer)
+    this.reactions.forEach(reaction => {
+      runReactionAsync(reaction)
     })
   }
 

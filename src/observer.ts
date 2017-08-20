@@ -1,6 +1,7 @@
 import builtIns from "./built-ins"
 import { immutableDelete, immutableSet, initImmutable, registerChildsImmutable } from "./immutable"
-import { Func, globalState, IObserver, isPrimitive } from "./utils"
+import { Reaction } from "./reaction"
+import { Func, getBinder, globalState, inAction, isPrimitive } from "./utils"
 
 const MAX_RUN_COUNT = 1000
 
@@ -50,7 +51,7 @@ function toObservable<T extends object>(obj: T): T {
   const builtIn = builtIns.get(obj.constructor)
   if (typeof builtIn === "function" || typeof builtIn === "object") {
     // 处理 map weakMap set weakSet
-    dynamicObject = builtIn(obj, registerObserver, queueRunObservers, proxyResult)
+    dynamicObject = builtIn(obj, bindCurrentReaction, queueRunReactions, proxyResult)
   } else if (!builtIn) {
     dynamicObject = new Proxy(obj, {
       get(target, key, receiver) {
@@ -62,7 +63,7 @@ function toObservable<T extends object>(obj: T): T {
         // 将子元素注册到 immutable，子元素可以找到其根节点对象，以及路径
         registerChildsImmutable(target)
 
-        registerObserver(target, key)
+        bindCurrentReaction(target, key)
 
         let result = Reflect.get(target, key, receiver)
         result = proxyResult(target, key, result)
@@ -86,7 +87,7 @@ function toObservable<T extends object>(obj: T): T {
         // 如果改动了 length 属性，或者新值与旧值不同，触发可观察队列任务
         // 这一步要在 Reflect.set 之后，确保触发时使用的是新值
         if (key === "length" || value !== oldValue) {
-          queueRunObservers<T>(target, key)
+          queueRunReactions<T>(target, key)
         }
 
         return result
@@ -99,7 +100,7 @@ function toObservable<T extends object>(obj: T): T {
         const result = Reflect.deleteProperty(target, key)
 
         if (hasKey) {
-          queueRunObservers(target, key)
+          queueRunReactions(target, key)
         }
 
         return result
@@ -113,7 +114,7 @@ function toObservable<T extends object>(obj: T): T {
   globalState.proxies.set(dynamicObject, dynamicObject)
   globalState.originObjects.set(dynamicObject, obj)
 
-  globalState.observers.set(obj, new Map())
+  globalState.objectReactionBindings.set(obj, new Map())
 
   return dynamicObject
 }
@@ -143,107 +144,30 @@ function proxyResult(target: any, key: PropertyKey, result: any) {
  * 队列执行的意思是，执行，但不一定立即执行，比如包在 runInAction 中函数触发时，就不会立刻执行
  * 而是在整个函数体执行完毕后，收集完了队列再统一执行一遍
  */
-function queueRunObservers<T extends object>(target: T, key: PropertyKey) {
-  const observersForKey = globalState.observers.get(target).get(key)
-  if (observersForKey) {
-    // observersForKey.forEach 过程中会被修改，所以 Array.From 一下防止死循环
-    Array.from(observersForKey).forEach(observer => {
-      queueRunObserver(observer)
-    })
-  }
-}
+function queueRunReactions<T extends object>(target: T, key: PropertyKey) {
+  const { keyBinder } = getBinder(target, key)
 
-/**
- * 将 observer 添加到队列中
- * 为什么要单独列出来，因为 observe 时会先执行一次当前 observe，调用的就是此函数
- */
-function queueRunObserver(observer: IObserver) {
-  if (globalState.inBatch !== 0) {
-    // 在 Action 中，直接加入队列
-    globalState.observerQueue.add(observer)
-  } else {
-    // 不在 Action 中，如果队列已经有值了，添加到队列并执行队列；如果队列无值，则直接执行
-    if (globalState.observerQueue.size === 0) {
-      runObserverAsync(observer)
+  Array.from(keyBinder).forEach(reaction => {
+    if (inAction()) {
+      // 在 Action 中，直接加入队列
+      globalState.pendingReactions.add(reaction)
     } else {
-      globalState.observerQueue.add(observer)
-      runActionObserveQueue()
+      // 不在 Action 中，如果队列已经有值了，添加到队列并执行队列；如果队列无值，则直接执行
+      if (globalState.pendingReactions.size === 0) {
+        runReactionAsync(reaction)
+      } else {
+        globalState.pendingReactions.add(reaction)
+        runPendingReactions()
+      }
     }
-  }
+  })
 }
 
 /**
  * 执行 observer
  */
-export function runObserverAsync(observer: IObserver) {
-  if (observer.callback) {
-    if (observer.delay === undefined || observer.delay === null) {
-      // 如果没有延迟，立刻执行
-      runObserver(observer)
-    } else {
-      if (observer.timeout) {
-        clearTimeout(observer.timeout)
-      }
-
-      observer.timeout = setTimeout(() => {
-        runObserver(observer)
-      }, observer.delay)
-    }
-  }
-}
-
-/**
- * 准备执行 observer
- */
-function runObserver(observer: IObserver) {
-  // 如果已经在 observer 中，那就在待执行队列直接新增一项，返回
-  // 上一层 runObserver 执行完后会执行待执行队列
-  if (globalState.currentObserver !== null) {
-    globalState.nestedObserverQueue.add(observer)
-    return
-  }
-
-  // 直接执行当前 observer
-  // 执行当前 observer 时，可能存在嵌套 observe 的情况，此时待执行队列会插入值，执行完之后，依次以当前函数执行待执行队列
-  runObserverActual(observer)
-
-  // 开始执行待执行队列
-  // 队列执行次数
-  let currentRunCount = 0
-
-  // 复制一份队列，防止嵌套 observe 时，不断在 nestedObserverQueue 添加 observer 导致死循环
-  // 复制完后，原队列清空，让执行时加在干净的新队列
-  const nestedObserverQueueCopy = Array.from(globalState.nestedObserverQueue)
-  globalState.nestedObserverQueue.clear()
-
-  nestedObserverQueueCopy.forEach(eachObserver => {
-    currentRunCount++
-
-    if (currentRunCount >= MAX_RUN_COUNT) {
-      // tslint:disable-next-line:no-console
-      console.warn("执行次数达到上限，可能存在死循环")
-      globalState.nestedObserverQueue.clear()
-      return
-    }
-
-    runObserver(eachObserver)
-  })
-}
-
-/**
- * 开始执行 observer
- */
-function runObserverActual(observer: IObserver) {
-  // 先把这个 observer 从所有绑定的 target -> key 中清空
-  clearBindings(observer)
-  globalState.currentObserver = observer
-
-  try {
-    // 这里会放访问到当前 observer callback 函数内所有对象的 getter 方法，之后会调用 registerObserver 给访问到的 target -> key 绑定当前的 observer
-    observer.callback()
-  } finally {
-    globalState.currentObserver = null
-  }
+export function runReactionAsync(reaction: Reaction) {
+  reaction.run()
 }
 
 /**
@@ -251,54 +175,43 @@ function runObserverActual(observer: IObserver) {
  * 如果在 action 中，继续添加到 actionQueuedObservers
  * 如果不在 action 中，添加一个直接执行
  */
-function runActionObserveQueue() {
+function runPendingReactions() {
   // 队列执行次数
   let currentRunCount = 0
 
-  globalState.observerQueue.forEach(observer => {
+  globalState.pendingReactions.forEach(observer => {
     currentRunCount++
 
     if (currentRunCount >= MAX_RUN_COUNT) {
       // tslint:disable-next-line:no-console
       console.warn("执行次数达到上限，可能存在死循环")
-      globalState.observerQueue.clear()
+      globalState.pendingReactions.clear()
       return
     }
 
-    runObserverAsync(observer)
+    runReactionAsync(observer)
   })
 
   // 清空执行 observe 队列
-  globalState.observerQueue.clear()
+  globalState.pendingReactions.clear()
 }
 
 /**
- * 注册监听函数
- * observers 存储了全局要监听的对象和用户定义的回调函数，这个函数将
- * 当前 observer（queueObserver触发） 注册到 observers 对应的 key 中。
+ * 绑定当前 reaction
  */
-function registerObserver<T extends object>(target: T, key: PropertyKey) {
+function bindCurrentReaction<T extends object>(object: T, key: PropertyKey) {
   // 将监听添加到这个 key 上，必须不在 runInAction 中才会跟踪
   // inBatch 只要非 0，说明 runInAction 结束了
-  if (!globalState.currentObserver || globalState.inBatch !== 0) {
+  if (!globalState.currentReaction || inAction()) {
     return
   }
 
-  const observersForTarget = globalState.observers.get(target)
-  let observersForKey = observersForTarget.get(key)
+  const { keyBinder } = getBinder(object, key)
 
-  // 如果没有定义这个 key 的 observer 集合，初始化一个新的
-  if (!observersForKey) {
-    observersForKey = new Set()
-    observersForTarget.set(key, observersForKey)
-  }
-
-  // 如果不包含当前 observer，将它添加进去
-  if (!observersForKey.has(globalState.currentObserver)) {
-    observersForKey.add(globalState.currentObserver)
-
-    // 给当前 currentObserver 对象添加引用，方便 unobserver 的时候，直接遍历 observedKeys，从中删除自己的 observer 引用
-    globalState.currentObserver.observedKeys.push(observersForKey)
+  // 如果这个 key 还没有与当前 reaction 绑定，则绑定
+  if (!keyBinder.has(globalState.currentReaction)) {
+    keyBinder.add(globalState.currentReaction)
+    globalState.currentReaction.addBinder(keyBinder)
   }
 }
 
@@ -310,90 +223,26 @@ function isObservable<T extends object>(obj: T) {
 }
 
 /**
- * 清空 observer 当前所有绑定
- */
-function clearBindings(observer: IObserver) {
-  if (typeof observer === "object") {
-    if (observer.observedKeys) {
-      observer.observedKeys.forEach(observersForKey => {
-        observersForKey.delete(observer)
-      })
-    }
-    observer.observedKeys = []
-  }
-}
-
-/**
- * 取消观察
- */
-function unobserve(observer: IObserver) {
-  if (typeof observer === "object") {
-    clearBindings(observer)
-    observer.callback = observer.observedKeys = undefined
-  }
-}
-
-/**
- * 观察
- * delay 如果非 null 或 undefined，表示这个 observe 不会在数据变更后立刻执行，而是在一定时间内 hold 所有修改，之后再执行，比较适合在其中发请求，比如 autoComplete
+ * 利用 reaction 做的快捷监听，callback 元素会被追踪，绑定的变量改动时，触发的依然是此 callback
  */
 function observe(callback: Func, delay?: number) {
-  const observer: IObserver = {
-    callback,
-    // 存储哪些 target -> key 的 map 对象绑定了当前 observe，便于取消时的查找
-    observedKeys: [],
-    unobserve: () => unobserve(observer),
-    delay
-  }
-  queueRunObserver(observer)
-  return observer
-}
+  const reaction = new Reaction("observe", () => {
+    reaction.track(callback)
+  }, delay)
 
-/**
- * extend 一个可观察对象
- */
-function extendObservable<T, P>(originObj: T, targetObj: P) {
-  // tslint:disable-next-line:prefer-object-spread
-  return runInAction(() => Object.assign(originObj, targetObj))
-}
-
-/**
- * 在这里执行的方法，会在执行完后统一执行 observe
- * 注意：如果不用此方法包裹，同步执行代码会触发等同次数的 observe，而不会自动合并!
- * 同时，在此方法中使用到的变量不会触发依赖追踪！
- * @TODO: 目前仅支持同步，还未找到支持异步的方案！
- */
-function runInAction(fn: () => any | Promise<any>) {
-  startBatch()
-
-  try {
-    return fn()
-  } finally {
-    endBatch()
+  // 初始化就执行
+  if (inAction()) {
+    // 如果在 action 中，直接添加到队列，等 action 执行完后，会自动执行此队列的
+    globalState.pendingReactions.add(reaction)
+  } else {
+    reaction.run()
   }
 
-  // if (typeof result === 'object' && result.then) {
-  //     // result 为 async，或者返回了 promise
-  //     return result.then((promiseResult: any) => {
-  //         // 执行跟踪的队列
-  //         runTrackingObserver()
-
-  //         // 清空队列
-  //         currentTracking = null
-  //         trackingQueuedObservers.delete(fn)
-
-  //         return promiseResult
-  //     })
-  // } else {
-  //     // 执行跟踪的队列
-  //     runTrackingObserver()
-
-  //     // 清空队列
-  //     currentTracking = null
-  //     trackingQueuedObservers.delete(fn)
-
-  //     return result
-  // }
+  return {
+    unobserve: () => {
+      reaction.dispose()
+    }
+  }
 }
 
 /**
@@ -402,7 +251,7 @@ function runInAction(fn: () => any | Promise<any>) {
 function startBatch() {
   if (globalState.inBatch === 0) {
     // 如果正在从 0 开始新的队列，清空原有队列
-    globalState.observerQueue = new Set()
+    globalState.pendingReactions = new Set()
   }
 
   globalState.inBatch++
@@ -413,8 +262,24 @@ function startBatch() {
  */
 function endBatch() {
   if (--globalState.inBatch === 0) {
-    runActionObserveQueue()
+    runPendingReactions()
   }
+}
+
+// ==============================================
+// Action 系列 [start]
+// ==============================================
+
+/**
+ * action 方法，支持 decorator 与 函数
+ */
+function Action(fn: () => any | Promise<any>): void
+function Action(target: any, propertyKey: string, descriptor: PropertyDescriptor): any
+function Action(arg1: any, arg2?: any, arg3?: any) {
+  if (arg2 === undefined) {
+    return runInAction.call(this, arg1)
+  }
+  return actionDecorator.call(this, arg1, arg2, arg3)
 }
 
 /**
@@ -435,16 +300,23 @@ function actionDecorator(target: any, propertyKey: string, descriptor: PropertyD
 }
 
 /**
- * action 方法，支持 decorator 与 函数
+ * 在这里执行的方法，会在执行完后统一执行 observe
+ * 注意：如果不用此方法包裹，同步执行代码会触发等同次数的 observe，而不会自动合并!
+ * 同时，在此方法中使用到的变量不会触发依赖追踪！
  */
-function Action(fn: () => any | Promise<any>): void
-function Action(target: any, propertyKey: string, descriptor: PropertyDescriptor): any
-function Action(arg1: any, arg2?: any, arg3?: any) {
-  if (arg2 === undefined) {
-    return runInAction.call(this, arg1)
+function runInAction(fn: () => any | Promise<any>) {
+  startBatch()
+
+  try {
+    return fn()
+  } finally {
+    endBatch()
   }
-  return actionDecorator.call(this, arg1, arg2, arg3)
 }
+
+// ==============================================
+// Action 系列 [end]
+// ==============================================
 
 function observable<T>(target: T = {} as any): T {
   if (typeof target === "function") { // 挂在 class 的 decorator
@@ -468,7 +340,6 @@ export {
   observable,
   observe,
   isObservable,
-  extendObservable,
   Action,
   Static,
   startBatch,
