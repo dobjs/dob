@@ -30,7 +30,7 @@ npm i dob
 
 ## Project Examples
 
-- [React application example](https://github.com/ascoders/dob-example)
+- [React application example with dob](https://github.com/ascoders/dob-example)
 
 ## Apis
 
