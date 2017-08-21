@@ -1,24 +1,17 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "noImplicitAny": true,
-    "target": "es6",
-    "removeComments": true,
-    "preserveConstEnums": true,
-    "jsx": "react",
-    "sourceMap": true,
-    "outDir": "built",
-    "moduleResolution": "node",
+    "declaration": false,
+    "noImplicitAny": false,
+    "noLib": false,
+    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
-  },
-  "awesomeTypescriptLoaderOptions": {
-    "useWebpackText": true,
-    "forkChecker": true,
-    "useCache": true
+    "jsx": "react",
+    "target": "es6",
+    "outDir": "built",
+    "sourceMap": true
   },
   "exclude": [
-    "node_modules",
-    "built"
+    "node_modules"
   ]
 }

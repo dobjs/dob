@@ -52,14 +52,32 @@
     "webpack": "^3.3.0"
   },
   "dependencies": {
-    "@types/lodash": "^4.14.63",
-    "@types/node": "^7.0.31",
+    "@types/lodash": "^4.14.73",
+    "@types/node": "^7.0.42",
     "immutable": "^3.8.1",
     "lodash": "^4.17.4",
-    "react": "^15.5.4",
-    "redux": "^3.6.0"
+    "react": "^15.6.1",
+    "redux": "^3.7.2"
   },
   "pre-commit": [
     "tslint"
-  ]
+  ],
+  "run-react": {
+    "entrys": [
+      "src/demos/reaction/index.ts"
+    ],
+    "rules": [
+      {
+        "test": ".css$",
+        "use": [
+          "style-loader",
+          "css-loader"
+        ]
+      }
+    ],
+    "dlls": [
+      "react",
+      "react-dom"
+    ]
+  }
 }
