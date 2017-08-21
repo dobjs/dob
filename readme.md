@@ -28,7 +28,7 @@ Dob is available as the `dob` package on [npm](https://www.npmjs.com/package/dob
 npm i dob
 ```
 
-## Code Examples
+## Project Examples
 
 - [React application example](https://github.com/ascoders/dob-example)
 
