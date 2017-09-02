@@ -218,7 +218,7 @@ export function createReduxStore<T>(stores: ICombineActions<T>, enhancer?: any) 
   const combineActions: any = {}
 
   const reducers = Object.keys(stores).reduce((allReducers, key) => {
-    const storeClass = stores[key]
+    const storeClass = (stores as any)[key]
     const storeInstance = new storeClass() as any // 修正定义
 
     // 用来 dispatch 的 actions
