@@ -20,6 +20,47 @@ obj.a = 2 // <· obj.a has changed to 2
 
 You can enjoy the benefits of proxy, for example `obj.a = { b: 5 }` is effective.
 
+## Use in react
+
+```typescript
+import { Action, observable } from 'dob'
+import { Provider, Connect } from 'dob-react'
+import { injectFactory, inject } from 'dependency-inject';
+
+@observable
+export class UserStore {
+    name = 'bob'
+}
+
+export class UserAction {
+    @inject(UserStore) private UserStore: UserStore;
+
+    @Action setName () {
+        this.store.name = 'lucy'
+    }
+}
+
+@Connect
+class App extends React.Component {
+    render() {
+        return (
+            <span onClick={this.props.UserAction.setName}>
+                {this.props.store.name}
+            </span>
+        )
+    }
+}
+
+const store = injectFactory({
+    UserStore,
+    UserAction
+})
+
+ReactDOM.render(
+    <Provider {...store}> <App /> </Provider>
+, document.getElementById('react-dom'))
+```
+
 ## Installation
 
 Dob is available as the `dob` package on [npm](https://www.npmjs.com/package/dob). It is also available on a [CDN](https://unpkg.com/dob@2.2.5/built/bundle.js).

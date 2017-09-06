@@ -64,7 +64,7 @@
   ],
   "run-react": {
     "entrys": [
-      "src/demos/reaction/index.ts"
+      "src/demos/todo-mvc/index.ts"
     ],
     "rules": [
       {

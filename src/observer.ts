@@ -1,5 +1,5 @@
 import builtIns from "./built-ins"
-import { immutableDelete, immutableSet, initImmutable, registerChildsImmutable } from "./immutable"
+import { immutableDelete, immutableSet, registerChildsImmutable } from "./immutable"
 import { Reaction } from "./reaction"
 import { Func, getBinder, globalState, inAction, isPrimitive } from "./utils"
 
