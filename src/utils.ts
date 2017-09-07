@@ -86,7 +86,7 @@ class GlobalState {
   /**
    * 是否开启 debug
    */
-  public useDebug = true
+  public useDebug = false
   /**
    * 当前所在 debugName（由 decorator Action 触发）
    */
