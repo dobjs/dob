@@ -1,5 +1,5 @@
 import builtIns from "./built-ins"
-import { immutableDelete, immutableSet, registerChildsImmutable } from "./immutable"
+import { immutableDelete, immutableSet, initImmutable, registerChildsImmutable } from "./immutable"
 import { Reaction } from "./reaction"
 import { Func, getBinder, globalState, inAction, isPrimitive } from "./utils"
 
@@ -87,6 +87,16 @@ function toObservable<T extends object>(obj: T): T {
         // 如果改动了 length 属性，或者新值与旧值不同，触发可观察队列任务
         // 这一步要在 Reflect.set 之后，确保触发时使用的是新值
         if (key === "length" || value !== oldValue) {
+          if (globalState.useDebug) {
+            // tslint:disable-next-line:no-console
+            console.log(`${key}: %c${oldValue}%c ${value}`, `
+            text-decoration: line-through;
+            color: #999;
+          `, `
+            color: green;
+          `)
+          }
+
           queueRunReactions<T>(target, key)
         }
 
@@ -249,6 +259,11 @@ function observe(callback: Func, delay?: number) {
  * 开始批量执行队列
  */
 function startBatch() {
+  if (globalState.useDebug) {
+    // tslint:disable-next-line:no-console
+    console.groupCollapsed(`Action ${globalState.currentDebugName}`)
+  }
+
   if (globalState.inBatch === 0) {
     // 如果正在从 0 开始新的队列，清空原有队列
     globalState.pendingReactions = new Set()
@@ -261,6 +276,11 @@ function startBatch() {
  * 结束批量执行队列
  */
 function endBatch() {
+  if (globalState.useDebug) {
+    // tslint:disable-next-line:no-console
+    console.groupEnd()
+  }
+
   if (--globalState.inBatch === 0) {
     runPendingReactions()
   }
@@ -290,7 +310,7 @@ function actionDecorator(target: any, propertyKey: string, descriptor: PropertyD
   return {
     get() {
       return (...args: any[]) => {
-        return runInAction(func.bind(this, ...args))
+        return runInAction(func.bind(this, ...args), propertyKey)
       }
     },
     set(newValue: any) {
@@ -304,7 +324,11 @@ function actionDecorator(target: any, propertyKey: string, descriptor: PropertyD
  * 注意：如果不用此方法包裹，同步执行代码会触发等同次数的 observe，而不会自动合并!
  * 同时，在此方法中使用到的变量不会触发依赖追踪！
  */
-function runInAction(fn: () => any | Promise<any>) {
+function runInAction(fn: () => any | Promise<any>, debugName?: string) {
+  if (globalState.useDebug) {
+    globalState.currentDebugName = debugName || null
+  }
+
   startBatch()
 
   try {

@@ -83,6 +83,14 @@ class GlobalState {
    * track 嵌套 track 时，临时缓存下来的 track 队列，等待上一层 track 执行完后再执行
    */
   public pendingTacks = new Set<Func>()
+  /**
+   * 是否开启 debug
+   */
+  public useDebug = true
+  /**
+   * 当前所在 debugName（由 decorator Action 触发）
+   */
+  public currentDebugName: string = null
 }
 
 let globalState = new GlobalState()
@@ -137,4 +145,11 @@ export function getBinder(object: any, key: PropertyKey) {
     binder: keysForObject,
     keyBinder: reactionsForKey,
   }
+}
+
+/**
+ * 开启调试模式
+ */
+export function useDebug() {
+  globalState.useDebug = true
 }
