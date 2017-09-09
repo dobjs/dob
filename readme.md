@@ -89,11 +89,11 @@ You can read [quick start](./docs/mutable-quick-start.md) first, then read them:
 
 Here is a basic [demo](https://jsfiddle.net/yp90Lep9/20/), and here is a [demo](https://jsfiddle.net/g19ehhgu/9/) with fractal.
 
-### Combining dependency-inject
+### Combining [dependency-inject](https://github.com/ascoders/dependency-inject)
 
 Here is a basic [demo](https://jsfiddle.net/bmea0pat/21/), and here is a [demo](https://jsfiddle.net/ppt3ztx7/3/) with fractal and dependency-inject.
 
-### Combining react-redux
+### Combining [react-redux](https://github.com/reactjs/react-redux)
 
 Here is a basic [demo](https://jsfiddle.net/56saqqvw/7/)
 
