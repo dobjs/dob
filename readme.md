@@ -83,7 +83,7 @@ You can read [quick start](./docs/mutable-quick-start.md) first, then read them:
 
 ## Combination
 
-### Combining dob-react
+### Combining [dob-react](https://github.com/ascoders/dob-react)
 
 [Quick start](./docs/dob-react.md)
 
