@@ -54,7 +54,7 @@ class GlobalState {
    */
   public proxies = new WeakMap()
   /**
-   * 所有代理 -> 原是对象的映射
+   * 所有代理 -> 原始对象的映射
    */
   public originObjects = new WeakMap()
   /**
@@ -87,6 +87,13 @@ class GlobalState {
    * 是否开启 debug
    */
   public useDebug = false
+  /**
+   * object 的父级信息
+   */
+  public parentInfo = new WeakMap<object, {
+    parent: object
+    key: PropertyKey
+  }>()
   /**
    * 当前所在 debugName（由 decorator Action 触发）
    */
@@ -152,4 +159,88 @@ export function getBinder(object: any, key: PropertyKey) {
  */
 export function useDebug() {
   globalState.useDebug = true
+}
+
+/**
+ * 注册 parentInfo
+ */
+export function registerParentInfo(target: object, key: PropertyKey, value: any) {
+  if (typeof value === "object") {
+    globalState.parentInfo.set(value, {
+      parent: target,
+      key
+    })
+  }
+}
+
+/**
+ * 获取对象路径
+ */
+function getCallQueue(target: object) {
+  const callQueue: PropertyKey[] = []
+
+  if (!globalState.parentInfo.has(target)) { // 当前访问的对象就是顶层
+    callQueue.unshift(target.constructor.name)
+  } else {
+    let currentTarget: object = target
+    let runCount = 0
+
+    while (globalState.parentInfo.has(currentTarget)) {
+      const parentInfo = globalState.parentInfo.get(currentTarget)
+
+      // 添加调用队列
+      callQueue.unshift(parentInfo.key)
+
+      // 如果父级没有父级了，给调用队列添加父级名称
+      if (!globalState.parentInfo.has(parentInfo.parent)) {
+        callQueue.unshift(parentInfo.parent.constructor.name)
+      }
+
+      currentTarget = parentInfo.parent
+
+      runCount++
+      if (runCount >= 50) {
+        break
+      }
+    }
+  }
+
+  return callQueue
+}
+
+/**
+ * 打印 diff 路径
+ */
+export function printDiff(target: object, key?: PropertyKey, oldValue?: any, value?: any) {
+  const callQueue = getCallQueue(target)
+
+  // tslint:disable-next-line:no-console
+  console.log(`${callQueue.join(".")}.${key}: %c${oldValue}%c ${value}`, `
+    text-decoration: line-through;
+    color: #999;
+  `, `
+    color: green;
+  `)
+}
+
+/**
+ * 打印删除路径
+ */
+export function printDelete(target: object, key?: PropertyKey) {
+  const callQueue = getCallQueue(target)
+
+  // tslint:disable-next-line:no-console
+  console.log(`${callQueue.join(".")}%c.${key}`, `
+    text-decoration: line-through;
+    color: #999;
+  `)
+}
+
+/**
+ * 自定义打印
+ */
+export function printCustom(target: object, ...customMessage: any[]) {
+  const callQueue = getCallQueue(target)
+  // tslint:disable-next-line:no-console
+  console.log(callQueue.join("."), ...customMessage)
 }

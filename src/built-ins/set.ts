@@ -1,3 +1,5 @@
+import { globalState, printCustom, printDelete, printDiff, registerParentInfo } from "../utils"
+
 const native: Set<any> & {
     [x: string]: any
 } = Set.prototype
@@ -12,7 +14,7 @@ interface IcustomObject {
     [x: string]: any
 }
 
-export default function shim<T extends IcustomObject>(target: T & Set<any>, registerObserver: any, queueObservers: any, proxyResult: any) {
+export default function shim<T extends IcustomObject>(target: T & Set<any>, bindCurrentReaction: any, queueRunReactions: any, proxyValue: any) {
     target.$raw = {}
 
     for (const method of all) {
@@ -25,10 +27,14 @@ export default function shim<T extends IcustomObject>(target: T & Set<any>, regi
     for (const getter of getters) {
         // tslint:disable-next-line:space-before-function-paren only-arrow-functions
         target[getter] = function (value: string) {
-            let result = native[getter].apply(this, arguments)
-            result = proxyResult(this, value, result)
+            const result = native[getter].apply(this, arguments)
+            value = proxyValue(this, value, result)
 
-            registerObserver(this, value)
+            if (globalState.useDebug) {
+                registerParentInfo(target, null, result)
+            }
+
+            bindCurrentReaction(this, value)
 
             return result
         }
@@ -37,7 +43,7 @@ export default function shim<T extends IcustomObject>(target: T & Set<any>, regi
     for (const iterator of iterators) {
         // tslint:disable-next-line:space-before-function-paren only-arrow-functions
         target[iterator] = function () {
-            registerObserver(this, masterValue)
+            bindCurrentReaction(this, masterValue)
             return native[iterator].apply(this, arguments)
         }
     }
@@ -46,9 +52,14 @@ export default function shim<T extends IcustomObject>(target: T & Set<any>, regi
     target.add = function (value: string) {
         const has = this.has(value)
         const result = native.add.apply(this, arguments)
+
+        if (globalState.useDebug) {
+            printCustom(target, "add", value)
+        }
+
         if (!has) {
-            queueObservers(this, value)
-            queueObservers(this, masterValue)
+            queueRunReactions(this, value)
+            queueRunReactions(this, masterValue)
         }
         return result
     }
@@ -57,9 +68,14 @@ export default function shim<T extends IcustomObject>(target: T & Set<any>, regi
     target.delete = function (value: string) {
         const has = this.has(value)
         const result = native.delete.apply(this, arguments)
+
+        if (globalState.useDebug) {
+            printCustom(target, "delete", value)
+        }
+
         if (has) {
-            queueObservers(this, value)
-            queueObservers(this, masterValue)
+            queueRunReactions(this, value)
+            queueRunReactions(this, masterValue)
         }
         return result
     }
@@ -69,7 +85,7 @@ export default function shim<T extends IcustomObject>(target: T & Set<any>, regi
         const size = this.size
         const result = native.clear.apply(this, arguments)
         if (size) {
-            queueObservers(this, masterValue)
+            queueRunReactions(this, masterValue)
         }
         return result
     }

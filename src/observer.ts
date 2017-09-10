@@ -1,7 +1,7 @@
 import builtIns from "./built-ins"
 import { immutableDelete, immutableSet, initImmutable, registerChildsImmutable } from "./immutable"
 import { Reaction } from "./reaction"
-import { Func, getBinder, globalState, inAction, isPrimitive } from "./utils"
+import { Func, getBinder, globalState, inAction, isPrimitive, printDelete, printDiff, registerParentInfo } from "./utils"
 
 const MAX_RUN_COUNT = 1000
 
@@ -51,10 +51,16 @@ function toObservable<T extends object>(obj: T): T {
   const builtIn = builtIns.get(obj.constructor)
   if (typeof builtIn === "function" || typeof builtIn === "object") {
     // 处理 map weakMap set weakSet
-    dynamicObject = builtIn(obj, bindCurrentReaction, queueRunReactions, proxyResult)
+    dynamicObject = builtIn(obj, bindCurrentReaction, queueRunReactions, proxyValue)
   } else if (!builtIn) {
     dynamicObject = new Proxy(obj, {
       get(target, key, receiver) {
+        let value = Reflect.get(target, key, receiver)
+
+        if (globalState.useDebug) {
+          registerParentInfo(target, key, value)
+        }
+
         // 如果 key 是 $raw，或者在 Action 中，直接返回原始对象
         if (key === "$raw") {
           return target
@@ -65,10 +71,9 @@ function toObservable<T extends object>(obj: T): T {
 
         bindCurrentReaction(target, key)
 
-        let result = Reflect.get(target, key, receiver)
-        result = proxyResult(target, key, result)
+        value = proxyValue(target, key, value)
 
-        return result
+        return value
       },
 
       set(target, key, value, receiver) {
@@ -88,13 +93,7 @@ function toObservable<T extends object>(obj: T): T {
         // 这一步要在 Reflect.set 之后，确保触发时使用的是新值
         if (key === "length" || value !== oldValue) {
           if (globalState.useDebug) {
-            // tslint:disable-next-line:no-console
-            console.log(`${key}: %c${oldValue}%c ${value}`, `
-            text-decoration: line-through;
-            color: #999;
-          `, `
-            color: green;
-          `)
+            printDiff(target, key, oldValue, value)
           }
 
           queueRunReactions<T>(target, key)
@@ -108,6 +107,10 @@ function toObservable<T extends object>(obj: T): T {
         immutableDelete(target, key)
 
         const result = Reflect.deleteProperty(target, key)
+
+        if (globalState.useDebug) {
+          printDelete(target, key)
+        }
 
         if (hasKey) {
           queueRunReactions(target, key)
@@ -132,21 +135,21 @@ function toObservable<T extends object>(obj: T): T {
 /**
  * 返回 get 获取的结果，如果已有 proxy 就使用 proxy 返回，否则 toObservable 递归
  */
-function proxyResult(target: any, key: PropertyKey, result: any) {
+function proxyValue(target: any, key: PropertyKey, value: any) {
   // 如果取值是 HTMLElement 对象，直接返回原对象，因为原生对象不能被封装
-  if (typeof window !== "undefined" && result instanceof HTMLElement) {
-    return result
+  if (typeof window !== "undefined" && value instanceof HTMLElement) {
+    return value
   }
 
   // 如果取的值是对象，优先取代理对象
-  const resultIsObject = typeof result === "object" && result
-  const existProxy = resultIsObject && globalState.proxies.get(result)
+  const resultIsObject = typeof value === "object" && value
+  const existProxy = resultIsObject && globalState.proxies.get(value)
 
   if (resultIsObject) {
-    return existProxy || toObservable(result)
+    return existProxy || toObservable(value)
   }
 
-  return result
+  return value
 }
 
 /**

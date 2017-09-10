@@ -1,4 +1,5 @@
 import { immutableDelete, immutableSet, registerChildsImmutable } from "../immutable"
+import { globalState, printDelete, printDiff, registerParentInfo } from "../utils"
 
 const native: Map<any, any> & {
     [x: string]: any
@@ -14,7 +15,7 @@ interface IcustomObject {
     [x: string]: any
 }
 
-export default function shim<T extends IcustomObject>(target: T & Map<any, any>, registerObserver: any, queueObservers: any, proxyResult: any) {
+export default function shim<T extends IcustomObject>(target: T & Map<any, any>, bindCurrentReaction: any, queueRunReactions: any, proxyValue: any) {
     target.$raw = {}
 
     for (const method of all) {
@@ -28,9 +29,14 @@ export default function shim<T extends IcustomObject>(target: T & Map<any, any>,
         // tslint:disable-next-line:space-before-function-paren only-arrow-functions
         target[getter] = function (key: string) {
             let result = native[getter].apply(this, arguments)
-            result = proxyResult(this, key, result)
 
-            registerObserver(this, key)
+            if (globalState.useDebug) {
+                registerParentInfo(target, key, result)
+            }
+
+            result = proxyValue(this, key, result)
+
+            bindCurrentReaction(this, key)
 
             return result
         }
@@ -39,7 +45,7 @@ export default function shim<T extends IcustomObject>(target: T & Map<any, any>,
     for (const iterator of iterators) {
         // tslint:disable-next-line:space-before-function-paren only-arrow-functions
         target[iterator] = function () {
-            registerObserver(this, masterKey)
+            bindCurrentReaction(this, masterKey)
             return native[iterator].apply(this, arguments)
         }
     }
@@ -49,9 +55,13 @@ export default function shim<T extends IcustomObject>(target: T & Map<any, any>,
         const oldValue = this.get(key)
         const result = native.set.apply(this, arguments)
 
+        if (globalState.useDebug) {
+            printDiff(target, key, oldValue, value)
+        }
+
         if (oldValue !== value) {
-            queueObservers(this, key)
-            queueObservers(this, masterKey)
+            queueRunReactions(this, key)
+            queueRunReactions(this, masterKey)
         }
         return result
     }
@@ -61,9 +71,13 @@ export default function shim<T extends IcustomObject>(target: T & Map<any, any>,
         const has = this.has(key)
         const result = native.delete.apply(this, arguments)
 
+        if (globalState.useDebug) {
+            printDelete(target, key)
+        }
+
         if (has) {
-            queueObservers(this, key)
-            queueObservers(this, masterKey)
+            queueRunReactions(this, key)
+            queueRunReactions(this, masterKey)
         }
         return result
     }
@@ -73,7 +87,7 @@ export default function shim<T extends IcustomObject>(target: T & Map<any, any>,
         const size = this.size
         const result = native.clear.apply(this, arguments)
         if (size) {
-            queueObservers(this, masterKey)
+            queueRunReactions(this, masterKey)
         }
         return result
     }
