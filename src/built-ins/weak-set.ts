@@ -26,11 +26,12 @@ export default function shim<T extends IcustomObject>(target: T & WeakSet<any>, 
         // tslint:disable-next-line:space-before-function-paren only-arrow-functions
         target[getter] = function (value: string) {
             let result = native[getter].apply(this, arguments)
-            result = proxyValue(this, value, result)
 
             if (globalState.useDebug) {
                 registerParentInfo(target, null, result)
             }
+
+            result = proxyValue(this, value, result)
 
             bindCurrentReaction(this, value)
 

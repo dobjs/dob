@@ -27,12 +27,13 @@ export default function shim<T extends IcustomObject>(target: T & Set<any>, bind
     for (const getter of getters) {
         // tslint:disable-next-line:space-before-function-paren only-arrow-functions
         target[getter] = function (value: string) {
-            const result = native[getter].apply(this, arguments)
-            value = proxyValue(this, value, result)
+            let result = native[getter].apply(this, arguments)
 
             if (globalState.useDebug) {
                 registerParentInfo(target, null, result)
             }
+
+            result = proxyValue(this, value, result)
 
             bindCurrentReaction(this, value)
 

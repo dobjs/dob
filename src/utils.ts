@@ -229,7 +229,7 @@ export function printDiff(target: object, key?: PropertyKey, oldValue?: any, val
   }
 
   // tslint:disable-next-line:no-console
-  console.log(`${callQueue.join(".")}.${key}: %c${oldValueFormatted} %c${newValueFormatted}`, `
+  console.log(`${callQueue.join(".")}.${key}: %c${oldValueFormatted}%c ${newValueFormatted}`, `
       text-decoration: line-through;
       color: #999;
     `, `

@@ -451,7 +451,7 @@ test("should return an unobserve (object) signal", t => {
  * set
  */
 
-test("should observe mutations", t => {
+test("set should observe string", t => {
     let data: boolean
     const dynamicObj = observable(new Set())
     observe(() => data = dynamicObj.has("value"))
@@ -486,7 +486,7 @@ test("should observe iteration", t => {
         .then(() => t.true(data === 0))
 })
 
-test("should not observe non value changing mutations", t => {
+test("set delete test", t => {
     let data: boolean
     let numOfRuns = 0
     const dynamicObj = observable(new Set())
@@ -561,7 +561,7 @@ test("should not observe non value changing mutations", t => {
  * WeakSet
  */
 
-test("weakSet should observe mutations", t => {
+test("weakSet should observe object", t => {
     let data: boolean
     const value = {}
     const dynamicObj = observable(new WeakSet())
@@ -579,7 +579,7 @@ test("weakSet should observe mutations", t => {
  * Map
  */
 
-test("should observe mutations", t => {
+test("weakSet should observe string", t => {
     let data: string
     const dynamicObj = observable(new Map())
     observe(() => data = dynamicObj.get("key"))
