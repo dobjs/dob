@@ -165,7 +165,7 @@ export function useDebug() {
  * 注册 parentInfo
  */
 export function registerParentInfo(target: object, key: PropertyKey, value: any) {
-  if (typeof value === "object") {
+  if (value !== null && typeof value === "object") {
     globalState.parentInfo.set(value, {
       parent: target,
       key
@@ -214,13 +214,27 @@ function getCallQueue(target: object) {
 export function printDiff(target: object, key?: PropertyKey, oldValue?: any, value?: any) {
   const callQueue = getCallQueue(target)
 
+  let oldValueFormatted = ""
+  try {
+    oldValueFormatted = JSON.stringify(oldValue, null, 2)
+  } catch (error) {
+    oldValueFormatted = oldValue.toString()
+  }
+
+  let newValueFormatted = ""
+  try {
+    newValueFormatted = JSON.stringify(value, null, 2)
+  } catch (error) {
+    newValueFormatted = value.toString()
+  }
+
   // tslint:disable-next-line:no-console
-  console.log(`${callQueue.join(".")}.${key}: %c${oldValue}%c ${value}`, `
-    text-decoration: line-through;
-    color: #999;
-  `, `
-    color: green;
-  `)
+  console.log(`${callQueue.join(".")}.${key}: %c${oldValueFormatted} %c${newValueFormatted}`, `
+      text-decoration: line-through;
+      color: #999;
+    `, `
+      color: green;
+    `)
 }
 
 /**
