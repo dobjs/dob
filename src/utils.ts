@@ -157,8 +157,15 @@ export function getBinder(object: any, key: PropertyKey) {
 /**
  * 开启调试模式
  */
-export function useDebug() {
+export function startDebug() {
   globalState.useDebug = true
+}
+
+/**
+ * 关闭调试模式
+ */
+export function stopDebug() {
+  globalState.useDebug = false
 }
 
 /**

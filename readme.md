@@ -102,6 +102,22 @@ Here is a basic [demo](https://jsfiddle.net/56saqqvw/7/)
 
 You can clone this project, and run `npm start` to see [redux todoMVC demo](./src/demo/todo-mvc).
 
+## Debug in console
+
+```typescript
+import { startDebug, stopDebug } from 'dob'
+
+// start debug
+startDebug()
+
+// end debug
+stopDebug()
+```
+
+The debug mode prints the trigger timing and assignment steps for all the @Action functions.
+
+[demo]()
+
 ## Inspired
 
 - [mobx](https://github.com/mobxjs/mobx)

@@ -2,7 +2,7 @@ import { Atom } from "./atom"
 import { createReduxStore, getSnapshot, onSnapshot, Task } from "./immutable"
 import { Action, isObservable, observable, observe, Static } from "./observer"
 import { Reaction } from "./reaction"
-import { useDebug } from "./utils"
+import { startDebug, stopDebug } from "./utils"
 
 export {
     observable,
@@ -22,5 +22,6 @@ export {
 
     Reaction,
 
-    useDebug
+    startDebug,
+    stopDebug
 }
