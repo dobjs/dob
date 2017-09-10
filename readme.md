@@ -4,7 +4,7 @@ Dob is a tool for monitoring object changes. Using [Proxy](https://developer.moz
 
 ## Examples
 
-There are some [demo](https://jsfiddle.net/1q772uL0/17/) on fiddle. Here's the simplest:
+There are some [demo](https://jsfiddle.net/1q772uL0/20/) on fiddle. Here's the simplest:
 
 ```typescript
 import { observable, observe } from "dob"
@@ -87,15 +87,15 @@ You can read [quick start](./docs/mutable-quick-start.md) first, then read them:
 
 [Quick start](./docs/dob-react.md)
 
-Here is a basic [demo](https://jsfiddle.net/yp90Lep9/20/), and here is a [demo](https://jsfiddle.net/g19ehhgu/9/) with fractal.
+Here is a basic [demo](https://jsfiddle.net/yp90Lep9/21/), and here is a [demo](https://jsfiddle.net/g19ehhgu/11/) with fractal.
 
 ### Combining [dependency-inject](https://github.com/ascoders/dependency-inject)
 
-Here is a basic [demo](https://jsfiddle.net/bmea0pat/21/), and here is a [demo](https://jsfiddle.net/ppt3ztx7/3/) with fractal and dependency-inject.
+Here is a basic [demo](https://jsfiddle.net/bmea0pat/23/), and here is a [demo](https://jsfiddle.net/ppt3ztx7/4/) with fractal and dependency-inject.
 
 ### Combining [react-redux](https://github.com/reactjs/react-redux)
 
-Here is a basic [demo](https://jsfiddle.net/56saqqvw/7/)
+Here is a basic [demo](https://jsfiddle.net/56saqqvw/8/)
 
 - [createReduxStore](./docs/createReduxStore.md)
 - [task](./docs/task.md)
@@ -114,9 +114,9 @@ startDebug()
 stopDebug()
 ```
 
-The debug mode prints the trigger timing and assignment steps for all the @Action functions.
+The debug mode prints the trigger timing and assignment steps for all the `@Action` functions.
 
-[demo]()
+[demo](https://jsfiddle.net/qttth5vs/3/)
 
 ## Inspired
 
