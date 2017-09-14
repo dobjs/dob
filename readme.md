@@ -100,7 +100,7 @@ Here is a basic [demo](https://jsfiddle.net/56saqqvw/8/)
 - [createReduxStore](./docs/createReduxStore.md)
 - [task](./docs/task.md)
 
-You can clone this project, and run `npm start` to see [redux todoMVC demo](./src/demo/todo-mvc).
+You can clone this project, and run `npm start` to see [redux todoMVC demo](./src/demos/todo-mvc).
 
 ## Debug in console
 
