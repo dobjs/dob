@@ -300,7 +300,7 @@ function Action(fn: () => any | Promise<any>): void
 function Action(target: any, propertyKey: string, descriptor: PropertyDescriptor): any
 function Action(arg1: any, arg2?: any, arg3?: any) {
   if (arg2 === undefined) {
-    return runInAction.call(this, arg1)
+    return runInAction.call(this, arg1, arg1.name)
   }
   return actionDecorator.call(this, arg1, arg2, arg3)
 }
