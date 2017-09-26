@@ -10,9 +10,10 @@ test("debug", t => {
   data += "a"
   observe(() => data += dynamicObj.name)
   data += "c"
+  dynamicObj.name = "d"
 
   stopDebug()
 
   return Promise.resolve()
-    .then(() => t.true(data === "abc"))
+    .then(() => t.true(data === "abcd"))
 })
