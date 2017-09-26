@@ -13,6 +13,10 @@ class Clock {
     )
   }
 
+  public stopAtom() {
+    this.atom.unobserve()
+  }
+
   public getTime() {
     this.atom.reportObserved()
     return this.currentDateTime
@@ -42,4 +46,19 @@ test("basic test", t => {
 
   return Promise.resolve()
     .then(() => t.true(time === 5))
+})
+
+test("unobservable", t => {
+  let time: number = 0
+  const clock = new Clock()
+  observe(() => {
+    time = clock.getTime()
+  })
+
+  clock.startTicking()
+  clock.startTicking()
+  clock.stopAtom()
+
+  return Promise.resolve()
+    .then(() => t.true(time === 4))
 })

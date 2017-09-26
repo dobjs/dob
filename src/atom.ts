@@ -58,6 +58,7 @@ export class Atom {
    */
   public unobserve() {
     this.isBeingTracked = false
+    this.reactions.clear()
     this.onBecomeUnobservedHandler()
   }
 }
