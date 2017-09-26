@@ -39,6 +39,18 @@ test("should never modify the underlying plain object", t => {
     t.false(isObservable(obj.nested2))
 })
 
+test("null throw typeError", t => {
+    t.throws(() => {
+        observable(null)
+    }, TypeError)
+})
+
+test("undefined not throw", t => {
+    t.notThrows(() => {
+        observable(undefined)
+    })
+})
+
 /**
  * isObservable
  */

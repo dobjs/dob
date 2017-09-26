@@ -16,7 +16,7 @@ const MAX_RUN_COUNT = 1000
  */
 function observableObject<T extends object>(obj: T = {} as any): T {
   if (isPrimitive(obj)) {
-    throw Error(`${obj} 是基本类型，dob 仅支持非基本类型`)
+    throw TypeError(`${obj} 是基本类型，dob 仅支持非基本类型`)
   }
 
   if (globalState.proxies.has(obj)) {
