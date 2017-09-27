@@ -1,6 +1,6 @@
 {
   "name": "dob",
-  "version": "2.3.9",
+  "version": "2.3.10",
   "description": "",
   "main": "built/index.js",
   "types": "src/index.ts",
@@ -51,12 +51,11 @@
     "todomvc-app-css": "^2.1.0",
     "tslint": "^5.4.3",
     "typescript": "^2.4.1",
-    "webpack": "^3.3.0"
+    "webpack": "^3.3.0",
+    "react": "^15.6.1"
   },
   "dependencies": {
     "immutable": "^3.8.1",
-    "lodash": "^4.17.4",
-    "react": "^15.6.1",
     "redux": "^3.7.2"
   },
   "pre-commit": [
