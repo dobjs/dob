@@ -1,6 +1,6 @@
 {
   "name": "dob",
-  "version": "2.3.10",
+  "version": "2.3.11",
   "description": "",
   "main": "built/index.js",
   "types": "src/index.ts",
@@ -63,7 +63,7 @@
   ],
   "run-react": {
     "entrys": [
-      "src/demos/todo-mvc/index.tsx"
+      "src/demos/reaction/index.ts"
     ],
     "rules": [
       {

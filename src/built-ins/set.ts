@@ -7,7 +7,7 @@ const masterValue = Symbol("Set master value")
 
 const getters = ["has"]
 const iterators = ["forEach", "keys", "values", "entries", Symbol.iterator]
-const all = ["set", "delete", "clear"].concat(getters, iterators as any)
+const all = ["add", "delete", "clear"].concat(getters, iterators as any)
 
 interface IcustomObject {
     $raw: any
@@ -90,6 +90,15 @@ export default function shim<T extends IcustomObject>(target: T & Set<any>, bind
         }
         return result
     }
+
+    Object.defineProperty(target, "size", {
+        get: function get() {
+            const proto = Object.getPrototypeOf(this)
+            const size = Reflect.get(proto, "size", this)
+            bindCurrentReaction(this, masterValue)
+            return size
+        }
+    })
 
     return target
 }
