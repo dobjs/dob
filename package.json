@@ -1,6 +1,6 @@
 {
   "name": "dob",
-  "version": "2.3.11",
+  "version": "2.3.12",
   "description": "",
   "main": "built/index.js",
   "types": "src/index.ts",
