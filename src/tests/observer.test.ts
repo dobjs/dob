@@ -51,6 +51,32 @@ test("undefined not throw", t => {
     })
 })
 
+test("when observable class has constructor", t => {
+    @observable
+    class MyCount {
+        private count1;
+        private count2;
+
+        constructor(count1: number, count2: number) {
+            this.count1 = count1;
+            this.count2 = count2;
+        }
+
+        public getCount1(): number {
+            return this.count1;
+        }
+
+        public getCount2(): number {
+            return this.count2;
+        }
+    }
+
+    const myCount = new MyCount(3, 4);
+
+    t.true(myCount.getCount1() === 3);
+    t.true(myCount.getCount2() === 4);
+})
+
 /**
  * isObservable
  */
