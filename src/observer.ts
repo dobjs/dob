@@ -31,7 +31,7 @@ function observableObject<T extends object>(obj: T = {} as any): T {
  * 将 class 改造为可观察对象
  */
 function observableObjectDecorator(target: any) {
-  function wrap(...args) {
+  function wrap(...args: any[]) {
     return observableObject(new target(...args))
   }
   return wrap as any
