@@ -158,6 +158,11 @@ function proxyValue(target: any, key: PropertyKey, value: any) {
  * 而是在整个函数体执行完毕后，收集完了队列再统一执行一遍
  */
 function queueRunReactions<T extends object>(target: T, key: PropertyKey) {
+  // 如果处于严格模式，并且不在 batch 中，报错
+  if (globalState.strictMode && globalState.inBatch === 0) {
+    throw Error("You are not allowed to modify observable value out of Action.")
+  }
+
   const { keyBinder } = getBinder(target, key)
 
   Array.from(keyBinder).forEach(reaction => {

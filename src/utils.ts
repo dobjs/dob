@@ -98,6 +98,10 @@ class GlobalState {
    * 当前所在 debugName（由 decorator Action 触发）
    */
   public currentDebugName: string = null
+  /**
+   * 当前是否处于严格模式
+   */
+  public strictMode = false
 }
 
 let globalState = new GlobalState()
@@ -264,4 +268,18 @@ export function printCustom(target: object, ...customMessage: any[]) {
   const callQueue = getCallQueue(target)
   // tslint:disable-next-line:no-console
   console.log(callQueue.join("."), ...customMessage)
+}
+
+/**
+ * 设置处于严格模式
+ */
+export function useStrict() {
+  globalState.strictMode = true
+}
+
+/**
+ * 取消严格模式
+ */
+export function cancelStrict() {
+  globalState.strictMode = false
 }
