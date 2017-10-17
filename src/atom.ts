@@ -1,6 +1,7 @@
+import { globalState } from "./global-state"
 import { endBatch, runReactionAsync, startBatch } from "./observer"
 import { Reaction } from "./reaction"
-import { Func, globalState, noop } from "./utils"
+import { Func, noop } from "./utils"
 
 /**
  * getter setter 控制器

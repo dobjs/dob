@@ -1,4 +1,5 @@
-import { globalState, printDelete, printDiff, registerParentInfo } from "../utils"
+import { globalState } from "../global-state"
+import { printDelete, printDiff, registerParentInfo } from "../utils"
 
 const native: WeakMap<any, any> & {
     [x: string]: any

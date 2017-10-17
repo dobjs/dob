@@ -1,4 +1,5 @@
-import { globalState, printCustom, printDelete, printDiff, registerParentInfo } from "../utils"
+import { globalState } from "../global-state"
+import { printCustom, printDelete, printDiff, registerParentInfo } from "../utils"
 
 const native: Set<any> & {
     [x: string]: any

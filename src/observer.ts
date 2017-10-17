@@ -1,7 +1,8 @@
 import builtIns from "./built-ins"
+import { globalState } from "./global-state"
 import { immutableDelete, immutableSet, initImmutable, registerChildsImmutable } from "./immutable"
 import { Reaction } from "./reaction"
-import { Func, getBinder, globalState, inAction, isPrimitive, printDelete, printDiff, registerParentInfo } from "./utils"
+import { Func, getBinder, inAction, isPrimitive, printDelete, printDiff, registerParentInfo } from "./utils"
 
 const MAX_RUN_COUNT = 1000
 

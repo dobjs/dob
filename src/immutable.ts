@@ -1,7 +1,8 @@
 import * as Immutable from "immutable"
 import { applyMiddleware, bindActionCreators, combineReducers, compose, createStore } from "redux"
+import { globalState } from "./global-state"
 import { isObservable } from "./observer"
-import { createThunkMiddleware, globalState, ICombineActions, isPrimitive } from "./utils"
+import { createThunkMiddleware, ICombineActions, isPrimitive } from "./utils"
 
 declare const window: any
 

@@ -1,4 +1,5 @@
-import { globalState, IBinder, IKeyBinder, inTrack } from "./utils"
+import { globalState } from "./global-state"
+import { IBinder, IKeyBinder, inTrack } from "./utils"
 
 type IFunc = (...args: any[]) => any
 
