@@ -17,8 +17,8 @@ export class Event {
   /**
    * 订阅事件
    */
-  public on(eventType: "debug", callback: (context?: IDebugOutputBundleAction) => void)
-  public on(eventType: EventType, callback: ICallback) {
+  public on(eventType: "debug", callback: (context?: IDebugOutputBundleAction) => void): void
+  public on(eventType: EventType, callback: ICallback): void {
     const event: IEvent = {
       callback
     }
