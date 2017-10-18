@@ -1,6 +1,6 @@
 {
   "name": "dob",
-  "version": "2.4.7",
+  "version": "2.4.8",
   "description": "",
   "main": "built/src/index.js",
   "types": "src/index.ts",
@@ -56,6 +56,7 @@
   },
   "dependencies": {
     "immutable": "^3.8.1",
+    "lodash.clonedeep": "^4.5.0",
     "redux": "^3.7.2"
   },
   "pre-commit": [

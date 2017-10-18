@@ -1,3 +1,4 @@
+import * as cloneDeep from "lodash.clonedeep"
 import { globalState, IDebugInfo } from "./global-state"
 import { Reaction } from "./reaction"
 
@@ -205,9 +206,9 @@ export function printDiff(target: object, key?: PropertyKey, oldValue?: any, val
   globalState.currentDebugOutputAction.changeList.push({
     type: "change",
     callStack,
-    oldValue,
+    oldValue: cloneDeep(oldValue),
     key,
-    value
+    value: cloneDeep(value)
   })
 }
 
