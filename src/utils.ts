@@ -123,8 +123,7 @@ export function registerParentInfo(target: object, key: PropertyKey, value: any)
 export function debugInAction(actionName: string) {
   const debugOutputBundleAction: IDebugInfo = {
     name: actionName,
-    changeList: [],
-    childs: []
+    changeList: []
   }
 
   globalState.debugOutputActionMapBatchDeep.set(globalState.batchDeep, debugOutputBundleAction)
@@ -136,9 +135,12 @@ export function debugInAction(actionName: string) {
     globalState.currentDebugId = debugOutputBundleAction.id
   }
 
-  // 如果当前深度大于 1，就作为加到父级的 childs
+  // 如果当前深度大于 1，就作为加到父级的 changeList
   if (globalState.batchDeep > 1) {
-    globalState.debugOutputActionMapBatchDeep.get(globalState.batchDeep - 1).childs.push(debugOutputBundleAction)
+    globalState.debugOutputActionMapBatchDeep.get(globalState.batchDeep - 1).changeList.push({
+      type: "action",
+      action: debugOutputBundleAction
+    })
   }
 }
 
@@ -146,6 +148,9 @@ export function debugInAction(actionName: string) {
  * debug 出栈 action
  */
 export function debugOutAction() {
+  // 每次出栈，都要更新 currentDebugOutputAction
+  globalState.currentDebugOutputAction = globalState.debugOutputActionMapBatchDeep.get(globalState.batchDeep)
+
   if (!inAction()) {
     // 如果完全出队列了，把存储的 debug 信息输出给 debug 事件，并清空 debug 信息
     globalState.event.emit("debug", JSON.parse(JSON.stringify(globalState.debugOutputActionMapBatchDeep.get(1))))

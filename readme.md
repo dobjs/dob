@@ -138,6 +138,10 @@ interface IDebugInfo {
   name?: string
   changeList?: Array<{
     type: string
+    /**
+     * called child action in this action, when type is action
+     */
+    action?: IDebugInfo
     callStack: PropertyKey[]
     oldValue?: any
     /**
@@ -145,15 +149,11 @@ interface IDebugInfo {
      */
     value?: any
     /**
-     * used when type is delete
+     * operate key
      */
-    deleteKey?: PropertyKey
+    key?: PropertyKey
     customMessage?: any[]
   }>
-  /**
-   * child actions
-   */
-  childs?: IDebugInfo[]
 }
 ```
 

@@ -26,9 +26,13 @@ export interface IDebugInfo {
      */
     type: string
     /**
+     * 调用的 action，仅 type 为 action 时
+     */
+    action?: IDebugInfo
+    /**
      * 调用栈
      */
-    callStack: PropertyKey[]
+    callStack?: PropertyKey[]
     /**
      * 旧值
      */
@@ -46,10 +50,6 @@ export interface IDebugInfo {
      */
     customMessage?: any[]
   }>
-  /**
-   * 子 action
-   */
-  childs?: IDebugInfo[]
 }
 
 class GlobalState {
