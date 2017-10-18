@@ -1,4 +1,4 @@
-import { Action, Atom, observable, observe } from "../../index"
+import { Action, Atom, observable, observe } from "../../src"
 
 export function isPromiseLike<T>(result: PromiseLike<T> | T): result is PromiseLike<T> {
   return result && typeof (result as any).then === "function";

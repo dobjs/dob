@@ -1,8 +1,11 @@
 import { Atom } from "./atom"
+import { globalState } from "./global-state"
 import { createReduxStore, getSnapshot, onSnapshot, Task } from "./immutable"
 import { Action, isObservable, observable, observe, Static } from "./observer"
 import { Reaction } from "./reaction"
 import { cancelStrict, startDebug, stopDebug, useStrict } from "./utils"
+
+const event = globalState.event
 
 export {
     observable,
@@ -26,5 +29,7 @@ export {
     stopDebug,
 
     useStrict,
-    cancelStrict
+    cancelStrict,
+
+    event
 }

@@ -1,4 +1,4 @@
-import { createReduxStore } from "../../../index"
+import { createReduxStore } from "../../../src"
 import Todo from "./todo"
 
 const { store, actions } = createReduxStore({

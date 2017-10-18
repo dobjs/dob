@@ -1,5 +1,5 @@
 import test from "ava"
-import { Action, isObservable, observable, observe, Reaction, Static } from "../index"
+import { Action, isObservable, observable, observe, Reaction, Static } from "../src/index"
 
 test("reaction 初始化不会执行 callback", t => {
   let flag = false

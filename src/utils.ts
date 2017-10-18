@@ -1,4 +1,4 @@
-import { globalState } from "./global-state"
+import { globalState, IDebugOutputBundleAction } from "./global-state"
 import { Reaction } from "./reaction"
 
 export declare type Func = (...args: any[]) => any
@@ -53,7 +53,7 @@ export const noop = () => { };
  * 是否在 action 中
  */
 export function inAction() {
-  return globalState.inBatch !== 0
+  return globalState.batchDeep !== 0
 }
 
 /**
@@ -91,6 +91,10 @@ export function getBinder(object: any, key: PropertyKey) {
  * 开启调试模式
  */
 export function startDebug() {
+  if (!globalState.strictMode) {
+    throw Error("请先 .useStrict() 进入严格模式，再开启 debug")
+  }
+
   globalState.useDebug = true
 }
 
@@ -114,13 +118,52 @@ export function registerParentInfo(target: object, key: PropertyKey, value: any)
 }
 
 /**
+ * debug 入栈 action
+ */
+export function debugInAction(actionName: string) {
+  const debugOutputBundleAction: IDebugOutputBundleAction = {
+    name: actionName,
+    changeList: [],
+    childs: []
+  }
+
+  globalState.debugOutputActionMapBatchDeep.set(globalState.batchDeep, debugOutputBundleAction)
+  globalState.currentDebugOutputAction = debugOutputBundleAction
+
+  // 如果深度等于 1，生成唯一 id 给这个 action
+  if (globalState.batchDeep === 1) {
+    debugOutputBundleAction.id = getUniqueId()
+    globalState.currentDebugId = debugOutputBundleAction.id
+  }
+
+  // 如果当前深度大于 1，就作为加到父级的 childs
+  if (globalState.batchDeep > 1) {
+    globalState.debugOutputActionMapBatchDeep.get(globalState.batchDeep - 1).childs.push(debugOutputBundleAction)
+  }
+}
+
+/**
+ * debug 出栈 action
+ */
+export function debugOutAction() {
+  if (!inAction()) {
+    // 如果完全出队列了，把存储的 debug 信息输出给 debug 事件，并清空 debug 信息
+    globalState.event.emit("debug", JSON.parse(JSON.stringify(globalState.debugOutputActionMapBatchDeep.get(1))))
+    globalState.currentDebugOutputAction = null
+    globalState.debugOutputActionMapBatchDeep.clear()
+    // 此时不能清空 globalState.currentDebugId = null，因为后续要传给 callback
+    // action 与 debug 调用顺序：startBatch -> debugInAction -> ...multiple nested startBatch and endBatch -> debugOutAction -> reaction -> observe
+  }
+}
+
+/**
  * 获取对象路径
  */
-function getCallQueue(target: object) {
-  const callQueue: PropertyKey[] = []
+function getCallStack(target: object) {
+  const callStack: PropertyKey[] = []
 
   if (!globalState.parentInfo.has(target)) { // 当前访问的对象就是顶层
-    callQueue.unshift(target.constructor.name)
+    callStack.unshift(target.constructor.name)
   } else {
     let currentTarget: object = target
     let runCount = 0
@@ -129,11 +172,11 @@ function getCallQueue(target: object) {
       const parentInfo = globalState.parentInfo.get(currentTarget)
 
       // 添加调用队列
-      callQueue.unshift(parentInfo.key)
+      callStack.unshift(parentInfo.key)
 
       // 如果父级没有父级了，给调用队列添加父级名称
       if (!globalState.parentInfo.has(parentInfo.parent)) {
-        callQueue.unshift(parentInfo.parent.constructor.name)
+        callStack.unshift(parentInfo.parent.constructor.name)
       }
 
       currentTarget = parentInfo.parent
@@ -145,14 +188,14 @@ function getCallQueue(target: object) {
     }
   }
 
-  return callQueue
+  return callStack
 }
 
 /**
  * 打印 diff 路径
  */
 export function printDiff(target: object, key?: PropertyKey, oldValue?: any, value?: any) {
-  const callQueue = getCallQueue(target)
+  const callStack = getCallStack(target)
 
   let oldValueFormatted = ""
   try {
@@ -168,35 +211,38 @@ export function printDiff(target: object, key?: PropertyKey, oldValue?: any, val
     newValueFormatted = value.toString()
   }
 
-  // tslint:disable-next-line:no-console
-  console.log(`${callQueue.join(".")}.${key}: %c${oldValueFormatted}%c ${newValueFormatted}`, `
-      text-decoration: line-through;
-      color: #999;
-    `, `
-      color: green;
-    `)
+  globalState.currentDebugOutputAction.changeList.push({
+    type: "change",
+    callStack,
+    oldValue,
+    value
+  })
 }
 
 /**
  * 打印删除路径
  */
 export function printDelete(target: object, key?: PropertyKey) {
-  const callQueue = getCallQueue(target)
+  const callStack = getCallStack(target)
 
-  // tslint:disable-next-line:no-console
-  console.log(`${callQueue.join(".")}%c.${key}`, `
-    text-decoration: line-through;
-    color: #999;
-  `)
+  globalState.currentDebugOutputAction.changeList.push({
+    type: "delete",
+    callStack,
+    deleteKey: key
+  })
 }
 
 /**
  * 自定义打印
  */
 export function printCustom(target: object, ...customMessage: any[]) {
-  const callQueue = getCallQueue(target)
-  // tslint:disable-next-line:no-console
-  console.log(callQueue.join("."), ...customMessage)
+  const callStack = getCallStack(target)
+
+  globalState.currentDebugOutputAction.changeList.push({
+    type: "custom",
+    callStack,
+    customMessage,
+  })
 }
 
 /**
@@ -211,4 +257,11 @@ export function useStrict() {
  */
 export function cancelStrict() {
   globalState.strictMode = false
+}
+
+/**
+ * 生成随机唯一 id
+ */
+export function getUniqueId() {
+  return globalState.uniqueIdCounter++
 }

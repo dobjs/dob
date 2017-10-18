@@ -1,14 +1,14 @@
 {
   "name": "dob",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "",
-  "main": "built/index.js",
+  "main": "built/src/index.js",
   "types": "src/index.ts",
   "scripts": {
-    "test": "tsc && nyc --reporter=lcov --reporter=text --reporter=json ava",
+    "test": "tsc && nyc --reporter=lcov --reporter=text --reporter=json ava && rm -rf .nyc_output",
     "posttest": "codecov -f coverage/*.json -t bc4c34e2-24cb-4b05-8b97-7f30395e642b",
     "prepublish": "rm -rf built && tsc && babel built --out-dir built && npm run build",
-    "start": "run-react start",
+    "start": "run-react develop",
     "tslint": "tslint './src/**/*.?(ts|tsx)'",
     "build": "webpack --config built/scripts/webpack.config.js"
   },
@@ -29,11 +29,11 @@
   "homepage": "https://github.com/ascoders/dependency-inject#readme",
   "devDependencies": {
     "@types/classnames": "^2.2.0",
+    "@types/lodash": "^4.14.73",
+    "@types/node": "^7.0.42",
     "@types/react": "^15.0.27",
     "@types/react-dom": "^15.5.0",
     "@types/webpack": "^2.2.15",
-    "@types/lodash": "^4.14.73",
-    "@types/node": "^7.0.42",
     "ascoders-tslint-config": "^1.0.1",
     "ava": "^0.18.2",
     "babel-cli": "^6.24.0",
@@ -44,6 +44,7 @@
     "css-loader": "^0.28.4",
     "nyc": "^11.1.0",
     "pre-commit": "^1.2.2",
+    "react": "^15.6.1",
     "react-dom": "^15.5.4",
     "react-redux": "^5.0.5",
     "run-react": "^2.0.6",
@@ -51,8 +52,7 @@
     "todomvc-app-css": "^2.1.0",
     "tslint": "^5.4.3",
     "typescript": "^2.4.1",
-    "webpack": "^3.3.0",
-    "react": "^15.6.1"
+    "webpack": "^3.3.0"
   },
   "dependencies": {
     "immutable": "^3.8.1",
@@ -63,7 +63,7 @@
   ],
   "run-react": {
     "entrys": [
-      "src/demos/reaction/index.ts"
+      "demos/reaction/index.ts"
     ],
     "rules": [
       {

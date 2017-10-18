@@ -1,5 +1,5 @@
 import test from "ava"
-import { Action, isObservable, observable, observe, onSnapshot, Static } from "../index"
+import { Action, isObservable, observable, observe, onSnapshot, Static } from "../src/index"
 
 test("basic test", t => {
   const snapshots: any = []

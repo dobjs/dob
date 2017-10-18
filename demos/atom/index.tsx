@@ -1,4 +1,4 @@
-// import { Atom, observe } from "../../index"
+// import { Atom, observe } from "../../src"
 
 // class Clock {
 //   private atom: Atom
@@ -40,7 +40,7 @@
 
 // observe(() => console.log(clock.getTime()))
 
-import { observable, observe } from "../../index"
+import { observable, observe } from "../../"
 import { computedAsync } from "./computed-async"
 
 async function fetchName(name: string) {

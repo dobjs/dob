@@ -1,5 +1,5 @@
 import test from "ava"
-import { Action, cancelStrict, isObservable, observable, observe, Static, useStrict } from "../index"
+import { Action, cancelStrict, isObservable, observable, observe, Static, useStrict } from "../src/index"
 
 test("use strict in Action otherwise will throw error", t => {
   const obj = observable({

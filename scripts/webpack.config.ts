@@ -4,7 +4,7 @@ import * as webpack from "webpack"
 const projectRoot = process.cwd()
 
 const webpackConfig = {
-  entry: path.join(__dirname, "../index.js"),
+  entry: path.join(__dirname, "../src/index.js"),
 
   output: {
     path: path.join(__dirname, ".."),

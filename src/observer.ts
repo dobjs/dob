@@ -2,7 +2,7 @@ import builtIns from "./built-ins"
 import { globalState } from "./global-state"
 import { immutableDelete, immutableSet, initImmutable, registerChildsImmutable } from "./immutable"
 import { Reaction } from "./reaction"
-import { Func, getBinder, inAction, isPrimitive, printDelete, printDiff, registerParentInfo } from "./utils"
+import { debugInAction, debugOutAction, Func, getBinder, inAction, isPrimitive, printDelete, printDiff, registerParentInfo } from "./utils"
 
 const MAX_RUN_COUNT = 1000
 
@@ -160,7 +160,7 @@ function proxyValue(target: any, key: PropertyKey, value: any) {
  */
 function queueRunReactions<T extends object>(target: T, key: PropertyKey) {
   // 如果处于严格模式，并且不在 batch 中，报错
-  if (globalState.strictMode && globalState.inBatch === 0) {
+  if (globalState.strictMode && globalState.batchDeep === 0) {
     throw Error("You are not allowed to modify observable value out of Action.")
   }
 
@@ -202,8 +202,6 @@ function runPendingReactions() {
     currentRunCount++
 
     if (currentRunCount >= MAX_RUN_COUNT) {
-      // tslint:disable-next-line:no-console
-      console.warn("执行次数达到上限，可能存在死循环")
       globalState.pendingReactions.clear()
       return
     }
@@ -268,30 +266,28 @@ function observe(callback: Func, delay?: number) {
  * 开始批量执行队列
  */
 function startBatch() {
-  if (globalState.useDebug) {
-    // tslint:disable-next-line:no-console
-    console.groupCollapsed(`Action ${globalState.currentDebugName}`)
-  }
-
-  if (globalState.inBatch === 0) {
+  if (globalState.batchDeep === 0) {
     // 如果正在从 0 开始新的队列，清空原有队列
     globalState.pendingReactions = new Set()
   }
 
-  globalState.inBatch++
+  globalState.batchDeep++
+
+  if (globalState.useDebug) {
+    debugInAction(globalState.currentDebugName)
+  }
 }
 
 /**
  * 结束批量执行队列
  */
 function endBatch() {
-  if (globalState.useDebug) {
-    // tslint:disable-next-line:no-console
-    console.groupEnd()
+  if (--globalState.batchDeep === 0) {
+    runPendingReactions()
   }
 
-  if (--globalState.inBatch === 0) {
-    runPendingReactions()
+  if (globalState.useDebug) {
+    debugOutAction()
   }
 }
 

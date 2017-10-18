@@ -40,7 +40,9 @@ export class Reaction {
     // 先清空所有绑定
     this.clearBinding()
     try {
-      callback()
+      callback({
+        debugId: globalState.currentDebugId
+      })
     } finally {
       globalState.currentReaction = null
     }

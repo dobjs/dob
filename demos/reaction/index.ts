@@ -1,4 +1,4 @@
-import { Action, isObservable, observable, observe, Reaction } from "../../"
+import { Action, event, isObservable, observable, observe, Reaction, startDebug, useStrict } from "../../src"
 
 const obj = observable({
   a: 1,
@@ -16,3 +16,4 @@ reaction.track(() => {
 })
 
 obj.a = 3
+

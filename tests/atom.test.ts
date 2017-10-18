@@ -1,5 +1,5 @@
 import test from "ava"
-import { Atom, observe } from "../index"
+import { Atom, observe } from "../src/index"
 
 class Clock {
   private atom: Atom

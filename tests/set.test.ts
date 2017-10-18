@@ -1,5 +1,5 @@
 import test from "ava"
-import { Action, isObservable, observable, observe, Static } from "../index"
+import { Action, isObservable, observable, observe, Static } from "../src/index"
 
 test("should return a new observable when no argument is provided", t => {
   let size = 0

@@ -1,5 +1,5 @@
 import test from "ava"
-import { Action, isObservable, observable, observe, Static } from "../index"
+import { Action, isObservable, observable, observe, Static } from "../src/index"
 
 // /**
 //  * observable

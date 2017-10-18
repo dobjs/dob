@@ -1,4 +1,4 @@
-import { observable, observe } from "../../index"
+import { observable, observe } from "../../src"
 
 const obj = observable({
   title: "hello"

@@ -1,3 +1,4 @@
+import { Event } from "./event"
 import { Reaction } from "./reaction"
 import { Func } from "./utils"
 
@@ -6,6 +7,50 @@ const tag = "ascoders-dob"
 const globalOrWindow = (typeof self === "object" && self.self === self && self) ||
   (typeof global === "object" && global.global === global && global) ||
   this
+
+export interface IDebugOutputBundleAction {
+  /**
+   * 唯一 id，只有根节点 action 拥有
+   */
+  id?: number
+  /**
+   * action 名称
+   */
+  name?: string
+  /**
+   * 当前 action 的修改列表
+   */
+  changeList?: Array<{
+    /**
+     * 修改类型
+     */
+    type: string
+    /**
+     * 调用栈
+     */
+    callStack: PropertyKey[]
+    /**
+     * 旧值
+     */
+    oldValue?: any
+    /**
+     * 新值
+     */
+    value?: any
+    /**
+     * 删除类型时，删除的 key
+     */
+    deleteKey?: PropertyKey
+    /**
+     * 自定义输出
+     */
+    customMessage?: any[]
+  }>
+  /**
+   * 子 action
+   */
+  childs?: IDebugOutputBundleAction[]
+}
 
 class GlobalState {
   /**
@@ -28,9 +73,9 @@ class GlobalState {
   public currentReaction: Reaction = null
   /**
    * 批量执行深入，比如每次调用 runInAction 深入 +1，调用完 -1，深入为 0 时表示执行完了
-   * 当 inBatch === 0 时，表示操作队列完毕
+   * 当 batchDeep === 0 时，表示操作队列完毕
    */
-  public inBatch = 0
+  public batchDeep = 0
   /**
    * 所有 action 中等执行队列的集合
    */
@@ -48,6 +93,14 @@ class GlobalState {
    */
   public useDebug = false
   /**
+   * 当前正在操作的 debugOutputAction 对象，这样在修改值的时候，直接操作其 changeList 队列即可
+   */
+  public currentDebugOutputAction: IDebugOutputBundleAction = null
+  /**
+   * 各 batchDeep 的根 debugOutputBundleAction
+   */
+  public debugOutputActionMapBatchDeep = new Map<number, IDebugOutputBundleAction>()
+  /**
    * object 的父级信息
    */
   public parentInfo = new WeakMap<object, {
@@ -59,9 +112,21 @@ class GlobalState {
    */
   public currentDebugName: string = null
   /**
+   * 当前所在 debugId
+   */
+  public currentDebugId: number = null
+  /**
    * 当前是否处于严格模式
    */
   public strictMode = false
+  /**
+   * 事件
+   */
+  public event = new Event()
+  /**
+   * 唯一 id 计数器
+   */
+  public uniqueIdCounter = 0
 }
 
 let globalState = new GlobalState()

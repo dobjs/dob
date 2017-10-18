@@ -1,4 +1,4 @@
-import { observable, Task } from "../../../index"
+import { observable, Task } from "../../../src"
 
 export default class TODO {
     private store = observable({
