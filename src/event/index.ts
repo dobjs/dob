@@ -1,4 +1,4 @@
-import { IDebugOutputBundleAction } from "../global-state"
+import { IDebugInfo } from "../global-state"
 export declare type EventType = number | string
 
 /**
@@ -17,7 +17,7 @@ export class Event {
   /**
    * 订阅事件
    */
-  public on(eventType: "debug", callback: (context?: IDebugOutputBundleAction) => void): void
+  public on(eventType: "debug", callback: (context?: IDebugInfo) => void): void
   public on(eventType: EventType, callback: ICallback): void {
     const event: IEvent = {
       callback

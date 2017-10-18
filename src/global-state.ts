@@ -8,7 +8,7 @@ const globalOrWindow = (typeof self === "object" && self.self === self && self) 
   (typeof global === "object" && global.global === global && global) ||
   this
 
-export interface IDebugOutputBundleAction {
+export interface IDebugInfo {
   /**
    * 唯一 id，只有根节点 action 拥有
    */
@@ -49,7 +49,7 @@ export interface IDebugOutputBundleAction {
   /**
    * 子 action
    */
-  childs?: IDebugOutputBundleAction[]
+  childs?: IDebugInfo[]
 }
 
 class GlobalState {
@@ -95,11 +95,11 @@ class GlobalState {
   /**
    * 当前正在操作的 debugOutputAction 对象，这样在修改值的时候，直接操作其 changeList 队列即可
    */
-  public currentDebugOutputAction: IDebugOutputBundleAction = null
+  public currentDebugOutputAction: IDebugInfo = null
   /**
    * 各 batchDeep 的根 debugOutputBundleAction
    */
-  public debugOutputActionMapBatchDeep = new Map<number, IDebugOutputBundleAction>()
+  public debugOutputActionMapBatchDeep = new Map<number, IDebugInfo>()
   /**
    * object 的父级信息
    */

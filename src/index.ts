@@ -1,5 +1,5 @@
 import { Atom } from "./atom"
-import { globalState } from "./global-state"
+import { globalState, IDebugInfo } from "./global-state"
 import { createReduxStore, getSnapshot, onSnapshot, Task } from "./immutable"
 import { Action, isObservable, observable, observe, Static } from "./observer"
 import { Reaction } from "./reaction"
@@ -27,6 +27,7 @@ export {
 
     startDebug,
     stopDebug,
+    IDebugInfo,
 
     useStrict,
     cancelStrict,

@@ -1,4 +1,4 @@
-import { globalState, IDebugOutputBundleAction } from "./global-state"
+import { globalState, IDebugInfo } from "./global-state"
 import { Reaction } from "./reaction"
 
 export declare type Func = (...args: any[]) => any
@@ -121,7 +121,7 @@ export function registerParentInfo(target: object, key: PropertyKey, value: any)
  * debug 入栈 action
  */
 export function debugInAction(actionName: string) {
-  const debugOutputBundleAction: IDebugOutputBundleAction = {
+  const debugOutputBundleAction: IDebugInfo = {
     name: actionName,
     changeList: [],
     childs: []
