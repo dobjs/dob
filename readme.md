@@ -157,7 +157,7 @@ interface IDebugInfo {
 }
 ```
 
-[demo](https://jsfiddle.net/qttth5vs/3/)
+[demo](https://jsfiddle.net/qttth5vs/7/)
 
 ## Inspired
 
