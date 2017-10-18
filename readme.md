@@ -105,16 +105,57 @@ You can clone this project, and run `npm start` to see [redux todoMVC demo](./sr
 ## Debug in console
 
 ```typescript
-import { startDebug, stopDebug } from 'dob'
+import { startDebug, stopDebug, useStrict, event } from 'dob'
+
+// first, must useStrict
+useStrict()
 
 // start debug
 startDebug()
+
+// you can receive debug info from event
+event.on("debug", debugInfo: IDebugInfo => {
+
+})
 
 // end debug
 stopDebug()
 ```
 
 The debug mode prints the trigger timing and assignment steps for all the `@Action` functions.
+
+`IDebugInfo`:
+
+```typescript
+interface IDebugInfo {
+  /**
+   * uniqueId, you can also receive it from `observe` or `reaction` callback first argument's field `debugId`
+   */
+  id?: number
+  /**
+   * action's name
+   */
+  name?: string
+  changeList?: Array<{
+    type: string
+    callStack: PropertyKey[]
+    oldValue?: any
+    /**
+     * new value
+     */
+    value?: any
+    /**
+     * used when type is delete
+     */
+    deleteKey?: PropertyKey
+    customMessage?: any[]
+  }>
+  /**
+   * child actions
+   */
+  childs?: IDebugInfo[]
+}
+```
 
 [demo](https://jsfiddle.net/qttth5vs/3/)
 
