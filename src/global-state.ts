@@ -38,9 +38,9 @@ export interface IDebugInfo {
      */
     value?: any
     /**
-     * 删除类型时，删除的 key
+     * 具体操作的是哪个 key
      */
-    deleteKey?: PropertyKey
+    key?: PropertyKey
     /**
      * 自定义输出
      */

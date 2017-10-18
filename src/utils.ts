@@ -197,24 +197,11 @@ function getCallStack(target: object) {
 export function printDiff(target: object, key?: PropertyKey, oldValue?: any, value?: any) {
   const callStack = getCallStack(target)
 
-  let oldValueFormatted = ""
-  try {
-    oldValueFormatted = JSON.stringify(oldValue, null, 2)
-  } catch (error) {
-    oldValueFormatted = oldValue.toString()
-  }
-
-  let newValueFormatted = ""
-  try {
-    newValueFormatted = JSON.stringify(value, null, 2)
-  } catch (error) {
-    newValueFormatted = value.toString()
-  }
-
   globalState.currentDebugOutputAction.changeList.push({
     type: "change",
     callStack,
     oldValue,
+    key,
     value
   })
 }
@@ -228,7 +215,7 @@ export function printDelete(target: object, key?: PropertyKey) {
   globalState.currentDebugOutputAction.changeList.push({
     type: "delete",
     callStack,
-    deleteKey: key
+    key,
   })
 }
 
