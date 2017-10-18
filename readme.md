@@ -105,7 +105,7 @@ You can clone this project, and run `npm start` to see [redux todoMVC demo](./sr
 ## Debug in console
 
 ```typescript
-import { startDebug, stopDebug, useStrict, event } from 'dob'
+import { startDebug, stopDebug, useStrict, dobEvent } from 'dob'
 
 // first, must useStrict
 useStrict()
@@ -113,8 +113,8 @@ useStrict()
 // start debug
 startDebug()
 
-// you can receive debug info from event
-event.on("debug", debugInfo: IDebugInfo => {
+// you can receive debug info from dobEvent
+dobEvent.on("debug", debugInfo: IDebugInfo => {
 
 })
 
