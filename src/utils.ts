@@ -1,5 +1,5 @@
 import * as cloneDeep from "lodash.clonedeep"
-import { globalState, IDebugInfo } from "./global-state"
+import { globalState, IDebugInfo, IDebugChange } from "./global-state"
 import { Reaction } from "./reaction"
 
 export declare type Func = (...args: any[]) => any
@@ -203,7 +203,7 @@ function getCallStack(target: object) {
 export function printDiff(target: object, key?: PropertyKey, oldValue?: any, value?: any) {
   const callStack = getCallStack(target)
 
-  globalState.currentDebugOutputAction.changeList.push({
+  reportChange({
     type: "change",
     callStack,
     oldValue: cloneDeep(oldValue),
@@ -218,7 +218,7 @@ export function printDiff(target: object, key?: PropertyKey, oldValue?: any, val
 export function printDelete(target: object, key?: PropertyKey) {
   const callStack = getCallStack(target)
 
-  globalState.currentDebugOutputAction.changeList.push({
+  reportChange({
     type: "delete",
     callStack,
     key,
@@ -231,11 +231,26 @@ export function printDelete(target: object, key?: PropertyKey) {
 export function printCustom(target: object, ...customMessage: any[]) {
   const callStack = getCallStack(target)
 
-  globalState.currentDebugOutputAction.changeList.push({
+  reportChange({
     type: "custom",
     callStack,
     customMessage,
   })
+}
+
+/**
+ * 通知修改
+ */
+function reportChange(change: IDebugChange) {
+  if (globalState.currentDebugOutputAction) {
+    globalState.currentDebugOutputAction.changeList.push(change)
+  } else { // 脱离了 action 事件循环的孤立改动
+    globalState.event.emit("debug", {
+      id: getUniqueId(),
+      name: "special_isolated",
+      changeList: [change]
+    })
+  }
 }
 
 /**

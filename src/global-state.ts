@@ -20,36 +20,38 @@ export interface IDebugInfo {
   /**
    * 当前 action 的修改列表
    */
-  changeList?: Array<{
-    /**
-     * 修改类型
-     */
-    type: string
-    /**
-     * 调用的 action，仅 type 为 action 时
-     */
-    action?: IDebugInfo
-    /**
-     * 调用栈
-     */
-    callStack?: PropertyKey[]
-    /**
-     * 旧值
-     */
-    oldValue?: any
-    /**
-     * 新值
-     */
-    value?: any
-    /**
-     * 具体操作的是哪个 key
-     */
-    key?: PropertyKey
-    /**
-     * 自定义输出
-     */
-    customMessage?: any[]
-  }>
+  changeList?: IDebugChange[]
+}
+
+export interface IDebugChange {
+  /**
+   * 修改类型
+   */
+  type: string
+  /**
+   * 调用的 action，仅 type 为 action 时
+   */
+  action?: IDebugInfo
+  /**
+   * 调用栈
+   */
+  callStack?: PropertyKey[]
+  /**
+   * 旧值
+   */
+  oldValue?: any
+  /**
+   * 新值
+   */
+  value?: any
+  /**
+   * 具体操作的是哪个 key
+   */
+  key?: PropertyKey
+  /**
+   * 自定义输出
+   */
+  customMessage?: any[]
 }
 
 class GlobalState {

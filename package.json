@@ -1,6 +1,6 @@
 {
   "name": "dob",
-  "version": "2.4.8",
+  "version": "2.4.9",
   "description": "",
   "main": "built/src/index.js",
   "types": "src/index.ts",
@@ -64,7 +64,7 @@
   ],
   "run-react": {
     "entrys": [
-      "demos/debug/index.ts"
+      "demos/async/index.ts"
     ],
     "rules": [
       {
