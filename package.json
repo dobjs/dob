@@ -28,12 +28,6 @@
   },
   "homepage": "https://github.com/ascoders/dependency-inject#readme",
   "devDependencies": {
-    "@types/classnames": "^2.2.0",
-    "@types/lodash": "^4.14.73",
-    "@types/node": "^7.0.42",
-    "@types/react": "^15.0.27",
-    "@types/react-dom": "^15.5.0",
-    "@types/webpack": "^2.2.15",
     "ascoders-tslint-config": "^1.0.1",
     "ava": "^0.18.2",
     "babel-cli": "^6.24.0",
@@ -55,6 +49,12 @@
     "webpack": "^3.3.0"
   },
   "dependencies": {
+    "@types/classnames": "*",
+    "@types/lodash": "*",
+    "@types/node": "*",
+    "@types/react": "*",
+    "@types/react-dom": "*",
+    "@types/webpack": "*",
     "immutable": "^3.8.1",
     "lodash.clonedeep": "^4.5.0",
     "redux": "^3.7.2"
