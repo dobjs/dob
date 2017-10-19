@@ -150,8 +150,16 @@ export function debugOutAction() {
   globalState.currentDebugOutputAction = globalState.debugOutputActionMapBatchDeep.get(globalState.batchDeep)
 
   if (!inAction()) {
+    let cloneDebugInfo: IDebugInfo = null
+
+    try {
+      cloneDebugInfo = JSON.parse(JSON.stringify(globalState.debugOutputActionMapBatchDeep.get(1)))
+    } catch (error) {
+      return
+    }
+
     // 如果完全出队列了，把存储的 debug 信息输出给 debug 事件，并清空 debug 信息
-    globalState.event.emit("debug", JSON.parse(JSON.stringify(globalState.debugOutputActionMapBatchDeep.get(1))))
+    globalState.event.emit("debug", cloneDebugInfo)
     globalState.currentDebugOutputAction = null
     globalState.debugOutputActionMapBatchDeep.clear()
     // 此时不能清空 globalState.currentDebugId = null，因为后续要传给 callback
