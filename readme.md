@@ -133,6 +133,7 @@ interface IDebugInfo {
    * action's name
    */
   name?: string
+  type: string
   changeList?: Array<{
     type: string
     /**

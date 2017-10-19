@@ -1,5 +1,5 @@
 import * as cloneDeep from "lodash.clonedeep"
-import { globalState, IDebugInfo, IDebugChange } from "./global-state"
+import { globalState, IDebugChange, IDebugInfo } from "./global-state"
 import { Reaction } from "./reaction"
 
 export declare type Func = (...args: any[]) => any
@@ -120,7 +120,8 @@ export function registerParentInfo(target: object, key: PropertyKey, value: any)
 export function debugInAction(actionName: string) {
   const debugOutputBundleAction: IDebugInfo = {
     name: actionName,
-    changeList: []
+    changeList: [],
+    type: "action"
   }
 
   globalState.debugOutputActionMapBatchDeep.set(globalState.batchDeep, debugOutputBundleAction)
@@ -243,8 +244,9 @@ function reportChange(change: IDebugChange) {
   } else { // 脱离了 action 事件循环的孤立改动
     globalState.event.emit("debug", {
       id: getUniqueId(),
-      name: "special_isolated",
-      changeList: [change]
+      name: null,
+      changeList: [change],
+      type: "isolated"
     })
   }
 }

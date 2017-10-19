@@ -21,6 +21,10 @@ export interface IDebugInfo {
    * 当前 action 的修改列表
    */
   changeList?: IDebugChange[]
+  /**
+   * 类型
+   */
+  type: string
 }
 
 export interface IDebugChange {
