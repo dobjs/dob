@@ -92,10 +92,6 @@ export function getBinder(object: any, key: PropertyKey) {
  * 开启调试模式
  */
 export function startDebug() {
-  if (!globalState.strictMode) {
-    throw Error("请先 .useStrict() 进入严格模式，再开启 debug")
-  }
-
   globalState.useDebug = true
 }
 

@@ -107,9 +107,6 @@ You can clone this project, and run `npm start` to see [redux todoMVC demo](./sr
 ```typescript
 import { startDebug, stopDebug, useStrict, dobEvent } from 'dob'
 
-// first, must useStrict
-useStrict()
-
 // start debug
 startDebug()
 
