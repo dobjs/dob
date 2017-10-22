@@ -44,7 +44,7 @@ class App extends React.Component {
     render() {
         return (
             <span onClick={this.props.UserAction.setName}>
-                {this.props.store.name}
+                {this.props.UserStore.name}
             </span>
         )
     }
