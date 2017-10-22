@@ -1,6 +1,6 @@
 {
   "name": "dob",
-  "version": "2.4.13",
+  "version": "2.4.14",
   "description": "",
   "main": "built/src/index.js",
   "types": "src/index.ts",
@@ -57,14 +57,15 @@
     "@types/webpack": "*",
     "immutable": "^3.8.1",
     "lodash.clonedeep": "^4.5.0",
-    "redux": "^3.7.2"
+    "redux": "^3.7.2",
+    "dependency-inject": "^1.1.0"
   },
   "pre-commit": [
     "tslint"
   ],
   "run-react": {
     "entrys": [
-      "demos/async/index.ts"
+      "demos/debug/index.ts"
     ],
     "rules": [
       {

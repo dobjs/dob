@@ -1,4 +1,4 @@
-import { Action, dobEvent, isObservable, observable, observe, Reaction, startDebug, useStrict } from "../../src"
+import { Action, combineStores, dobEvent, inject, isObservable, observable, observe, Reaction, startDebug, useStrict } from "../../src"
 
 useStrict()
 startDebug()
@@ -9,23 +9,38 @@ dobEvent.on("debug", info => {
 })
 
 @observable
-class Test {
+class Store1 {
   public age = 1
+}
+
+class Action1 {
+  @inject(Store1) private Store1: Store1
 
   @Action public test1() {
-    this.test2()
-    this.age = 2
-  }
-
-  @Action public test2() {
-    this.age = 3
-    this.test3()
-  }
-
-  @Action public test3() {
-    this.age = 4
+    this.Store1.age = 2
   }
 }
 
-const test = new Test()
-test.test1()
+@observable
+class Store2 {
+  public name = "小明"
+}
+
+class Action2 {
+  @inject(Store2) private Store2: Store2
+  @inject(Store1) private Store1: Store1
+
+  @Action public test2() {
+    this.Store2.name = "小红"
+    this.Store1.age = 3
+  }
+}
+
+const stores = combineStores({
+  Store1,
+  Action1,
+  Store2,
+  Action2
+})
+
+stores.Action2.test2()

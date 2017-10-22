@@ -1,3 +1,4 @@
+import { inject, injectFactory as combineStores } from "dependency-inject"
 import { Atom } from "./atom"
 import { globalState, IDebugInfo } from "./global-state"
 import { createReduxStore, getSnapshot, onSnapshot, Task } from "./immutable"
@@ -32,5 +33,8 @@ export {
     useStrict,
     cancelStrict,
 
-    dobEvent
+    dobEvent,
+
+    inject,
+    combineStores
 }

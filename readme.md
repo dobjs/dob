@@ -23,9 +23,8 @@ You can enjoy the benefits of proxy, for example `obj.a = { b: 5 }` is effective
 ## Use in react
 
 ```typescript
-import { Action, observable } from 'dob'
+import { Action, observable, combineStores, inject } from 'dob'
 import { Provider, Connect } from 'dob-react'
-import { injectFactory, inject } from 'dependency-inject';
 
 @observable
 export class UserStore {
@@ -51,15 +50,19 @@ class App extends React.Component {
     }
 }
 
-const store = injectFactory({
-    UserStore,
-    UserAction
-})
-
 ReactDOM.render(
-    <Provider {...store}> <App /> </Provider>
+    <Provider {
+        ...combineStores({
+            UserStore,
+            UserAction
+        })
+    }>
+        <App />
+    </Provider>
 , document.getElementById('react-dom'))
 ```
+
+> Use `inject` to pick stores in action, do not `new UserStore()`, it's terrible for later maintenance.
 
 ## Installation
 
@@ -89,10 +92,6 @@ You can read [quick start](./docs/mutable-quick-start.md) first, then read them:
 
 Here is a basic [demo](https://jsfiddle.net/yp90Lep9/21/), and here is a [demo](https://jsfiddle.net/g19ehhgu/11/) with fractal.
 
-### Combining [dependency-inject](https://github.com/ascoders/dependency-inject)
-
-Here is a basic [demo](https://jsfiddle.net/bmea0pat/23/), and here is a [demo](https://jsfiddle.net/ppt3ztx7/4/) with fractal and dependency-inject.
-
 ### Combining [react-redux](https://github.com/reactjs/react-redux)
 
 Here is a basic [demo](https://jsfiddle.net/56saqqvw/8/)
@@ -121,39 +120,7 @@ stopDebug()
 
 The debug mode prints the trigger timing and assignment steps for all the `@Action` functions.
 
-`IDebugInfo`:
-
-```typescript
-interface IDebugInfo {
-  /**
-   * uniqueId, you can also receive it from `observe` or `reaction` callback first argument's field `debugId`
-   */
-  id?: number
-  /**
-   * action's name
-   */
-  name?: string
-  type: string
-  changeList?: Array<{
-    type: string
-    /**
-     * called child action in this action, when type is action
-     */
-    action?: IDebugInfo
-    callStack: PropertyKey[]
-    oldValue?: any
-    /**
-     * new value
-     */
-    value?: any
-    /**
-     * operate key
-     */
-    key?: PropertyKey
-    customMessage?: any[]
-  }>
-}
-```
+Looking for [debug details](./docs/debug.md).
 
 [demo](https://jsfiddle.net/qttth5vs/7/)
 

@@ -304,7 +304,7 @@ function Action(arg1: any, arg2?: any, arg3?: any) {
   if (arg2 === undefined) {
     return runInAction.call(this, arg1, arg1.name)
   }
-  return actionDecorator.call(this, arg1, arg2, arg3)
+  return actionDecorator.call(this, arg1, arg1.constructor.name + "." + arg2, arg3)
 }
 
 /**
