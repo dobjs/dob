@@ -1,6 +1,6 @@
 {
   "name": "dob",
-  "version": "2.4.14",
+  "version": "2.4.15",
   "description": "",
   "main": "built/src/index.js",
   "types": "src/index.ts",
@@ -28,6 +28,12 @@
   },
   "homepage": "https://github.com/ascoders/dependency-inject#readme",
   "devDependencies": {
+    "@types/classnames": "*",
+    "@types/lodash": "*",
+    "@types/node": "*",
+    "@types/react": "*",
+    "@types/react-dom": "*",
+    "@types/webpack": "*",
     "ascoders-tslint-config": "^1.0.1",
     "ava": "^0.18.2",
     "babel-cli": "^6.24.0",
@@ -49,12 +55,6 @@
     "webpack": "^3.3.0"
   },
   "dependencies": {
-    "@types/classnames": "*",
-    "@types/lodash": "*",
-    "@types/node": "*",
-    "@types/react": "*",
-    "@types/react-dom": "*",
-    "@types/webpack": "*",
     "immutable": "^3.8.1",
     "lodash.clonedeep": "^4.5.0",
     "redux": "^3.7.2",
@@ -65,7 +65,7 @@
   ],
   "run-react": {
     "entrys": [
-      "demos/debug/index.ts"
+      "demos/action/index.ts"
     ],
     "rules": [
       {
