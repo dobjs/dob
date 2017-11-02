@@ -6,8 +6,6 @@ import { Action, isObservable, observable, observe, Static } from "./observer"
 import { Reaction } from "./reaction"
 import { cancelStrict, startDebug, stopDebug, useStrict } from "./utils"
 
-const dobEvent = globalState.event
-
 export {
     observable,
     observe,
@@ -33,8 +31,7 @@ export {
     useStrict,
     cancelStrict,
 
-    dobEvent,
-
     inject,
-    combineStores
+    combineStores,
+    globalState
 }
