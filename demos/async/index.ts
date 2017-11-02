@@ -1,4 +1,4 @@
-import { Action, dobEvent, isObservable, observable, observe, Reaction, startDebug, useStrict } from "../../src"
+import { Action, globalState, isObservable, observable, observe, Reaction, startDebug, useStrict } from "../../src"
 
 function waitOneMinute() {
   return new Promise(resolve => {

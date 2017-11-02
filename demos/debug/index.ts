@@ -1,9 +1,9 @@
-import { Action, combineStores, dobEvent, inject, isObservable, observable, observe, Reaction, startDebug, useStrict } from "../../src"
+import { Action, combineStores, globalState, inject, isObservable, observable, observe, Reaction, startDebug, useStrict } from "../../src"
 
 useStrict()
 startDebug()
 
-dobEvent.on("debug", info => {
+globalState.event.on("debug", info => {
   // tslint:disable-next-line:no-console
   console.log(123, info)
 })
