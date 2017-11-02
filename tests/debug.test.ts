@@ -1,5 +1,5 @@
 import test from "ava"
-import { Action, cancelStrict, isObservable, observable, observe, onSnapshot, startDebug, Static, stopDebug, useStrict } from "../src/index"
+import { Action, cancelStrict, isObservable, observable, observe, startDebug, Static, stopDebug, useStrict } from "../src/index"
 
 test("debug", t => {
   useStrict()

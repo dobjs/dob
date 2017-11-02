@@ -1,6 +1,6 @@
 {
   "name": "dob",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "",
   "main": "built/src/index.js",
   "types": "src/index.ts",
@@ -65,7 +65,7 @@
   ],
   "run-react": {
     "entrys": [
-      "demos/action/index.ts"
+      "demos/action/index.tsx"
     ],
     "rules": [
       {

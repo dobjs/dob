@@ -1,5 +1,4 @@
 import { globalState } from "../global-state"
-import { immutableDelete, immutableSet, registerChildsImmutable } from "../immutable"
 import { printDelete, printDiff, registerParentInfo } from "../utils"
 
 const native: Map<any, any> & {

@@ -18,6 +18,21 @@ export class Event {
    * 订阅事件
    */
   public on(eventType: "debug", callback: (context?: IDebugInfo) => void): void
+  public on(eventType: "deleteProperty", callback: (context?: {
+    target: any
+    key: PropertyKey
+  }) => void): void
+  public on(eventType: "get", callback: (context?: {
+    target: any
+    key: PropertyKey
+    value: any
+  }) => void): void
+  public on(eventType: "set", callback: (context?: {
+    target: any
+    key: PropertyKey
+    value: any
+    oldValue: any
+  }) => void): void
   public on(eventType: EventType, callback: ICallback): void {
     const event: IEvent = {
       callback

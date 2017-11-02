@@ -1,6 +1,5 @@
 import builtIns from "./built-ins"
 import { globalState } from "./global-state"
-import { immutableDelete, immutableSet, initImmutable, registerChildsImmutable } from "./immutable"
 import { Reaction } from "./reaction"
 import { debugInAction, debugOutAction, Func, getBinder, inAction, isPrimitive, printDelete, printDiff, registerParentInfo } from "./utils"
 
@@ -68,7 +67,7 @@ function toObservable<T extends object>(obj: T): T {
         }
 
         // 将子元素注册到 immutable，子元素可以找到其根节点对象，以及路径
-        registerChildsImmutable(target)
+        globalState.event.emit("get", { target, key, value })
 
         bindCurrentReaction(target, key)
 
@@ -86,7 +85,7 @@ function toObservable<T extends object>(obj: T): T {
           value = value.$raw || value
         }
 
-        immutableSet(target, key, value)
+        globalState.event.emit("set", { target, key, value, oldValue })
 
         const result = Reflect.set(target, key, value, receiver)
 
@@ -105,7 +104,8 @@ function toObservable<T extends object>(obj: T): T {
 
       deleteProperty(target, key) {
         const hasKey = Reflect.has(target, key)
-        immutableDelete(target, key)
+
+        globalState.event.emit("deleteProperty", { target, key })
 
         const result = Reflect.deleteProperty(target, key)
 
