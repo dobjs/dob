@@ -1,8 +1,14 @@
 # Dob &middot; [![CircleCI Status](https://img.shields.io/travis/ascoders/dob/master.svg?style=flat)](https://travis-ci.org/ascoders/dob) [![npm version](https://img.shields.io/npm/v/dob.svg?style=flat)](https://www.npmjs.com/package/dob) [![code coverage](https://img.shields.io/codecov/c/github/ascoders/dob/master.svg)](https://codecov.io/github/ascoders/dob)
 
-<img src="./docs/dob logo.png" height=200/>
-
-Dob is a tool for monitoring object changes. Using [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
+<p align="center">
+    <img src="./docs/dob logo.png" height=100/>
+    <h3 align="center">dob</h3>
+    <p align="center">
+        <i>
+            Dob is a tool for monitoring object changes. Using [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
+        </i>
+    <p>
+</p>
 
 ## Examples
 
