@@ -19,14 +19,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ascoders/dependency-inject.git"
+    "url": "git+https://github.com/dobjs/dob.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/ascoders/dependency-inject/issues"
+    "url": "https://github.com/dobjs/dob/issues"
   },
-  "homepage": "https://github.com/ascoders/dependency-inject#readme",
+  "homepage": "https://github.com/dobjs/dob#readme",
   "devDependencies": {
     "@types/classnames": "*",
     "@types/lodash": "*",
