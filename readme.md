@@ -5,7 +5,7 @@
     <h3 align="center">dob</h3>
     <p align="center">
         <i>
-            Dob is a tool for monitoring object changes. Using [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy).
+            Dob is a tool for monitoring object changes. Using <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy">Proxy</a>.
         </i>
     <p>
 </p>
