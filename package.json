@@ -62,7 +62,7 @@
   ],
   "run-react": {
     "entrys": [
-      "demos/action/index.tsx"
+      "demos/debug/index"
     ],
     "rules": [
       {

@@ -33,6 +33,8 @@ export class Event {
     value: any
     oldValue: any
   }) => void): void
+  public on(eventType: "startBatch" | "endBatch", callback: () => void): void
+  public on(eventType: "runInAction", callback: (debugName?: string) => void): void
   public on(eventType: EventType, callback: ICallback): void {
     const event: IEvent = {
       callback

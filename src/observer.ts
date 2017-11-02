@@ -1,7 +1,7 @@
 import builtIns from "./built-ins"
 import { globalState } from "./global-state"
 import { Reaction } from "./reaction"
-import { debugInAction, debugOutAction, Func, getBinder, inAction, isPrimitive, printDelete, printDiff, registerParentInfo } from "./utils"
+import { Func, getBinder, inAction, isPrimitive } from "./utils"
 
 const MAX_RUN_COUNT = 1000
 
@@ -57,10 +57,6 @@ function toObservable<T extends object>(obj: T): T {
       get(target, key, receiver) {
         let value = Reflect.get(target, key, receiver)
 
-        if (globalState.useDebug) {
-          registerParentInfo(target, key, value)
-        }
-
         // 如果 key 是 $raw，或者在 Action 中，直接返回原始对象
         if (key === "$raw") {
           return target
@@ -92,10 +88,6 @@ function toObservable<T extends object>(obj: T): T {
         // 如果改动了 length 属性，或者新值与旧值不同，触发可观察队列任务
         // 这一步要在 Reflect.set 之后，确保触发时使用的是新值
         if (key === "length" || value !== oldValue) {
-          if (globalState.useDebug) {
-            printDiff(target, key, oldValue, value)
-          }
-
           queueRunReactions<T>(target, key)
         }
 
@@ -108,10 +100,6 @@ function toObservable<T extends object>(obj: T): T {
         globalState.event.emit("deleteProperty", { target, key })
 
         const result = Reflect.deleteProperty(target, key)
-
-        if (globalState.useDebug) {
-          printDelete(target, key)
-        }
 
         if (hasKey) {
           queueRunReactions(target, key)
@@ -273,9 +261,7 @@ function startBatch() {
 
   globalState.batchDeep++
 
-  if (globalState.useDebug) {
-    debugInAction(globalState.currentDebugName)
-  }
+  globalState.event.emit("startBatch", null)
 }
 
 /**
@@ -286,9 +272,7 @@ function endBatch() {
     runPendingReactions()
   }
 
-  if (globalState.useDebug) {
-    debugOutAction()
-  }
+  globalState.event.emit("endBatch", null)
 }
 
 // ==============================================
@@ -330,9 +314,7 @@ function actionDecorator(target: any, propertyKey: string, descriptor: PropertyD
  * 同时，在此方法中使用到的变量不会触发依赖追踪！
  */
 function runInAction(fn: () => any | Promise<any>, debugName?: string) {
-  if (globalState.useDebug) {
-    globalState.currentDebugName = debugName || null
-  }
+  globalState.event.emit("runInAction", { debugName })
 
   startBatch()
 

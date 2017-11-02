@@ -1,5 +1,6 @@
 import { inject, injectFactory as combineStores } from "dependency-inject"
 import { Atom } from "./atom"
+import "./debug"
 import { globalState, IDebugInfo } from "./global-state"
 import { Action, isObservable, observable, observe, Static } from "./observer"
 import { Reaction } from "./reaction"

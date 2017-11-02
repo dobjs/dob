@@ -1,5 +1,4 @@
 import { globalState } from "../global-state"
-import { printCustom, printDelete, printDiff, registerParentInfo } from "../utils"
 
 const native: Set<any> & {
     [x: string]: any
@@ -30,9 +29,7 @@ export default function shim<T extends IcustomObject>(target: T & Set<any>, bind
         target[getter] = function (value: string) {
             let result = native[getter].apply(this, arguments)
 
-            if (globalState.useDebug) {
-                registerParentInfo(target, null, result)
-            }
+            globalState.event.emit("get", { target, key: null, value: result })
 
             result = proxyValue(this, value, result)
 
@@ -55,9 +52,7 @@ export default function shim<T extends IcustomObject>(target: T & Set<any>, bind
         const has = this.has(value)
         const result = native.add.apply(this, arguments)
 
-        if (globalState.useDebug) {
-            printCustom(target, "add", value)
-        }
+        globalState.event.emit("set", { target, key: null, value, oldValue: null })
 
         if (!has) {
             queueRunReactions(this, value)
@@ -71,9 +66,7 @@ export default function shim<T extends IcustomObject>(target: T & Set<any>, bind
         const has = this.has(value)
         const result = native.delete.apply(this, arguments)
 
-        if (globalState.useDebug) {
-            printCustom(target, "delete", value)
-        }
+        globalState.event.emit("deleteProperty", { target, key: null })
 
         if (has) {
             queueRunReactions(this, value)

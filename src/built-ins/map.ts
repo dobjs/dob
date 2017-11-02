@@ -1,5 +1,4 @@
 import { globalState } from "../global-state"
-import { printDelete, printDiff, registerParentInfo } from "../utils"
 
 const native: Map<any, any> & {
     [x: string]: any
@@ -28,17 +27,15 @@ export default function shim<T extends IcustomObject>(target: T & Map<any, any>,
     for (const getter of getters) {
         // tslint:disable-next-line:space-before-function-paren only-arrow-functions
         target[getter] = function (key: string) {
-            let result = native[getter].apply(this, arguments)
+            let value = native[getter].apply(this, arguments)
 
-            if (globalState.useDebug) {
-                registerParentInfo(target, key, result)
-            }
+            globalState.event.emit("get", { target, key, value })
 
-            result = proxyValue(this, key, result)
+            value = proxyValue(this, key, value)
 
             bindCurrentReaction(this, key)
 
-            return result
+            return value
         }
     }
 
@@ -55,9 +52,7 @@ export default function shim<T extends IcustomObject>(target: T & Map<any, any>,
         const oldValue = this.get(key)
         const result = native.set.apply(this, arguments)
 
-        if (globalState.useDebug) {
-            printDiff(target, key, oldValue, value)
-        }
+        globalState.event.emit("set", { target, key, oldValue, value })
 
         if (oldValue !== value) {
             queueRunReactions(this, key)
@@ -71,9 +66,7 @@ export default function shim<T extends IcustomObject>(target: T & Map<any, any>,
         const has = this.has(key)
         const result = native.delete.apply(this, arguments)
 
-        if (globalState.useDebug) {
-            printDelete(target, key)
-        }
+        globalState.event.emit("deleteProperty", { target, key })
 
         if (has) {
             queueRunReactions(this, key)
