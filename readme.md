@@ -94,20 +94,17 @@ You can read [quick start](./docs/mutable-quick-start.md) first, then read them:
 
 ## Combination
 
-### Combining [dob-react](https://github.com/ascoders/dob-react)
+### Combining [dob-react](https://github.com/dobjs/dob-react)
+
+You can use [dob-react](https://github.com/dobjs/dob-react) to use dob in react!
 
 [Quick start](./docs/dob-react.md)
 
 Here is a basic [demo](https://jsfiddle.net/yp90Lep9/21/), and here is a [demo](https://jsfiddle.net/g19ehhgu/11/) with fractal.
 
-### Combining [react-redux](https://github.com/reactjs/react-redux)
+### Combining [dob-redux](https://github.com/dobjs/dob-redux)
 
-Here is a basic [demo](https://jsfiddle.net/56saqqvw/8/)
-
-- [createReduxStore](./docs/createReduxStore.md)
-- [task](./docs/task.md)
-
-You can clone this project, and run `npm start` to see [redux todoMVC demo](./src/demos/todo-mvc).
+You can use both dob and Redux by using [dob-redux](https://github.com/dobjs/dob-redux)! Enjoy the type and convenience of dob, and the ecology of Redux.
 
 ## Debug in console
 

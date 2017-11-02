@@ -46,7 +46,6 @@
     "pre-commit": "^1.2.2",
     "react": "^15.6.1",
     "react-dom": "^15.5.4",
-    "react-redux": "^5.0.5",
     "run-react": "^2.0.6",
     "style-loader": "^0.18.2",
     "todomvc-app-css": "^2.1.0",
