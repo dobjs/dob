@@ -1,4 +1,4 @@
-# Dob &middot; [![CircleCI Status](https://img.shields.io/travis/ascoders/dob/master.svg?style=flat)](https://travis-ci.org/ascoders/dob) [![npm version](https://img.shields.io/npm/v/dob.svg?style=flat)](https://www.npmjs.com/package/dob) [![code coverage](https://img.shields.io/codecov/c/github/ascoders/dob/master.svg)](https://codecov.io/github/ascoders/dob)
+# Dob &middot; [![CircleCI Status](https://img.shields.io/travis/dobjs/dob/master.svg?style=flat)](https://travis-ci.org/dobjs/dob) [![npm version](https://img.shields.io/npm/v/dob.svg?style=flat)](https://www.npmjs.com/package/dob) [![code coverage](https://img.shields.io/codecov/c/github/dobjs/dob/master.svg)](https://codecov.io/github/dobjs/dob)
 
 <p align="center">
     <img src="./docs/dob logo.png" height=100/>
