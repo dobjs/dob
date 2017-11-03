@@ -74,7 +74,7 @@ ReactDOM.render(
 
 ## Installation
 
-Dob is available as the `dob` package on [npm](https://www.npmjs.com/package/dob). It is also available on a [CDN](https://unpkg.com/dob@2.2.5/built/bundle.js).
+Dob is available as the `dob` package on [npm](https://www.npmjs.com/package/dob). It is also available on a [CDN](https://unpkg.com/dob/built/bundle.js).
 
 ```bash
 npm i dob
