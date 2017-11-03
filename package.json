@@ -54,8 +54,8 @@
     "webpack": "^3.3.0"
   },
   "dependencies": {
-    "lodash.clonedeep": "^4.5.0",
-    "dependency-inject": "^1.1.0"
+    "dependency-inject": "^1.1.0",
+    "lodash.clonedeep": "^4.5.0"
   },
   "pre-commit": [
     "tslint"
