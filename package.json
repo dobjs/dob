@@ -1,6 +1,6 @@
 {
   "name": "dob",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "",
   "main": "built/src/index.js",
   "types": "src/index.ts",
@@ -54,7 +54,7 @@
     "webpack": "^3.3.0"
   },
   "dependencies": {
-    "dependency-inject": "^1.1.0",
+    "dependency-inject": "^1.1.1",
     "lodash.clonedeep": "^4.5.0"
   },
   "pre-commit": [
