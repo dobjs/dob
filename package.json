@@ -7,7 +7,7 @@
   "scripts": {
     "test": "tsc && nyc --reporter=lcov --reporter=text --reporter=json ava && rm -rf .nyc_output",
     "posttest": "codecov -f coverage/*.json -t bc4c34e2-24cb-4b05-8b97-7f30395e642b",
-    "prepublish": "rm -rf built && tsc && babel built --out-dir built && npm run build",
+    "prepublish": "rm -rf built && tsc && npm run build",
     "start": "run-react develop",
     "tslint": "tslint './src/**/*.?(ts|tsx)'",
     "build": "webpack --config built/scripts/webpack.config.js"
@@ -36,9 +36,6 @@
     "@types/webpack": "*",
     "ascoders-tslint-config": "^1.0.1",
     "ava": "^0.18.2",
-    "babel-cli": "^6.24.0",
-    "babel-preset-es2015": "^6.24.0",
-    "babel-preset-stage-0": "^6.22.0",
     "classnames": "^2.2.5",
     "codecov": "^2.3.0",
     "css-loader": "^0.28.4",

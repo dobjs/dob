@@ -507,9 +507,9 @@ test("should observe iteration", t => {
     const dynamicObj = observable(new Set())
     observe(() => {
         data = 0
-        for (const num of dynamicObj) {
-            data += num
-        }
+        dynamicObj.forEach(each => {
+            data += each
+        })
     })
 
     return Promise.resolve()
@@ -635,9 +635,9 @@ test("should observe iteration", t => {
     const dynamicObj = observable(new Map())
     observe(() => {
         data = 0
-        for (const [key, num] of dynamicObj) {
-            data += num
-        }
+        dynamicObj.forEach(each => {
+            data += each
+        })
     })
 
     return Promise.resolve()
