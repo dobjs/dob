@@ -85,5 +85,14 @@ export default function shim<T extends IcustomObject>(target: T & Map<any, any>,
         return result
     }
 
+    Object.defineProperty(target, "size", {
+        get: function get() {
+            const proto = Object.getPrototypeOf(this)
+            const size = Reflect.get(proto, "size", this)
+            bindCurrentReaction(this, masterKey)
+            return size
+        }
+    })
+
     return target
 }

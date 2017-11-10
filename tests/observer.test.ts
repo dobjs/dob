@@ -693,6 +693,19 @@ test("should observe map array", t => {
         .then(() => t.true(data === 4))
 })
 
+test("should observe map.size", t => {
+    const map = observable(new Map())
+    let count = 0
+    observe(() => {
+        count += map.size
+    })
+    map.set("banana", 5)
+    map.set("apple", 3)
+
+    return Promise.resolve()
+        .then(() => t.true(count === 3))
+})
+
 /**
  * WeakMap
  */
