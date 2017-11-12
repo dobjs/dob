@@ -84,13 +84,9 @@ npm i dob
 
 - [React application example with dob](https://github.com/ascoders/dob-example)
 
-## Apis
+## Docs
 
-You can read [quick start](./docs/mutable-quick-start.md) first, then read them:
-
-- [observable, observe](./docs/observable.md)
-- [unobserbe](./docs/unobserve.md)
-- [Action](./docs/action.md)
+[Online Docs](https://dobjs.github.io/dob-docs/)
 
 ## Ecosystem
 
@@ -98,29 +94,6 @@ You can read [quick start](./docs/mutable-quick-start.md) first, then read them:
 - [dob-react-devtools](https://github.com/dobjs/dob-react-devtools) - Devtools for dob-react, with action and ui two way binding.
 - [dob-redux](https://github.com/dobjs/dob-redux) - You can use both dob and Redux by using it! Enjoy the type and convenience of dob, and the ecology of Redux.
 - [dob-refect](https://github.com/dobjs/dob-refetch) - Auto fetch, away from the trouble of `componentDidUpdate`.
-
-## Debug in console
-
-```typescript
-import { startDebug, stopDebug, useStrict, dobEvent } from 'dob'
-
-// start debug
-startDebug()
-
-// you can receive debug info from dobEvent
-dobEvent.on("debug", debugInfo: IDebugInfo => {
-
-})
-
-// end debug
-stopDebug()
-```
-
-The debug mode prints the trigger timing and assignment steps for all the `@Action` functions.
-
-Looking for [debug details](./docs/debug.md).
-
-[demo](https://jsfiddle.net/qttth5vs/7/)
 
 ## Inspired
 
