@@ -6,13 +6,14 @@ type IFunc = (...args: any[]) => any
 export class Reaction {
   private name: string
 
-  // 执行延时
+  // Run reaction's delay.
   private delay: number = null
 
-  // 与自身绑定的对象列表
+  // Binders for this reaction.
+  // Binder include callback, and it's detail info, like delay.
   private keyBinders = new Set<IKeyBinder>()
 
-  // reaction 将触发的 callback
+  // Callback for this reaction.
   private callback: IFunc
 
   constructor(name: string, callback: IFunc, delay?: number) {
@@ -22,22 +23,22 @@ export class Reaction {
   }
 
   /**
-   * 在 track 中访问的变量，都会与当前 reaction 绑定，当这些变量产生修改时，会触发
-   * @TODO: 目前仅支持同步，还未找到支持异步的方案！
+   * The variables accessed in track are bound to the current reaction, which triggers binder's callback when the variables are modified.
+   * @TODO: Current only support synchronization, do not support asynchronous!
    */
   public track(callback?: IFunc) {
-    // 如果已经在 track 中，那就在待执行队列直接新增一项，返回
-    // 上一层 runObserver 执行完后会执行待执行队列
+    // If it is already in track, add this directly to the pendingTrack queue, and return.
+    // When the lastest runObserver is executed, current pendingTrack will executed.
     if (inTrack()) {
-      globalState.pendingTacks.add(this.track.bind(this, callback))
+      globalState.pendingTracks.add(this.track.bind(this, callback))
       return
     }
 
     /**
-     * 执行 callback
+     * Run callback.
      */
     globalState.currentReaction = this
-    // 先清空所有绑定
+    // Clear bindings first.
     this.clearBinding()
     try {
       callback({
@@ -48,23 +49,22 @@ export class Reaction {
     }
 
     /**
-     * 执行 track 剩余队列
+     * Execute the rest of the track.
      */
-    // 队列执行次数
     let currentRunCount = 0
     const MAX_RUN_COUNT = 1000
-    // 复制一份队列，防止嵌套 observe 时，不断在 nestedObserverQueue 添加 observer 导致死循环
-    // 复制完后，原队列清空，让执行时加在干净的新队列
-    const pedingTacksCopy = Array.from(globalState.pendingTacks)
-    globalState.pendingTacks.clear()
+    // Copy pendingTracksqueue to prevent dead loop.
+    // When the copy is finished, empty the origin queue, so that the execution is added to the clean new queue.
+    const pendingTacksCopy = Array.from(globalState.pendingTracks)
+    globalState.pendingTracks.clear()
 
-    pedingTacksCopy.forEach(eachTack => {
+    pendingTacksCopy.forEach(eachTack => {
       currentRunCount++
 
       if (currentRunCount >= MAX_RUN_COUNT) {
         // tslint:disable-next-line:no-console
-        console.warn("执行次数达到上限，可能存在死循环")
-        globalState.pendingTacks.clear()
+        console.warn("The number of executions reaches the upper limit, there may be a dead cycle.")
+        globalState.pendingTracks.clear()
         return
       }
 
@@ -73,7 +73,7 @@ export class Reaction {
   }
 
   /**
-   * 销毁
+   * Destroy
    */
   public dispose() {
     this.clearBinding()
@@ -81,32 +81,31 @@ export class Reaction {
   }
 
   /**
-   * 触发 reaction 的 observe
+   * Run reaction's callback.
    */
   public run() {
-    // 简单的执行回调函数即可
     if (this.callback) {
       this.callback()
     }
   }
 
   /**
-   * 添加绑定者（某 object 的 reactionsForKey）
+   * Add binder.
    */
   public addBinder(keyBinder: IKeyBinder) {
     this.keyBinders.add(keyBinder)
   }
 
   /**
-   * 清空绑定
+   * Clear bindings.
    */
   public clearBinding() {
-    // 清空所有 binder 对自己引用
-    // 再清空存储的 binders
+    // Clear all binder which reference this.
     this.keyBinders.forEach(keyBinder => {
       keyBinder.delete(this)
     })
 
+    // Clear self keyBinders.
     this.keyBinders.clear()
   }
 }

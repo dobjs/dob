@@ -1,17 +1,14 @@
 import * as cloneDeep from "lodash.clonedeep"
 import { globalState, IDebugChange, IDebugInfo } from "./global-state"
 import { Reaction } from "./reaction"
-import { getUniqueId, inAction } from "./utils"
+import { createUniqueId, inAction } from "./utils"
 
-/**
- * 通知修改
- */
 function reportChange(change: IDebugChange) {
   if (globalState.currentDebugOutputAction) {
     globalState.currentDebugOutputAction.changeList.push(change)
-  } else { // 脱离了 action 事件循环的孤立改动
+  } else { // Changes out of Action.
     globalState.event.emit("debug", {
-      id: getUniqueId(),
+      id: createUniqueId(),
       name: null,
       changeList: [change],
       type: "isolated"
@@ -19,13 +16,10 @@ function reportChange(change: IDebugChange) {
   }
 }
 
-/**
- * 获取对象路径
- */
 function getCallStack(target: object) {
   const callStack: PropertyKey[] = []
 
-  if (!globalState.parentInfo.has(target)) { // 当前访问的对象就是顶层
+  if (!globalState.parentInfo.has(target)) { // Hit top.
     callStack.unshift(target.constructor.name)
   } else {
     let currentTarget: object = target
@@ -34,10 +28,10 @@ function getCallStack(target: object) {
     while (globalState.parentInfo.has(currentTarget)) {
       const parentInfo = globalState.parentInfo.get(currentTarget)
 
-      // 添加调用队列
+      // add key to call stack
       callStack.unshift(parentInfo.key)
 
-      // 如果父级没有父级了，给调用队列添加父级名称
+      // If has no parent's parent, add parent's name to call stack.
       if (!globalState.parentInfo.has(parentInfo.parent)) {
         callStack.unshift(parentInfo.parent.constructor.name)
       }
@@ -55,7 +49,7 @@ function getCallStack(target: object) {
 }
 
 /**
- * get 时存储 parentInfo
+ * Store parentInfo when get triggered.
  */
 globalState.event.on("get", info => {
   if (!globalState.useDebug) {
@@ -71,7 +65,7 @@ globalState.event.on("get", info => {
 })
 
 /**
- * runInAction 时存储当前 Action 的 debugName
+ * Snapshot current Action's debugName, when runInAction triggered.
  */
 globalState.event.on("runInAction", debugName => {
   if (!globalState.useDebug) {
@@ -100,7 +94,7 @@ globalState.event.on("startBatch", () => {
 
   // 如果深度等于 1，生成唯一 id 给这个 action
   if (globalState.batchDeep === 1) {
-    debugOutputBundleAction.id = getUniqueId()
+    debugOutputBundleAction.id = createUniqueId()
     globalState.currentDebugId = debugOutputBundleAction.id
   }
 

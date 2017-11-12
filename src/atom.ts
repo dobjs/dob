@@ -3,21 +3,15 @@ import { endBatch, runReactionAsync, startBatch } from "./observer"
 import { Reaction } from "./reaction"
 import { Func, noop } from "./utils"
 
-/**
- * getter setter 控制器
- */
 export class Atom {
   /**
-   * 与这个 atom 相关的 reactions
+   * All reactions with this atom.
    */
   public reactions = new Set<Reaction>()
 
   private onBecomeObservedHandler: Func
   private onBecomeUnobservedHandler: Func
 
-  /**
-   * 是否已经追踪了
-   */
   private isBeingTracked = false
 
   constructor(onBecomeObservedHandler: Func = noop, onBecomeUnobservedHandler: Func = noop) {
@@ -26,13 +20,13 @@ export class Atom {
   }
 
   /**
-   * 上报：响应变量被使用，初始时触发 onBecomeObservedHandler
+   * Report observe, will trigger onBecomeObservedHandler in the first time.
    */
   public reportObserved() {
     startBatch()
 
     if (globalState.currentReaction) {
-      // 绑定上当前 reaction
+      // Binding current reaction
       this.reactions.add(globalState.currentReaction)
     }
 
@@ -45,18 +39,14 @@ export class Atom {
   }
 
   /**
-   * 上报：响应变量发生了修改，会重新触发 observe
+   * report changed, so will trigger all reactions.
    */
   public reportChanged() {
-    // 执行它
     this.reactions.forEach(reaction => {
       runReactionAsync(reaction)
     })
   }
 
-  /**
-   * 取消 observe
-   */
   public unobserve() {
     this.isBeingTracked = false
     this.reactions.clear()

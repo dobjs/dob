@@ -5,14 +5,11 @@ import { Reaction } from "./reaction"
 export declare type Func = (...args: any[]) => any
 
 /**
- * 某个对象的所有绑定
+ * All binders for an object.
  */
 export type IBinder = Map<PropertyKey, IKeyBinder>
 export type IKeyBinder = Set<Reaction>
 
-/**
- * 是否是基本类型
- */
 export function isPrimitive(value: any): boolean {
   if (value === null || value === undefined) {
     return true
@@ -26,27 +23,27 @@ export function isPrimitive(value: any): boolean {
 }
 
 /**
- * 空函数
+ * Empty func.
  */
 // tslint:disable-next-line:no-empty
 export const noop = () => { };
 
 /**
- * 是否在 action 中
+ * Wether dob is in batch.
  */
 export function inAction() {
   return globalState.batchDeep !== 0
 }
 
 /**
- * 是否在 track 中
+ * Is it currently in reaction?
  */
 export function inTrack() {
   return !!globalState.currentReaction
 }
 
 /**
- * 找到某个对象、键值的 binder
+ * Get binder through object and key.
  */
 export function getBinder(object: any, key: PropertyKey) {
   let keysForObject = globalState.objectReactionBindings.get(object)
@@ -69,37 +66,25 @@ export function getBinder(object: any, key: PropertyKey) {
   }
 }
 
-/**
- * 开启调试模式
- */
 export function startDebug() {
   globalState.useDebug = true
 }
 
-/**
- * 关闭调试模式
- */
 export function stopDebug() {
   globalState.useDebug = false
 }
 
-/**
- * 设置处于严格模式
- */
 export function useStrict() {
   globalState.strictMode = true
 }
 
-/**
- * 取消严格模式
- */
 export function cancelStrict() {
   globalState.strictMode = false
 }
 
 /**
- * 生成随机唯一 id
+ * create unique id
  */
-export function getUniqueId() {
+export function createUniqueId() {
   return globalState.uniqueIdCounter++
 }

@@ -93,7 +93,7 @@ class GlobalState {
   /**
    * track 嵌套 track 时，临时缓存下来的 track 队列，等待上一层 track 执行完后再执行
    */
-  public pendingTacks = new Set<Func>()
+  public pendingTracks = new Set<Func>()
   /**
    * 是否开启 debug
    */
