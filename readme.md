@@ -80,13 +80,14 @@ Dob is available as the `dob` package on [npm](https://www.npmjs.com/package/dob
 npm i dob
 ```
 
-## Project Examples
-
-- [React application example with dob](https://github.com/ascoders/dob-example)
-
 ## Docs
 
 [Online Docs](https://dobjs.github.io/dob-docs/)
+
+## Project Examples
+
+- [React Application](https://github.com/ascoders/dob-example)
+- [React Hackernews](https://github.com/dobjs/dob-react-hackernews)
 
 ## Ecosystem
 
