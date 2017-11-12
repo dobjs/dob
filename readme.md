@@ -8,6 +8,11 @@
             Dob is a tool for monitoring object changes. Using <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy">Proxy</a>.
         </i>
     <p>
+    <p>
+        <i>
+            <a href="https://dobjs.github.io/dob-docs/">Online Docs</a>.
+        </i>
+    </p>
 </p>
 
 ## Examples
@@ -71,18 +76,6 @@ ReactDOM.render(
 ```
 
 > Use `inject` to pick stores in action, do not `new UserStore()`, it's terrible for later maintenance.
-
-## Installation
-
-Dob is available as the `dob` package on [npm](https://www.npmjs.com/package/dob). It is also available on a [CDN](https://unpkg.com/dob/built/bundle.js).
-
-```bash
-npm i dob
-```
-
-## Docs
-
-[Online Docs](https://dobjs.github.io/dob-docs/)
 
 ## Project Examples
 
