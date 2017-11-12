@@ -8,7 +8,7 @@
             Dob is a tool for monitoring object changes. Using <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy">Proxy</a>.
         </i>
     <p>
-    <p>
+    <p align="center">
         <i>
             <a href="https://dobjs.github.io/dob-docs/">Online Docs</a>.
         </i>
