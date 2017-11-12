@@ -10,128 +10,100 @@ const globalOrWindow = (typeof self === "object" && self.self === self && self) 
 
 export interface IDebugInfo {
   /**
-   * 唯一 id，只有根节点 action 拥有
+   * The only id of Action.
    */
   id?: number
   /**
-   * action 名称
+   * The name of Action.
    */
   name?: string
   /**
-   * 当前 action 的修改列表
+   * Changes
    */
   changeList?: IDebugChange[]
   /**
-   * 类型
+   * Action or closure
    */
   type: string
 }
 
 export interface IDebugChange {
   /**
-   * 修改类型
+   * The type of change
    */
   type: string
   /**
-   * 调用的 action，仅 type 为 action 时
+   * Nest action call, only type is action.
    */
   action?: IDebugInfo
-  /**
-   * 调用栈
-   */
   callStack?: PropertyKey[]
-  /**
-   * 旧值
-   */
   oldValue?: any
-  /**
-   * 新值
-   */
   value?: any
   /**
-   * 具体操作的是哪个 key
+   * The key of the operation
    */
   key?: PropertyKey
-  /**
-   * 自定义输出
-   */
-  customMessage?: any[]
 }
 
 class GlobalState {
   /**
-   * 存储所有代理
-   * key：代理 + 原始对象
+   * All proxies
+   * key: proxies and it's origin object.
    */
   public proxies = new WeakMap()
   /**
-   * 所有代理 -> 原始对象的映射
+   * key: proxy
+   * value: origin object
    */
   public originObjects = new WeakMap()
   /**
-   * 存储所有要代理原始的对象
-   * 以对象每个 key 存储监听事件
+   * Store all the original objects and keys to be proxied.
    */
   public objectReactionBindings = new WeakMap<object, Map<PropertyKey, Set<Reaction>>>()
-  /**
-   * 当前 reaction
-   */
   public currentReaction: Reaction = null
   /**
-   * 批量执行深入，比如每次调用 runInAction 深入 +1，调用完 -1，深入为 0 时表示执行完了
-   * 当 batchDeep === 0 时，表示操作队列完毕
+   * Batch execution depth, such as each call runInAction in-depth +1, call -1, depth of 0 means that the implementation of the end.
+   * When batchDeep == = 0, the operation queue is completed.
    */
   public batchDeep = 0
-  /**
-   * 所有 action 中等执行队列的集合
-   */
   public pendingReactions = new Set<Reaction>()
   /**
-   * 忽略动态对象的 symbol
+   * Ignore the observable symbol
    */
   public ignoreDynamicSymbol = Symbol()
   /**
-   * track 嵌套 track 时，临时缓存下来的 track 队列，等待上一层 track 执行完后再执行
+   * Track Nested track, temporary cache down the track queue, waiting for the implementation of a track after the implementation.
+   * Eg: observe(()=>{
+   *  // ..
+   *  observe(()=>{..})
+   *  // ..
+   * })
+   * Special for nest react component.
    */
   public pendingTracks = new Set<Func>()
-  /**
-   * 是否开启 debug
-   */
   public useDebug = false
   /**
-   * 当前正在操作的 debugOutputAction 对象，这样在修改值的时候，直接操作其 changeList 队列即可
+   * The currently executing debugOutputAction object.
    */
   public currentDebugOutputAction: IDebugInfo = null
   /**
-   * 各 batchDeep 的根 debugOutputBundleAction
+   * The root of each batchDeep debugOutputBundleAction.
    */
   public debugOutputActionMapBatchDeep = new Map<number, IDebugInfo>()
   /**
-   * object 的父级信息
+   * Object's parent information, for debug.
    */
   public parentInfo = new WeakMap<object, {
     parent: object
     key: PropertyKey
   }>()
   /**
-   * 当前所在 debugName（由 decorator Action 触发）
+   * Special for action name.
    */
   public currentDebugName: string = null
-  /**
-   * 当前所在 debugId
-   */
   public currentDebugId: number = null
-  /**
-   * 当前是否处于严格模式
-   */
   public strictMode = false
-  /**
-   * 事件
-   */
   public event = new Event()
-  /**
-   * 唯一 id 计数器
-   */
   public uniqueIdCounter = 0
 }
 

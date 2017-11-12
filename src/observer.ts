@@ -251,7 +251,7 @@ function observe(callback: Func, delay?: number) {
 }
 
 /**
- * 开始批量执行队列
+ * Enter next batch.
  */
 function startBatch() {
   if (globalState.batchDeep === 0) {
@@ -265,7 +265,7 @@ function startBatch() {
 }
 
 /**
- * 结束批量执行队列
+ * Exit the current batch.
  */
 function endBatch() {
   if (--globalState.batchDeep === 0) {
@@ -276,7 +276,7 @@ function endBatch() {
 }
 
 // ==============================================
-// Action 系列 [start]
+// Action [start]
 // ==============================================
 
 /**
@@ -326,7 +326,7 @@ function runInAction(fn: () => any | Promise<any>, debugName?: string) {
 }
 
 // ==============================================
-// Action 系列 [end]
+// Action [end]
 // ==============================================
 
 function observable<T>(target: T = {} as any): T {

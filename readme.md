@@ -99,7 +99,6 @@ You can read [quick start](./docs/mutable-quick-start.md) first, then read them:
 - [dob-redux](https://github.com/dobjs/dob-redux) - You can use both dob and Redux by using it! Enjoy the type and convenience of dob, and the ecology of Redux.
 - [dob-refect](https://github.com/dobjs/dob-refetch) - Auto fetch, away from the trouble of `componentDidUpdate`.
 
-
 ## Debug in console
 
 ```typescript
