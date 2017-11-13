@@ -10,7 +10,3 @@ export function immediate(fn: any, time?: number) {
     fn()
   })
 }
-
-export function timeout(time?: number) {
-  return new Promise(resolve => setTimeout(resolve, time))
-}

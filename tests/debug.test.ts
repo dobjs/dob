@@ -12,7 +12,7 @@ import {
   stopDebug,
   useStrict
 } from "../src/index"
-import { immediate, timeout } from "./util"
+import { immediate } from "./util"
 
 test("debug", t => {
   useStrict()
