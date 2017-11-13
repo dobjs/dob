@@ -54,8 +54,8 @@ test("undefined not throw", t => {
 test("when observable class has constructor", t => {
     @observable
     class MyCount {
-        private count1;
-        private count2;
+        private count1: number;
+        private count2: number;
 
         constructor(count1: number, count2: number) {
             this.count1 = count1;

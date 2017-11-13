@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "declaration": false,
-    "noImplicitAny": false,
-    "noLib": false,
+    "noImplicitAny": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "jsx": "react",

@@ -12,7 +12,12 @@ interface IcustomObject {
     [x: string]: any
 }
 
-export default function shim<T extends IcustomObject>(target: T & WeakMap<any, any>, bindCurrentReaction: any, queueRunReactions: any, proxyValue: any) {
+export default function shim<T extends IcustomObject>(
+    target: T & WeakMap<any, any>,
+    bindCurrentReaction: any,
+    queueRunReactions: any,
+    proxyValue: any
+) {
     target.$raw = {}
 
     for (const method of all) {

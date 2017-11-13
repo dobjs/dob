@@ -1,6 +1,6 @@
 {
   "name": "dob",
-  "version": "2.5.3",
+  "version": "2.5.4",
   "description": "",
   "main": "built/src/index.js",
   "types": "src/index.ts",
@@ -34,7 +34,7 @@
     "@types/react": "*",
     "@types/react-dom": "*",
     "@types/webpack": "*",
-    "ascoders-tslint-config": "^1.0.1",
+    "ascoders-tslint-config": "^1.0.2",
     "ava": "^0.18.2",
     "classnames": "^2.2.5",
     "codecov": "^2.3.0",

@@ -1,7 +1,9 @@
-import * as cloneDeep from "lodash.clonedeep"
 import { globalState, IDebugChange, IDebugInfo } from "./global-state"
 import { Reaction } from "./reaction"
 import { createUniqueId, inAction } from "./utils"
+
+// tslint:disable-next-line:no-var-requires
+const cloneDeep = require("lodash.clonedeep")
 
 function reportChange(change: IDebugChange) {
   if (globalState.currentDebugOutputAction) {
