@@ -79,9 +79,10 @@ ReactDOM.render(
 
 ## Project Examples
 
-- [React Application](https://github.com/ascoders/dob-example)
-- [React Hackernews](https://github.com/dobjs/dob-react-hackernews)
-- [Online Web Designer](https://github.com/ascoders/gaea-editor)
+- [dob-react simple example](https://github.com/ascoders/dob-example)
+- [dob-react hackernews](https://github.com/dobjs/dob-react-hackernews)
+- [dob-react complex online web editor](https://github.com/ascoders/gaea-editor)
+- [dob-redux todoMVC](https://github.com/dobjs/dob-redux-todomvc)
 
 ## Ecosystem
 
