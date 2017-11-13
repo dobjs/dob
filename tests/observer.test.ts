@@ -51,6 +51,12 @@ test("undefined not throw", t => {
     })
 })
 
+test("primitive type typeError", t => {
+    t.throws(() => {
+        observable(1)
+    }, TypeError)
+})
+
 test("when observable class has constructor", t => {
     @observable
     class MyCount {
