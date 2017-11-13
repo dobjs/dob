@@ -307,7 +307,7 @@ function actionDecorator(target: any, propertyKey: string, descriptor: PropertyD
  * 同时，在此方法中使用到的变量不会触发依赖追踪！
  */
 function runInAction(fn: () => any | Promise<any>, debugName?: string) {
-  globalState.event.emit("runInAction", { debugName })
+  globalState.event.emit("runInAction", debugName)
 
   startBatch()
 

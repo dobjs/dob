@@ -78,40 +78,42 @@ test("debug out of action", t => {
   return immediate(() => t.true(data === "abcde"))
 })
 
-test("test callstack", t => {
-  startDebug()
+test("test callstack", async t => {
+  return immediate(async () => {
+    startDebug()
 
-  @observable
-  class Store {
-    public a: any = {
-      b: {
-        c: {
-          d: {
-            e: {
-              f: "b"
+    @observable
+    class Store {
+      public a: any = {
+        b: {
+          c: {
+            d: {
+              e: {
+                f: "b"
+              }
             }
           }
         }
       }
     }
-  }
 
-  const store = new Store()
-  let callStack: PropertyKey[] = []
+    const store = new Store()
+    let callStack: PropertyKey[] = []
 
-  dobEvent.on("debug", debugInfo => {
-    callStack = debugInfo.changeList[0].callStack
-  })
+    dobEvent.on("debug", debugInfo => {
+      callStack = debugInfo.changeList[0].callStack
+    })
 
-  store.a.b.c.d.e.f = "d"
+    store.a.b.c.d.e.f = "d"
 
-  stopDebug()
+    stopDebug()
 
-  return immediate(() => t.true(callStack.length === 6))
+    return immediate(() => t.true(callStack.length === 6))
+  }, 10)
 })
 
 test("test overflow callstack", async t => {
-  return immediate(() => {
+  return immediate(async () => {
     startDebug()
 
     globalState.getCallstackMaxCount = 3
@@ -145,5 +147,86 @@ test("test overflow callstack", async t => {
     globalState.getCallstackMaxCount = 50
 
     return immediate(() => t.true(callStack.length === 3))
-  }, 0)
+  }, 20)
+})
+
+test("test action", async t => {
+  return immediate(async () => {
+    startDebug()
+
+    class CustomAction {
+      @Action public action1() {
+        this.action2()
+      }
+      @Action public action2() {
+        this.action3()
+      }
+      @Action public action3() {
+        //
+      }
+    }
+
+    const action = new CustomAction()
+
+    dobEvent.on("debug", debugInfo => {
+      delete debugInfo.id
+      t.deepEqual(debugInfo, {
+        name: "CustomAction.action1",
+        changeList: [
+          {
+            type: "action",
+            action: {
+              name: "CustomAction.action2",
+              changeList: [
+                {
+                  type: "action",
+                  action: {
+                    name: "CustomAction.action3",
+                    changeList: [],
+                    type: "action"
+                  }
+                }
+              ],
+              type: "action"
+            }
+          }
+        ],
+        type: "action"
+      })
+    })
+
+    action.action1()
+
+    stopDebug()
+
+    return immediate(() => t.true(true))
+  }, 30)
+})
+
+test("test delete", async t => {
+  return immediate(async () => {
+    startDebug()
+
+    const dynamicObj = observable({ name: "b" })
+
+    dobEvent.on("debug", debugInfo => {
+      t.deepEqual(debugInfo, {
+        name: null,
+        changeList: [
+          {
+            type: "delete",
+            callStack: [
+              "Object"
+            ],
+            key: "name"
+          }
+        ],
+        type: "isolated"
+      })
+    })
+
+    delete dynamicObj.name
+
+    return immediate(() => t.true(true))
+  }, 40)
 })
