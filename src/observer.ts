@@ -45,7 +45,7 @@ function toObservable<T extends object>(obj: T): T {
   const builtIn = builtIns.get(obj.constructor)
   if (typeof builtIn === "function" || typeof builtIn === "object") {
     // support: map weakMap set weakSet.
-    dynamicObject = builtIn(obj, bindCurrentReaction, queueRunReactions, proxyValue)
+    dynamicObject = builtIn(obj, bindCurrentReaction, queueRunReactions, getProxyValue)
   } else if (!builtIn) {
     dynamicObject = new Proxy(obj, {
       get(target, key, receiver) {
@@ -61,7 +61,7 @@ function toObservable<T extends object>(obj: T): T {
 
         bindCurrentReaction(target, key)
 
-        value = proxyValue(target, key, value)
+        value = getProxyValue(target, key, value)
 
         return value
       },
@@ -78,8 +78,8 @@ function toObservable<T extends object>(obj: T): T {
 
         const result = Reflect.set(target, key, value, receiver)
 
-        // 如果改动了 length 属性，或者新值与旧值不同，触发可观察队列任务
-        // 这一步要在 Reflect.set 之后，确保触发时使用的是新值
+        // If the length of attribute changed, or the new value is different from the old value, trigger observer queue task.
+        // This step should be done after `Reflect.set` to ensure that the trigger is using a new value.
         if (key === "length" || value !== oldValue) {
           queueRunReactions<T>(target, key)
         }
@@ -115,15 +115,15 @@ function toObservable<T extends object>(obj: T): T {
 }
 
 /**
- * 返回 get 获取的结果，如果已有 proxy 就使用 proxy 返回，否则 toObservable 递归
+ * Ensure proxy value
  */
-function proxyValue(target: any, key: PropertyKey, value: any) {
-  // 如果取值是 HTMLElement 对象，直接返回原对象，因为原生对象不能被封装
+function getProxyValue(target: any, key: PropertyKey, value: any) {
+  // If the value is a HTMLElement object, it returns directly to the original object, because the original object cannot be encapsulated.
   if (typeof window !== "undefined" && value instanceof HTMLElement) {
     return value
   }
 
-  // 如果取的值是对象，优先取代理对象
+  // If the value is an object, the proxy object is taken priority.
   const resultIsObject = typeof value === "object" && value
   const existProxy = resultIsObject && globalState.proxies.get(value)
 
@@ -135,12 +135,11 @@ function proxyValue(target: any, key: PropertyKey, value: any) {
 }
 
 /**
- * 队列执行属于 target 对象、key 字段绑定的 observer 函数
- * 队列执行的意思是，执行，但不一定立即执行，比如包在 runInAction 中函数触发时，就不会立刻执行
- * 而是在整个函数体执行完毕后，收集完了队列再统一执行一遍
+ * Run reactions for object's propertyKey.
+ * If has running queue, reactions will be merged in it.
  */
 function queueRunReactions<T extends object>(target: T, key: PropertyKey) {
-  // 如果处于严格模式，并且不在 batch 中，报错
+  // If in strict mode, and not in the batch, throw error.
   if (globalState.strictMode && globalState.batchDeep === 0) {
     throw Error("You are not allowed to modify observable value out of Action.")
   }
@@ -149,12 +148,11 @@ function queueRunReactions<T extends object>(target: T, key: PropertyKey) {
 
   Array.from(keyBinder).forEach(reaction => {
     if (inAction()) {
-      // 在 Action 中，直接加入队列
       globalState.pendingReactions.add(reaction)
     } else {
-      // 不在 Action 中，如果队列已经有值了，添加到队列并执行队列；如果队列无值，则直接执行
+      // Not in Action, added to the queue if the queue already has a value, or directly execute if the queue has no value.
       if (globalState.pendingReactions.size === 0) {
-        runReactionAsync(reaction)
+        runReaction(reaction)
       } else {
         globalState.pendingReactions.add(reaction)
         runPendingReactions()
@@ -163,20 +161,17 @@ function queueRunReactions<T extends object>(target: T, key: PropertyKey) {
   })
 }
 
-/**
- * 执行 observer
- */
-export function runReactionAsync(reaction: Reaction) {
+export function runReaction(reaction: Reaction) {
   reaction.run()
 }
 
 /**
- * 执行待执行的 observer 队列
- * 如果在 action 中，继续添加到 actionQueuedObservers
- * 如果不在 action 中，添加一个直接执行
+ * Execute pending reaction queue.
+ * If in action, continue adding to actionQueuedObservers.
+ * If not in the action, add a direct implementation.
  */
 function runPendingReactions() {
-  // 队列执行次数
+  // The number of queue executions.
   let currentRunCount = 0
 
   globalState.pendingReactions.forEach(observer => {
@@ -187,50 +182,47 @@ function runPendingReactions() {
       return
     }
 
-    runReactionAsync(observer)
+    runReaction(observer)
   })
 
-  // 清空执行 observe 队列
+  // Clear pending reactions.
   globalState.pendingReactions.clear()
 }
 
 /**
- * 绑定当前 reaction
+ * Bind the current reaction
  */
 function bindCurrentReaction<T extends object>(object: T, key: PropertyKey) {
-  // 将监听添加到这个 key 上，必须不在 runInAction 中才会跟踪
-  // inBatch 只要非 0，说明 runInAction 结束了
+  // Add listener to this key, which not be tracked in the runInAction
+  // InBatch as long as non zero, that runInAction is over
   if (!globalState.currentReaction || inAction()) {
     return
   }
 
   const { keyBinder } = getBinder(object, key)
 
-  // 如果这个 key 还没有与当前 reaction 绑定，则绑定
+  // If this key is not bound with the current reaction, bind it.
   if (!keyBinder.has(globalState.currentReaction)) {
     keyBinder.add(globalState.currentReaction)
     globalState.currentReaction.addBinder(keyBinder)
   }
 }
 
-/**
- * 是否是可观察对象
- */
 function isObservable<T extends object>(obj: T) {
   return (globalState.proxies.get(obj) === obj)
 }
 
 /**
- * 利用 reaction 做的快捷监听，callback 元素会被追踪，绑定的变量改动时，触发的依然是此 callback
+ * Self run reactions
  */
 function observe(callback: Func, delay?: number) {
   const reaction = new Reaction("observe", () => {
     reaction.track(callback)
   }, delay)
 
-  // 初始化就执行
+  // Run in initialization
   if (inAction()) {
-    // 如果在 action 中，直接添加到队列，等 action 执行完后，会自动执行此队列的
+    //  If in the action, directly added to the queue, such as the implementation of the action will automatically execute this queue.
     globalState.pendingReactions.add(reaction)
   } else {
     reaction.run()
@@ -248,7 +240,7 @@ function observe(callback: Func, delay?: number) {
  */
 function startBatch() {
   if (globalState.batchDeep === 0) {
-    // 如果正在从 0 开始新的队列，清空原有队列
+    // If starting a new queue from deep 0, clear the original queue.
     globalState.pendingReactions = new Set()
   }
 
@@ -272,9 +264,6 @@ function endBatch() {
 // Action [start]
 // ==============================================
 
-/**
- * action 方法，支持 decorator 与 函数
- */
 function Action(fn: () => any | Promise<any>): void
 function Action(target: any, propertyKey: string, descriptor: PropertyDescriptor): any
 function Action(arg1: any, arg2?: any, arg3?: any) {
@@ -284,9 +273,6 @@ function Action(arg1: any, arg2?: any, arg3?: any) {
   return actionDecorator.call(this, arg1, arg1.constructor.name + "." + arg2, arg3)
 }
 
-/**
- * Action 装饰器，自带 runInAction 效果
- */
 function actionDecorator(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
   const func = descriptor.value
   return {
@@ -301,11 +287,6 @@ function actionDecorator(target: any, propertyKey: string, descriptor: PropertyD
   }
 }
 
-/**
- * 在这里执行的方法，会在执行完后统一执行 observe
- * 注意：如果不用此方法包裹，同步执行代码会触发等同次数的 observe，而不会自动合并!
- * 同时，在此方法中使用到的变量不会触发依赖追踪！
- */
 function runInAction(fn: () => any | Promise<any>, debugName?: string) {
   globalState.event.emit("runInAction", debugName)
 
@@ -325,13 +306,13 @@ function runInAction(fn: () => any | Promise<any>, debugName?: string) {
 function observable<T>(target: T = {} as any): T {
   if (typeof target === "function") { // 挂在 class 的 decorator
     return createObservableObjectDecorator(target)
-  } else {  // 包裹变量的
+  } else {
     return createObservableObject(target as any) as T
   }
 }
 
 /**
- * Static，使装饰的对象不会监听
+ * The object will not listen, when use this decorator.
  */
 function Static<T extends object>(obj: T): T {
   Object.defineProperty(obj, globalState.ignoreDynamicSymbol, {

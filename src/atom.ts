@@ -1,5 +1,5 @@
 import { globalState } from "./global-state"
-import { endBatch, runReactionAsync, startBatch } from "./observer"
+import { endBatch, runReaction, startBatch } from "./observer"
 import { Reaction } from "./reaction"
 import { Func, noop } from "./utils"
 
@@ -43,7 +43,7 @@ export class Atom {
    */
   public reportChanged() {
     this.reactions.forEach(reaction => {
-      runReactionAsync(reaction)
+      runReaction(reaction)
     })
   }
 
