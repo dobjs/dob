@@ -1,5 +1,18 @@
 import test from "ava"
-import { Action, cancelStrict, isObservable, observable, observe, startDebug, Static, stopDebug, useStrict } from "../src/index"
+import {
+  Action,
+  cancelStrict,
+  dobEvent,
+  globalState,
+  isObservable,
+  observable,
+  observe,
+  startDebug,
+  Static,
+  stopDebug,
+  useStrict
+} from "../src/index"
+import { immediate, timeout } from "./util"
 
 test("debug", t => {
   useStrict()
@@ -19,8 +32,7 @@ test("debug", t => {
   stopDebug()
   cancelStrict()
 
-  return Promise.resolve()
-    .then(() => t.true(data === "abcd"))
+  return immediate(() => t.true(data === "abcd"))
 })
 
 test("nested debug", t => {
@@ -43,8 +55,7 @@ test("nested debug", t => {
   stopDebug()
   cancelStrict()
 
-  return Promise.resolve()
-    .then(() => t.true(data === "abcd"))
+  return immediate(() => t.true(data === "abcd"))
 })
 
 test("debug out of action", t => {
@@ -64,6 +75,75 @@ test("debug out of action", t => {
 
   stopDebug()
 
-  return Promise.resolve()
-    .then(() => t.true(data === "abcde"))
+  return immediate(() => t.true(data === "abcde"))
+})
+
+test("test callstack", t => {
+  startDebug()
+
+  @observable
+  class Store {
+    public a: any = {
+      b: {
+        c: {
+          d: {
+            e: {
+              f: "b"
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const store = new Store()
+  let callStack: PropertyKey[] = []
+
+  dobEvent.on("debug", debugInfo => {
+    callStack = debugInfo.changeList[0].callStack
+  })
+
+  store.a.b.c.d.e.f = "d"
+
+  stopDebug()
+
+  return immediate(() => t.true(callStack.length === 6))
+})
+
+test("test overflow callstack", async t => {
+  return immediate(() => {
+    startDebug()
+
+    globalState.getCallstackMaxCount = 3
+
+    @observable
+    class Store {
+      public a: any = {
+        b: {
+          c: {
+            d: {
+              e: {
+                f: "b"
+              }
+            }
+          }
+        }
+      }
+    }
+
+    const store = new Store()
+    let callStack: PropertyKey[] = []
+
+    dobEvent.on("debug", debugInfo => {
+      callStack = debugInfo.changeList[0].callStack
+    })
+
+    store.a.b.c.d.e.f = "d"
+
+    stopDebug()
+
+    globalState.getCallstackMaxCount = 50
+
+    return immediate(() => t.true(callStack.length === 3))
+  }, 0)
 })

@@ -41,7 +41,7 @@ function getCallStack(target: object) {
       currentTarget = parentInfo.parent
 
       runCount++
-      if (runCount >= 50) {
+      if (runCount >= globalState.getCallstackMaxCount) {
         break
       }
     }

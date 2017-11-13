@@ -105,6 +105,10 @@ class GlobalState {
   public strictMode = false
   public event = new Event()
   public uniqueIdCounter = 0
+  /**
+   * Debug get callstack max run count
+   */
+  public getCallstackMaxCount = 50
 }
 
 let globalState = new GlobalState()
