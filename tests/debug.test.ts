@@ -46,3 +46,24 @@ test("nested debug", t => {
   return Promise.resolve()
     .then(() => t.true(data === "abcd"))
 })
+
+test("debug out of action", t => {
+  startDebug()
+
+  let data = ""
+  const dynamicObj = observable({ name: "b" })
+
+  data += "a"
+  observe(() => data += dynamicObj.name)
+  data += "c"
+
+  Action(() => {
+    dynamicObj.name = "d"
+  })
+  dynamicObj.name = "e"
+
+  stopDebug()
+
+  return Promise.resolve()
+    .then(() => t.true(data === "abcde"))
+})
