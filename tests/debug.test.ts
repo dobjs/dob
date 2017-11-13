@@ -109,7 +109,7 @@ test("test callstack", async t => {
     stopDebug()
 
     return immediate(() => t.true(callStack.length === 6))
-  }, 10)
+  }, 20)
 })
 
 test("test overflow callstack", async t => {
@@ -147,7 +147,7 @@ test("test overflow callstack", async t => {
     globalState.getCallstackMaxCount = 50
 
     return immediate(() => t.true(callStack.length === 3))
-  }, 20)
+  }, 40)
 })
 
 test("test action", async t => {
@@ -200,7 +200,7 @@ test("test action", async t => {
     stopDebug()
 
     return immediate(() => t.true(true))
-  }, 30)
+  }, 60)
 })
 
 test("test delete", async t => {
@@ -228,5 +228,5 @@ test("test delete", async t => {
     delete dynamicObj.name
 
     return immediate(() => t.true(true))
-  }, 40)
+  }, 80)
 })
