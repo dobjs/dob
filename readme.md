@@ -1,7 +1,7 @@
 # Dob &middot; [![CircleCI Status](https://img.shields.io/travis/dobjs/dob/master.svg?style=flat)](https://travis-ci.org/dobjs/dob) [![npm version](https://img.shields.io/npm/v/dob.svg?style=flat)](https://www.npmjs.com/package/dob) [![code coverage](https://img.shields.io/codecov/c/github/dobjs/dob/master.svg)](https://codecov.io/github/dobjs/dob)
 
 <p align="center">
-    <img src="./docs/dob logo.png" height=100/>
+    <img src="https://avatars1.githubusercontent.com/u/32093464?s=400&u=d360e449a9d59cf7422100349711ab0e0389d06a&v=4" height=100/>
     <h3 align="center">dob</h3>
     <p align="center">
         <i>
