@@ -81,6 +81,7 @@ ReactDOM.render(
 
 - [dob-react simple example](https://github.com/ascoders/dob-example)
 - [dob-react hackernews](https://github.com/dobjs/dob-react-hackernews)
+- [dob-react todoMVC](https://github.com/dobjs/dob-react-todomvc)
 - [dob-react complex online web editor](https://github.com/ascoders/gaea-editor)
 - [dob-redux todoMVC](https://github.com/dobjs/dob-redux-todomvc)
 

@@ -6,43 +6,37 @@ import { Func, getBinder, inAction, isPrimitive } from "./utils"
 const MAX_RUN_COUNT = 1000
 
 /**
- * ========================
- * 函数
- * ========================
+ * Create observable wrapper.
  */
-
-/**
- * 获取可观察的对象
- */
-function observableObject<T extends object>(obj: T = {} as any): T {
+function createObservableObject<T extends object>(obj: T = {} as any): T {
   if (isPrimitive(obj)) {
-    throw TypeError(`${obj} 是基本类型，dob 仅支持非基本类型`)
+    throw TypeError(`dob not support ${obj}, because it is a basic type.`)
   }
 
   if (globalState.proxies.has(obj)) {
     return globalState.proxies.get(obj)
   }
 
-  // proxy 惰性封装
+  // Proxy inert packaging.
   return toObservable(obj)
 }
 
 /**
- * 将 class 改造为可观察对象
+ * Create observable decorator.
  */
-function observableObjectDecorator(target: any) {
+function createObservableObjectDecorator(target: any) {
   function wrap(...args: any[]) {
-    return observableObject(new target(...args))
+    return createObservableObject(new target(...args))
   }
   return wrap as any
 }
 
 /**
- * 生成可观察的对象
+ * Create observable object from origin object.
  */
 function toObservable<T extends object>(obj: T): T {
   if (Object.getOwnPropertySymbols(obj).indexOf(globalState.ignoreDynamicSymbol) > -1) {
-    // 如果对象忽略了动态化，直接返回
+    // Ignore observable
     return obj
   }
 
@@ -50,19 +44,19 @@ function toObservable<T extends object>(obj: T): T {
 
   const builtIn = builtIns.get(obj.constructor)
   if (typeof builtIn === "function" || typeof builtIn === "object") {
-    // 处理 map weakMap set weakSet
+    // support: map weakMap set weakSet.
     dynamicObject = builtIn(obj, bindCurrentReaction, queueRunReactions, proxyValue)
   } else if (!builtIn) {
     dynamicObject = new Proxy(obj, {
       get(target, key, receiver) {
         let value = Reflect.get(target, key, receiver)
 
-        // 如果 key 是 $raw，或者在 Action 中，直接返回原始对象
+        // Get origin object.
         if (key === "$raw") {
           return target
         }
 
-        // 将子元素注册到 immutable，子元素可以找到其根节点对象，以及路径
+        // Getter event.
         globalState.event.emit("get", { target, key, value })
 
         bindCurrentReaction(target, key)
@@ -73,10 +67,9 @@ function toObservable<T extends object>(obj: T): T {
       },
 
       set(target, key, value, receiver) {
-        // 旧值
         const oldValue = Reflect.get(target, key, receiver)
 
-        // 如果新值是对象，优先取原始对象
+        // If the new value is an object, the original object is preferentially taken.
         if (typeof value === "object" && value) {
           value = value.$raw || value
         }
@@ -331,9 +324,9 @@ function runInAction(fn: () => any | Promise<any>, debugName?: string) {
 
 function observable<T>(target: T = {} as any): T {
   if (typeof target === "function") { // 挂在 class 的 decorator
-    return observableObjectDecorator(target)
+    return createObservableObjectDecorator(target)
   } else {  // 包裹变量的
-    return observableObject(target as any) as T
+    return createObservableObject(target as any) as T
   }
 }
 
