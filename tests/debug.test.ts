@@ -98,9 +98,14 @@ test("test callstack", async t => {
     }
 
     const store = new Store()
+    let once = true
     let callStack: PropertyKey[] = []
 
     dobEvent.on("debug", debugInfo => {
+      if (!once) {
+        return
+      }
+      once = false
       callStack = debugInfo.changeList[0].callStack
     })
 
@@ -109,7 +114,7 @@ test("test callstack", async t => {
     stopDebug()
 
     return immediate(() => t.true(callStack.length === 6))
-  }, 20)
+  }, 0)
 })
 
 test("test overflow callstack", async t => {
@@ -134,9 +139,14 @@ test("test overflow callstack", async t => {
     }
 
     const store = new Store()
+    let once = true
     let callStack: PropertyKey[] = []
 
     dobEvent.on("debug", debugInfo => {
+      if (!once) {
+        return
+      }
+      once = false
       callStack = debugInfo.changeList[0].callStack
     })
 
@@ -147,7 +157,7 @@ test("test overflow callstack", async t => {
     globalState.getCallstackMaxCount = 50
 
     return immediate(() => t.true(callStack.length === 3))
-  }, 40)
+  }, 0)
 })
 
 test("test action", async t => {
@@ -167,8 +177,14 @@ test("test action", async t => {
     }
 
     const action = new CustomAction()
+    let once = false
 
     dobEvent.on("debug", debugInfo => {
+      if (!once) {
+        return
+      }
+      once = false
+
       delete debugInfo.id
       t.deepEqual(debugInfo, {
         name: "CustomAction.action1",
@@ -200,7 +216,7 @@ test("test action", async t => {
     stopDebug()
 
     return immediate(() => t.true(true))
-  }, 60)
+  }, 0)
 })
 
 test("test delete", async t => {
@@ -208,8 +224,15 @@ test("test delete", async t => {
     startDebug()
 
     const dynamicObj = observable({ name: "b" })
+    let once = true
 
     dobEvent.on("debug", debugInfo => {
+      if (!once) {
+        return
+      }
+      once = false
+
+      delete debugInfo.id
       t.deepEqual(debugInfo, {
         name: null,
         changeList: [
@@ -228,5 +251,5 @@ test("test delete", async t => {
     delete dynamicObj.name
 
     return immediate(() => t.true(true))
-  }, 80)
+  }, 0)
 })
