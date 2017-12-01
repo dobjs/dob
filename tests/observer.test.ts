@@ -1092,3 +1092,23 @@ test("nested observe should eventually run", t => {
     return Promise.resolve()
         .then(() => t.true(str === "1456289324562893"))
 })
+
+test("observe in action", t => {
+    const dynamicObj = observable({
+        a: "a"
+    })
+
+    let count = ""
+
+    Action(() => {
+        observe(() => {
+            count += dynamicObj.a
+        })
+        count += "b"
+    })
+
+    dynamicObj.a = "c"
+
+    return Promise.resolve()
+        .then(() => t.true(count === "bac"))
+})
