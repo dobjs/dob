@@ -280,9 +280,6 @@ function actionDecorator(target: any, propertyKey: string, descriptor: PropertyD
       return (...args: any[]) => {
         return runInAction(func.bind(this, ...args), propertyKey)
       }
-    },
-    set(newValue: any) {
-      return newValue
     }
   }
 }
