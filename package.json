@@ -10,7 +10,7 @@
     "prepublish": "rm -rf built && tsc && npm run build",
     "start": "run-react develop",
     "tslint": "tslint './src/**/*.?(ts|tsx)'",
-    "build": "webpack --config built/scripts/webpack.config.js"
+    "build": "run-react production"
   },
   "ava": {
     "files": [
@@ -73,6 +73,10 @@
     "dlls": [
       "react",
       "react-dom"
-    ]
+    ],
+    "production": {
+      "path": "built",
+      "filename": "bundle.js"
+    }
   }
 }
