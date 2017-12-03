@@ -268,9 +268,9 @@ function Action(fn: () => any | Promise<any>): void
 function Action(target: any, propertyKey: string, descriptor: PropertyDescriptor): any
 function Action(arg1: any, arg2?: any, arg3?: any) {
   if (arg2 === undefined) {
-    return runInAction.call(this, arg1, arg1.name)
+    return runInAction.call(null, arg1, arg1.name)
   }
-  return actionDecorator.call(this, arg1, arg1.constructor.name + "." + arg2, arg3)
+  return actionDecorator.call(null, arg1, arg1.constructor.name + "." + arg2, arg3)
 }
 
 function actionDecorator(target: any, propertyKey: string, descriptor: PropertyDescriptor) {

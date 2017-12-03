@@ -36,7 +36,8 @@ const stores = combineStores({
 })
 
 observe(() => {
-  console.log("observe", stores.Store1.age, stores.Store2.name)
+  // tslint:disable-next-line:no-console
+  console.log("observe", stores!.Store1!.age, stores!.Store2!.name)
 })
 
-stores.Action2.test2()
+stores!.Action2!.test2()

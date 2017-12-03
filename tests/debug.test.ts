@@ -106,7 +106,7 @@ test("test callstack", async t => {
         return
       }
       once = false
-      callStack = debugInfo.changeList[0].callStack
+      callStack = debugInfo!.changeList![0].callStack || []
     })
 
     store.a.b.c.d.e.f = "d"
@@ -147,7 +147,7 @@ test("test overflow callstack", async t => {
         return
       }
       once = false
-      callStack = debugInfo.changeList[0].callStack
+      callStack = debugInfo!.changeList![0].callStack || []
     })
 
     store.a.b.c.d.e.f = "d"
@@ -185,7 +185,7 @@ test("test action", async t => {
       }
       once = false
 
-      delete debugInfo.id
+      delete debugInfo!.id
       t.deepEqual(debugInfo, {
         name: "CustomAction.action1",
         changeList: [
@@ -232,8 +232,8 @@ test("test delete", async t => {
       }
       once = false
 
-      delete debugInfo.id
-      t.deepEqual(debugInfo, {
+      delete debugInfo!.id
+      t.deepEqual(debugInfo || {}, {
         name: null,
         changeList: [
           {

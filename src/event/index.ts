@@ -42,7 +42,7 @@ export class Event {
 
     if (this.events.get(eventType)) {
       // 存在, push 一个事件监听
-      this.events.get(eventType).push(event)
+      this!.events!.get(eventType)!.push(event)
     } else {
       // 不存在, 赋值
       this.events.set(eventType, [event])
@@ -57,7 +57,7 @@ export class Event {
       return false
     }
 
-    const events = this.events.get(eventType).filter(event => {
+    const events = this!.events!.get(eventType)!.filter(event => {
       return event.callback !== callback
     })
 
@@ -74,7 +74,7 @@ export class Event {
       return false
     }
 
-    this.events.get(eventType).forEach(event => {
+    this!.events!.get(eventType)!.forEach(event => {
       event.callback(context)
     })
   }

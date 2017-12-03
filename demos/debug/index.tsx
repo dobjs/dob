@@ -43,4 +43,4 @@ const stores = combineStores({
   Action2
 })
 
-stores.Action2.test2()
+stores!.Action2!.test2()

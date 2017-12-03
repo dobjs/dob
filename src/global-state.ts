@@ -4,9 +4,8 @@ import { Func } from "./utils"
 
 const tag = "ascoders-dob"
 
-const globalOrWindow = (typeof self === "object" && self.self === self && self) ||
-  (typeof global === "object" && global.global === global && global) ||
-  this
+const globalOrWindow: any = (typeof self === "object" && self.self === self && self) ||
+  (typeof global === "object" && global.global === global && global)
 
 export interface IDebugInfo {
   /**
@@ -16,7 +15,7 @@ export interface IDebugInfo {
   /**
    * The name of Action.
    */
-  name?: string
+  name?: string | null
   /**
    * Changes
    */
@@ -60,7 +59,7 @@ class GlobalState {
    * Store all the original objects and keys to be proxied.
    */
   public objectReactionBindings = new WeakMap<object, Map<PropertyKey, Set<Reaction>>>()
-  public currentReaction: Reaction = null
+  public currentReaction: Reaction | null = null
   /**
    * Batch execution depth, such as each call runInAction in-depth +1, call -1, depth of 0 means that the implementation of the end.
    * When batchDeep == = 0, the operation queue is completed.
@@ -85,7 +84,7 @@ class GlobalState {
   /**
    * The currently executing debugOutputAction object.
    */
-  public currentDebugOutputAction: IDebugInfo = null
+  public currentDebugOutputAction: IDebugInfo | null = null
   /**
    * The root of each batchDeep debugOutputBundleAction.
    */
@@ -100,8 +99,8 @@ class GlobalState {
   /**
    * Special for action name.
    */
-  public currentDebugName: string = null
-  public currentDebugId: number = null
+  public currentDebugName: string | null = null
+  public currentDebugId: number | null = null
   public strictMode = false
   public event = new Event()
   public uniqueIdCounter = 0

@@ -691,11 +691,11 @@ test("should observe map array", t => {
     const dynamicObj = observable(new Map<string, number[]>([
         ["a", [1, 2, 3]]
     ]))
-    observe(() => data = dynamicObj.get("a").length)
+    observe(() => data = dynamicObj!.get("a")!.length)
 
     return Promise.resolve()
         .then(() => t.true(data === 3))
-        .then(() => dynamicObj.get("a").push(4))
+        .then(() => dynamicObj!.get("a")!.push(4))
         .then(() => t.true(data === 4))
 })
 

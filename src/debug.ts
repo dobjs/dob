@@ -7,7 +7,7 @@ const cloneDeep = require("lodash.clonedeep")
 
 function reportChange(change: IDebugChange) {
   if (globalState.currentDebugOutputAction) {
-    globalState.currentDebugOutputAction.changeList.push(change)
+    globalState!.currentDebugOutputAction!.changeList!.push(change)
   } else { // Changes out of Action.
     globalState.event.emit("debug", {
       id: createUniqueId(),
@@ -31,14 +31,14 @@ function getCallStack(target: object) {
       const parentInfo = globalState.parentInfo.get(currentTarget)
 
       // add key to call stack
-      callStack.unshift(parentInfo.key)
+      callStack.unshift(parentInfo!.key)
 
       // If has no parent's parent, add parent's name to call stack.
-      if (!globalState.parentInfo.has(parentInfo.parent)) {
-        callStack.unshift(parentInfo.parent.constructor.name)
+      if (!globalState.parentInfo.has(parentInfo!.parent)) {
+        callStack.unshift(parentInfo!.parent.constructor.name)
       }
 
-      currentTarget = parentInfo.parent
+      currentTarget = parentInfo!.parent
 
       runCount++
       if (runCount >= globalState.getCallstackMaxCount) {
@@ -58,10 +58,10 @@ globalState.event.on("get", info => {
     return
   }
 
-  if (info.value !== null && typeof info.value === "object") {
-    globalState.parentInfo.set(info.value, {
-      parent: info.target,
-      key: info.key
+  if (info!.value !== null && typeof info!.value === "object") {
+    globalState.parentInfo.set(info!.value, {
+      parent: info!.target,
+      key: info!.key
     })
   }
 })
@@ -102,7 +102,7 @@ globalState.event.on("startBatch", () => {
 
   // 如果当前深度大于 1，就作为加到父级的 changeList
   if (globalState.batchDeep > 1) {
-    globalState.debugOutputActionMapBatchDeep.get(globalState.batchDeep - 1).changeList.push({
+    globalState!.debugOutputActionMapBatchDeep!.get(globalState.batchDeep - 1)!.changeList!.push({
       type: "action",
       action: debugOutputBundleAction
     })
@@ -118,10 +118,10 @@ globalState.event.on("endBatch", () => {
   }
 
   // 每次出栈，都要更新 currentDebugOutputAction
-  globalState.currentDebugOutputAction = globalState.debugOutputActionMapBatchDeep.get(globalState.batchDeep)
+  globalState.currentDebugOutputAction = globalState.debugOutputActionMapBatchDeep.get(globalState.batchDeep) || null
 
   if (!inAction()) {
-    let cloneDebugInfo: IDebugInfo = null
+    let cloneDebugInfo: IDebugInfo | null = null
 
     try {
       cloneDebugInfo = JSON.parse(JSON.stringify(globalState.debugOutputActionMapBatchDeep.get(1)))
@@ -146,14 +146,14 @@ globalState.event.on("set", info => {
     return
   }
 
-  const callStack = getCallStack(info.target)
+  const callStack = getCallStack(info!.target)
 
   reportChange({
     type: "change",
     callStack,
-    oldValue: cloneDeep(info.oldValue),
-    key: info.key,
-    value: cloneDeep(info.value)
+    oldValue: cloneDeep(info!.oldValue),
+    key: info!.key,
+    value: cloneDeep(info!.value)
   })
 })
 
@@ -165,11 +165,11 @@ globalState.event.on("deleteProperty", info => {
     return
   }
 
-  const callStack = getCallStack(info.target)
+  const callStack = getCallStack(info!.target)
 
   reportChange({
     type: "delete",
     callStack,
-    key: info.key,
+    key: info!.key,
   })
 })
