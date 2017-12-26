@@ -107,6 +107,18 @@ class B {
 }
 ```
 
+### Do not deconstruct to the last level on dynamic object
+
+```typescript
+const obj = observable({ a: 1 })
+
+// good
+obj.a = 5
+// bad
+let { a } = obj
+a = 5
+```
+
 ## Inspired
 
 - [mobx](https://github.com/mobxjs/mobx)
