@@ -92,6 +92,21 @@ ReactDOM.render(
 - [dob-redux](https://github.com/dobjs/dob-redux) - You can use both dob and Redux by using it! Enjoy the type and convenience of dob, and the ecology of Redux.
 - [dob-refect](https://github.com/dobjs/dob-refetch) - Auto fetch, away from the trouble of `componentDidUpdate`.
 
+## Note
+
+### Dependency injection does not support circular references
+
+Do not allow circular dependencies between store and action, It's impossible to do like this:
+
+```typescript
+class A {
+    @inject(B) b
+}
+class B {
+    @inject(A) a
+}
+```
+
 ## Inspired
 
 - [mobx](https://github.com/mobxjs/mobx)
