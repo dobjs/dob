@@ -4,6 +4,8 @@ import { Func } from "./utils"
 
 const tag = "ascoders-dob"
 
+declare var global: any
+
 const globalOrWindow: any = (typeof self === "object" && self.self === self && self) ||
   (typeof global === "object" && global.global === global && global)
 

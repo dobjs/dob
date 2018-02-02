@@ -2,6 +2,8 @@ import { globalState, IDebugChange, IDebugInfo } from "./global-state"
 import { Reaction } from "./reaction"
 import { createUniqueId, inAction } from "./utils"
 
+declare function require(name: string): any;
+
 // tslint:disable-next-line:no-var-requires
 const cloneDeep = require("lodash.clonedeep")
 
