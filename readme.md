@@ -33,7 +33,43 @@ obj.a = 2 // <· obj.a has changed to 2
 
 You can enjoy the benefits of proxy, for example `obj.a = { b: 5 }` is effective.
 
-## Use in react
+## Use in react component
+
+```typescript
+import { Action, observable, combineStores, inject } from 'dob'
+import { Connect } from 'dob-react'
+
+@observable
+export class UserStore {
+    name = 'bob'
+}
+
+export class UserAction {
+    @inject(UserStore) private UserStore: UserStore;
+
+    @Action setName () {
+        this.store.name = 'lucy'
+    }
+}
+
+@Connect(combineStores({
+    UserStore,
+    UserAction
+}))
+class App extends React.Component {
+    render() {
+        return (
+            <span onClick={this.props.UserAction.setName}>
+                {this.props.UserStore.name}
+            </span>
+        )
+    }
+}
+```
+
+> Use `inject` to pick stores in action, do not `new UserStore()`, it's terrible for later maintenance.
+
+## Use in react project
 
 ```typescript
 import { Action, observable, combineStores, inject } from 'dob'
@@ -74,8 +110,6 @@ ReactDOM.render(
     </Provider>
 , document.getElementById('react-dom'))
 ```
-
-> Use `inject` to pick stores in action, do not `new UserStore()`, it's terrible for later maintenance.
 
 ## Project Examples
 
