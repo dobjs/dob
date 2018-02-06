@@ -45,7 +45,7 @@ export class UserStore {
 }
 
 export class UserAction {
-    @inject(UserStore) private UserStore: UserStore;
+    @inject(UserStore) UserStore: UserStore;
 
     @Action setName () {
         this.store.name = 'lucy'
@@ -81,7 +81,7 @@ export class UserStore {
 }
 
 export class UserAction {
-    @inject(UserStore) private UserStore: UserStore;
+    @inject(UserStore) UserStore: UserStore;
 
     @Action setName () {
         this.store.name = 'lucy'
