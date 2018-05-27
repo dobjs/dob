@@ -20,15 +20,15 @@
 There are some [demo](https://jsfiddle.net/1q772uL0/20/) on fiddle. Here's the simplest:
 
 ```typescript
-import { observable, observe } from "dob"
+import { observable, observe } from "dob";
 
-const obj = observable({ a: 1 })
+const obj = observable({ a: 1 });
 
 observe(() => {
-    console.log("obj.a has changed to", obj.a)
-}) // <· obj.a has changed to 1
+  console.log("obj.a has changed to", obj.a);
+}); // <· obj.a has changed to 1
 
-obj.a = 2 // <· obj.a has changed to 2
+obj.a = 2; // <· obj.a has changed to 2
 ```
 
 You can enjoy the benefits of proxy, for example `obj.a = { b: 5 }` is effective.
@@ -36,34 +36,37 @@ You can enjoy the benefits of proxy, for example `obj.a = { b: 5 }` is effective
 ## Use in react component
 
 ```typescript
-import { Action, observable, combineStores, inject } from 'dob'
-import { Connect } from 'dob-react'
+import { Action, observable, combineStores, inject } from "dob";
+import { Connect } from "dob-react";
 
 @observable
 export class UserStore {
-    name = 'bob'
+  name = "bob";
 }
 
 export class UserAction {
-    @inject(UserStore) UserStore: UserStore;
+  @inject(UserStore) UserStore: UserStore;
 
-    @Action setName () {
-        this.store.name = 'lucy'
-    }
+  @Action
+  setName() {
+    this.store.name = "lucy";
+  }
 }
 
-@Connect(combineStores({
+@Connect(
+  combineStores({
     UserStore,
     UserAction
-}))
+  })
+)
 class App extends React.Component {
-    render() {
-        return (
-            <span onClick={this.props.UserAction.setName}>
-                {this.props.UserStore.name}
-            </span>
-        )
-    }
+  render() {
+    return (
+      <span onClick={this.props.UserAction.setName}>
+        {this.props.UserStore.name}
+      </span>
+    );
+  }
 }
 ```
 
@@ -72,58 +75,66 @@ class App extends React.Component {
 ## Use in react project
 
 ```typescript
-import { Action, observable, combineStores, inject } from 'dob'
-import { Provider, Connect } from 'dob-react'
+import { Action, observable, combineStores, inject } from "dob";
+import { Provider, Connect } from "dob-react";
 
 @observable
 export class UserStore {
-    name = 'bob'
+  name = "bob";
 }
 
 export class UserAction {
-    @inject(UserStore) UserStore: UserStore;
+  @inject(UserStore) UserStore: UserStore;
 
-    @Action setName () {
-        this.store.name = 'lucy'
-    }
+  @Action
+  setName() {
+    this.store.name = "lucy";
+  }
 }
 
 @Connect
 class App extends React.Component {
-    render() {
-        return (
-            <span onClick={this.props.UserAction.setName}>
-                {this.props.UserStore.name}
-            </span>
-        )
-    }
+  render() {
+    return (
+      <span onClick={this.props.UserAction.setName}>
+        {this.props.UserStore.name}
+      </span>
+    );
+  }
 }
 
 ReactDOM.render(
-    <Provider {
-        ...combineStores({
-            UserStore,
-            UserAction
-        })
-    }>
-        <App />
-    </Provider>
-, document.getElementById('react-dom'))
+  <Provider
+    {...combineStores({
+      UserStore,
+      UserAction
+    })}
+  >
+    <App />
+  </Provider>,
+  document.getElementById("react-dom")
+);
 ```
 
 ## Project Examples
 
-- [dob-react simple example](https://github.com/ascoders/dob-example)
-- [dob-react hackernews](https://github.com/dobjs/dob-react-hackernews)
-- [dob-react todoMVC](https://github.com/dobjs/dob-react-todomvc)
-- [dob-react complex online web editor](https://github.com/ascoders/gaea-editor)
-- [dob-redux todoMVC](https://github.com/dobjs/dob-redux-todomvc)
+* [dob-react simple example](https://github.com/ascoders/dob-example)
+* [dob-react hackernews](https://github.com/dobjs/dob-react-hackernews)
+* [dob-react todoMVC](https://github.com/dobjs/dob-react-todomvc)
+* [dob-react complex online web editor](https://github.com/ascoders/gaea-editor)
+* [dob-redux todoMVC](https://github.com/dobjs/dob-redux-todomvc)
 
 ## Ecosystem
 
-- [dob-react](https://github.com/dobjs/dob-react) - Connect dob to react! Here is a basic [demo](https://jsfiddle.net/yp90Lep9/21/), and here is a [demo](https://jsfiddle.net/g19ehhgu/11/) with fractal. [Quick start](./docs/dob-react.md).
-- [dob-react-devtools](https://github.com/dobjs/dob-react-devtools) - Devtools for dob-react, with action and ui two way binding.
-- [dob-redux](https://github.com/dobjs/dob-redux) - You can use both dob and Redux by using it! Enjoy the type and convenience of dob, and the ecology of Redux.
+* [dob-react](https://github.com/dobjs/dob-react) - Connect dob to react! Here is a basic [demo](https://jsfiddle.net/yp90Lep9/21/), and here is a [demo](https://jsfiddle.net/g19ehhgu/11/) with fractal. [Quick start](./docs/dob-react.md).
+* [dob-react-devtools](https://github.com/dobjs/dob-react-devtools) - Devtools for dob-react, with action and ui two way binding.
+* [dob-redux](https://github.com/dobjs/dob-redux) - You can use both dob and Redux by using it! Enjoy the type and convenience of dob, and the ecology of Redux.
+
+## Communication
+
+Talk to us about dob using DingDing.
+
+<img src="https://user-images.githubusercontent.com/7970947/40582019-39bdd16e-619b-11e8-8e82-43cf529a9fff.JPG" width=500/>
 
 ## Note
 
@@ -133,26 +144,26 @@ Do not allow circular dependencies between store and action, It's impossible to 
 
 ```typescript
 class A {
-    @inject(B) b
+  @inject(B) b;
 }
 class B {
-    @inject(A) a
+  @inject(A) a;
 }
 ```
 
 ### Do not deconstruct to the last level on dynamic object
 
 ```typescript
-const obj = observable({ a: 1 })
+const obj = observable({ a: 1 });
 
 // good
-obj.a = 5
+obj.a = 5;
 // bad
-let { a } = obj
-a = 5
+let { a } = obj;
+a = 5;
 ```
 
 ## Inspired
 
-- [mobx](https://github.com/mobxjs/mobx)
-- [nx-js](https://github.com/nx-js/observer-util)
+* [mobx](https://github.com/mobxjs/mobx)
+* [nx-js](https://github.com/nx-js/observer-util)

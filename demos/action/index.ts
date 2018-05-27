@@ -1,4 +1,12 @@
-import { Action, combineStores, globalState, inject, isObservable, observable, observe } from "../../src"
+import {
+  Action,
+  combineStores,
+  globalState,
+  inject,
+  isObservable,
+  observable,
+  observe
+} from "../../src"
 
 @observable
 class Store1 {
@@ -8,7 +16,8 @@ class Store1 {
 class Action1 {
   @inject(Store1) private Store1: Store1
 
-  @Action public test1() {
+  @Action
+  public test1() {
     this.Store1.age = 2
   }
 }
