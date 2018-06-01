@@ -45,7 +45,7 @@ export class UserStore {
 }
 
 export class UserAction {
-  @inject(UserStore) UserStore: UserStore;
+  @inject(UserStore) store: UserStore;
 
   @Action
   setName() {
