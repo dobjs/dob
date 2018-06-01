@@ -45,11 +45,11 @@ export class UserStore {
 }
 
 export class UserAction {
-  @inject(UserStore) store: UserStore;
+  @inject(UserStore) userStore: UserStore;
 
   @Action
   setName() {
-    this.store.name = "lucy";
+    this.userStore.name = "lucy";
   }
 }
 
@@ -84,11 +84,11 @@ export class UserStore {
 }
 
 export class UserAction {
-  @inject(UserStore) UserStore: UserStore;
+  @inject(UserStore) userStore: UserStore;
 
   @Action
   setName() {
-    this.store.name = "lucy";
+    this.userStore.name = "lucy";
   }
 }
 
