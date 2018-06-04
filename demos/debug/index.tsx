@@ -14,7 +14,7 @@ class Store1 {
 }
 
 class Action1 {
-  @inject(Store1) private Store1: Store1
+  @inject(Store1) private Store1!: Store1
 
   @Action public test1() {
     this.Store1.age = 2
@@ -27,8 +27,8 @@ class Store2 {
 }
 
 class Action2 {
-  @inject(Store2) private Store2: Store2
-  @inject(Store1) private Store1: Store1
+  @inject(Store2) private Store2!: Store2
+  @inject(Store1) private Store1!: Store1
 
   @Action public test2() {
     this.Store2.name = "小红"
