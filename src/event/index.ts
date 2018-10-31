@@ -1,51 +1,66 @@
-import { IDebugInfo } from "../global-state"
-export declare type EventType = number | string
+import { IDebugInfo } from '../global-state';
+export declare type EventType = number | string;
 
 /**
  * 事件
  */
 export interface IEvent {
-  callback: (context?: any) => void
+  callback: (context?: any) => void;
 }
 
-export type ICallback = (context?: any) => void
+export type ICallback = (context?: any) => void;
 
 export class Event {
   // 所有事件
-  private events: Map<EventType, IEvent[]> = new Map()
+  private events: Map<EventType, IEvent[]> = new Map();
 
   /**
    * 订阅事件
    */
-  public on(eventType: "debug", callback: (context?: IDebugInfo) => void): void
-  public on(eventType: "deleteProperty", callback: (context?: {
-    target: any
-    key: PropertyKey
-  }) => void): void
-  public on(eventType: "get", callback: (context?: {
-    target: any
-    key: PropertyKey
-    value: any
-  }) => void): void
-  public on(eventType: "set", callback: (context?: {
-    target: any
-    key: PropertyKey
-    value: any
-    oldValue: any
-  }) => void): void
-  public on(eventType: "startBatch" | "endBatch", callback: () => void): void
-  public on(eventType: "runInAction", callback: (debugName?: string) => void): void
+  public on(eventType: 'debug', callback: (context?: IDebugInfo) => void): void;
+  public on(
+    eventType: 'deleteProperty',
+    callback: (
+      context?: {
+        target: any;
+        key: PropertyKey;
+      }
+    ) => void
+  ): void;
+  public on(
+    eventType: 'get',
+    callback: (
+      context?: {
+        target: any;
+        key: PropertyKey;
+        value: any;
+      }
+    ) => void
+  ): void;
+  public on(
+    eventType: 'set',
+    callback: (
+      context?: {
+        target: any;
+        key: PropertyKey;
+        value: any;
+        oldValue: any;
+      }
+    ) => void
+  ): void;
+  public on(eventType: 'startBatch' | 'endBatch', callback: () => void): void;
+  public on(eventType: 'runInAction', callback: (debugName?: string) => void): void;
   public on(eventType: EventType, callback: ICallback): void {
     const event: IEvent = {
       callback
-    }
+    };
 
     if (this.events.get(eventType)) {
       // 存在, push 一个事件监听
-      this!.events!.get(eventType)!.push(event)
+      this!.events!.get(eventType)!.push(event);
     } else {
       // 不存在, 赋值
-      this.events.set(eventType, [event])
+      this.events.set(eventType, [event]);
     }
   }
 
@@ -54,16 +69,16 @@ export class Event {
    */
   public off(eventType: EventType, callback: ICallback) {
     if (!this.events.get(eventType)) {
-      return false
+      return false;
     }
 
     const events = this!.events!.get(eventType)!.filter(event => {
-      return event.callback !== callback
-    })
+      return event.callback !== callback;
+    });
 
-    this.events.set(eventType, events)
+    this.events.set(eventType, events);
 
-    return true
+    return true;
   }
 
   /**
@@ -71,11 +86,13 @@ export class Event {
    */
   public emit(eventType: EventType, context?: any) {
     if (!eventType || !this.events.get(eventType)) {
-      return false
+      return false;
     }
 
     this!.events!.get(eventType)!.forEach(event => {
-      event.callback(context)
-    })
+      event.callback(context);
+    });
+
+    return true;
   }
 }

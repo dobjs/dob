@@ -1,20 +1,37 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "esnext",
+    "moduleResolution": "node",
     "strict": true,
-    "emitDecoratorMetadata": true,
+    "strictNullChecks": false,
+    "jsx": "react",
+    "target": "esnext",
     "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "outDir": "dist",
+    "rootDir": "./",
+    "baseUrl": ".",
     "lib": [
       "dom",
       "es5",
       "es6",
       "scripthost"
     ],
-    "target": "es5",
-    "outDir": "built",
-    "sourceMap": true
+    "paths": {
+      "pri/*": [
+        "pri",
+        ".temp/types/*"
+      ]
+    }
   },
+  "include": [
+    ".temp/**/*",
+    "src/**/*",
+    "tests/**/*",
+    "docs/**/*"
+  ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }

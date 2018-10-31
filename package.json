@@ -2,15 +2,22 @@
   "name": "dob",
   "version": "2.5.9",
   "description": "",
-  "main": "built/src/index.js",
-  "types": "src/index.ts",
+  "main": "dist/src/index.js",
+  "types": "src/index.tsx",
   "scripts": {
-    "test": "tsc && nyc --reporter=lcov --reporter=text --reporter=json ava && rm -rf .nyc_output",
+    "test": "pri test",
     "posttest": "codecov -f coverage/*.json -t bc4c34e2-24cb-4b05-8b97-7f30395e642b",
     "prepublish": "rm -rf built && tsc && npm run build",
-    "start": "run-react develop",
+    "start": "pri dev",
     "tslint": "tslint './src/**/*.?(ts|tsx)'",
-    "build": "run-react production"
+    "build": "pri build",
+    "docs": "pri docs",
+    "bundle": "pri bundle",
+    "preview": "pri preview",
+    "analyse": "pri analyse",
+    "format": "tslint --fix './src/**/*.?(ts|tsx)' && prettier --write './src/**/*.?(ts|tsx)'",
+    "prepublishOnly": "npm run build",
+    "release": "npm publish"
   },
   "ava": {
     "files": [
@@ -28,30 +35,13 @@
   },
   "homepage": "https://github.com/dobjs/dob#readme",
   "devDependencies": {
-    "@types/classnames": "*",
-    "@types/lodash": "*",
-    "@types/react": "*",
-    "@types/react-dom": "*",
-    "@types/webpack": "*",
-    "ascoders-tslint-config": "^1.0.2",
-    "ava": "^0.18.2",
-    "classnames": "^2.2.5",
-    "codecov": "^2.3.0",
-    "css-loader": "^0.28.4",
-    "nyc": "^11.1.0",
-    "pre-commit": "^1.2.2",
-    "react": "^15.6.1",
-    "react-dom": "^15.5.4",
-    "run-react": "^2.2.4",
-    "style-loader": "^0.18.2",
     "todomvc-app-css": "^2.1.0",
-    "tslint": "^5.8.0",
-    "typescript": "^2.4.1",
-    "webpack": "^3.3.0"
+    "pri": "^1.0.0-beta38"
   },
   "dependencies": {
     "dependency-inject": "^1.1.5",
-    "lodash.clonedeep": "^4.5.0"
+    "lodash.clonedeep": "^4.5.0",
+    "@babel/runtime": "^7.0.0"
   },
   "pre-commit": [
     "tslint"
@@ -80,5 +70,8 @@
       "path": "built",
       "filename": "bundle.js"
     }
+  },
+  "pri": {
+    "type": "component"
   }
 }

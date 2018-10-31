@@ -1,64 +1,58 @@
-import test from "ava"
-import { Atom, observe } from "../src/index"
+import { Atom, observe } from '../src/index';
 
 class Clock {
-  private atom: Atom
-  private intervalHandler: any = null
-  private currentDateTime = 1
+  private atom: Atom;
+  private intervalHandler: any = null;
+  private currentDateTime = 1;
 
   constructor() {
-    this.atom = new Atom(
-      () => this.startTicking(),
-      () => this.stopTicking()
-    )
+    this.atom = new Atom(() => this.startTicking(), () => this.stopTicking());
   }
 
   public stopAtom() {
-    this.atom.unobserve()
+    this.atom.unobserve();
   }
 
   public getTime() {
-    this.atom.reportObserved()
-    return this.currentDateTime
+    this.atom.reportObserved();
+    return this.currentDateTime;
   }
 
   public startTicking() {
-    this.currentDateTime++
-    this.atom.reportChanged()
+    this.currentDateTime++;
+    this.atom.reportChanged();
   }
 
   public stopTicking() {
-    clearInterval(this.intervalHandler)
-    this.intervalHandler = null
+    clearInterval(this.intervalHandler);
+    this.intervalHandler = null;
   }
 }
 
-test("basic test", t => {
-  let time: number = 0
-  const clock = new Clock()
+test('basic test', () => {
+  let time: number = 0;
+  const clock = new Clock();
   observe(() => {
-    time = clock.getTime()
-  })
+    time = clock.getTime();
+  });
 
-  clock.startTicking()
-  clock.startTicking()
-  clock.startTicking()
+  clock.startTicking();
+  clock.startTicking();
+  clock.startTicking();
 
-  return Promise.resolve()
-    .then(() => t.true(time === 5))
-})
+  return Promise.resolve().then(() => expect(time).toBe(5));
+});
 
-test("unobservable", t => {
-  let time: number = 0
-  const clock = new Clock()
+test('unobservable', () => {
+  let time: number = 0;
+  const clock = new Clock();
   observe(() => {
-    time = clock.getTime()
-  })
+    time = clock.getTime();
+  });
 
-  clock.startTicking()
-  clock.startTicking()
-  clock.stopAtom()
+  clock.startTicking();
+  clock.startTicking();
+  clock.stopAtom();
 
-  return Promise.resolve()
-    .then(() => t.true(time === 4))
-})
+  return Promise.resolve().then(() => expect(time).toBe(4));
+});
