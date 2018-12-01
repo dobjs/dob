@@ -1,51 +1,51 @@
-import test from "ava"
-import { Action, cancelStrict, isObservable, observable, observe, Static, useStrict } from "../src/index"
+import { Action, cancelStrict, isObservable, observable, observe, Static, useStrict } from '../src/index';
 
-test("use strict in Action otherwise will throw error", t => {
+test('use strict in Action otherwise will throw error', () => {
   const obj = observable({
     a: 1
-  })
+  });
 
-  useStrict()
+  useStrict();
 
-  t.throws(() => {
-    obj.a = 2
-  })
+  expect(() => {
+    obj.a = 2;
+  }).toThrow();
 
-  t.notThrows(() => {
+  expect(() => {
     Action(() => {
-      obj.a = 3
-    })
-  })
+      obj.a = 3;
+    });
+  }).not.toThrow();
 
-  cancelStrict()
-})
+  cancelStrict();
+});
 
-test("use strict in Action otherwise will throw error in decorator", t => {
+test('use strict in Action otherwise will throw error in decorator', () => {
   @observable
   class Test {
-    public value = 1
+    public value = 1;
 
-    @Action public changeValue(value: number) {
-      this.value = value
+    @Action
+    public changeValue(value: number) {
+      this.value = value;
     }
 
     public changeValueNotSafe(value: number) {
-      this.value = value
+      this.value = value;
     }
   }
 
-  const instance = new Test()
+  const instance = new Test();
 
-  useStrict()
+  useStrict();
 
-  t.throws(() => {
-    instance.changeValueNotSafe(2)
-  })
+  expect(() => {
+    instance.changeValueNotSafe(2);
+  }).toThrow();
 
-  t.notThrows(() => {
-    instance.changeValue(3)
-  })
+  expect(() => {
+    instance.changeValue(3);
+  }).not.toThrow();
 
-  cancelStrict()
-})
+  cancelStrict();
+});

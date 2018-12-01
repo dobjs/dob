@@ -1,82 +1,81 @@
-import test from "ava"
-import { Event } from "../src/event"
+import { Event } from '../src/event';
 
-test("test on", t => {
-  let count = 0
+test('test on', () => {
+  let count = 0;
 
-  const event = new Event()
+  const event = new Event();
 
-  event.emit("change", 1)
+  event.emit('change', 1);
 
-  event.on("change" as any, (changedValue: any) => {
-    count += changedValue
-  })
+  event.on('change' as any, (changedValue: any) => {
+    count += changedValue;
+  });
 
-  event.emit("change", 2)
+  event.emit('change', 2);
 
-  t.true(count === 2)
-})
+  expect(count === 2).toBe(true);
+});
 
-test("test multiple on", t => {
-  let count = 0
+test('test multiple on', () => {
+  let count = 0;
 
-  const event = new Event()
+  const event = new Event();
 
-  event.emit("change", 1)
+  event.emit('change', 1);
 
-  event.on("change" as any, (changedValue: any) => {
-    count += changedValue
-  })
+  event.on('change' as any, (changedValue: any) => {
+    count += changedValue;
+  });
 
-  event.on("change" as any, (changedValue: any) => {
-    count += changedValue
-  })
+  event.on('change' as any, (changedValue: any) => {
+    count += changedValue;
+  });
 
-  event.emit("change", 2)
+  event.emit('change', 2);
 
-  t.true(count === 4)
-})
+  expect(count === 4).toBe(true);
+});
 
-test("test off", t => {
-  let count = 0
+test('test off', () => {
+  let count = 0;
 
-  const event = new Event()
+  const event = new Event();
 
-  event.emit("change", 1)
-
-  function changeValue(changedValue: any) {
-    count += changedValue
-  }
-
-  event.on("change" as any, changeValue)
-
-  event.on("change" as any, changeValue)
-
-  event.emit("change", 2)
-  event.off("change", changeValue)
-  event.emit("change", 2)
-
-  t.true(count === 4)
-})
-
-test("test off not exist event", t => {
-  let count = 0
-
-  const event = new Event()
-
-  event.emit("change", 1)
+  event.emit('change', 1);
 
   function changeValue(changedValue: any) {
-    count += changedValue
+    count += changedValue;
   }
 
-  event.on("change" as any, changeValue)
+  event.on('change' as any, changeValue);
 
-  event.on("change" as any, changeValue)
+  event.on('change' as any, changeValue);
 
-  event.emit("change", 2)
-  event.off("someThing", changeValue)
-  event.emit("change", 2)
+  event.emit('change', 2);
+  event.off('change', changeValue);
+  event.emit('change', 2);
 
-  t.true(count === 8)
-})
+  expect(count === 4).toBe(true);
+});
+
+test('test off not exist event', () => {
+  let count = 0;
+
+  const event = new Event();
+
+  event.emit('change', 1);
+
+  function changeValue(changedValue: any) {
+    count += changedValue;
+  }
+
+  event.on('change' as any, changeValue);
+
+  event.on('change' as any, changeValue);
+
+  event.emit('change', 2);
+  event.off('someThing', changeValue);
+  event.emit('change', 2);
+
+  expect(count === 8).toBe(true);
+});

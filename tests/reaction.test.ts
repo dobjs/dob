@@ -1,7 +1,6 @@
-import test from "ava"
 import { Action, isObservable, observable, observe, Reaction, Static } from "../src/index"
 
-test("reaction 初始化不会执行 callback", t => {
+test("reaction 初始化不会执行 callback", () => {
   let flag = false
 
   // tslint:disable-next-line:no-unused-expression
@@ -9,10 +8,10 @@ test("reaction 初始化不会执行 callback", t => {
     flag = true
   })
 
-  t.false(flag)
+  expect(flag).toBe(false)
 })
 
-test("reaction 手动执行", t => {
+test("reaction 手动执行", () => {
   let flag = false
 
   const reaction = new Reaction("test", () => {
@@ -20,10 +19,10 @@ test("reaction 手动执行", t => {
   })
 
   reaction.run()
-  t.true(flag)
+  expect(flag).toBe(true)
 })
 
-test("reaction 绑定与构造函数无关，与 track 有关", t => {
+test("reaction 绑定与构造函数无关，与 track 有关", () => {
   const values: number[] = []
 
   const obj = observable({
@@ -47,7 +46,7 @@ test("reaction 绑定与构造函数无关，与 track 有关", t => {
   obj.a = 8
   obj.a = 9
 
-  t.true(values.length === 2)
-  t.true(values[0] === 1)
-  t.true(values[1] === 1)
+  expect(values.length === 2).toBe(true)
+  expect(values[0] === 1).toBe(true)
+  expect(values[1] === 1).toBe(true)
 })

@@ -1,4 +1,3 @@
-import test from 'ava';
 import {
   Action,
   cancelStrict,
@@ -12,9 +11,23 @@ import {
   stopDebug,
   useStrict
 } from '../src/index';
-import { immediate } from './util.test';
 
-test('debug', t => {
+export function immediate(fn: any, time?: number) {
+  if (time) {
+    return new Promise(resolve =>
+      setTimeout(() => {
+        fn();
+        resolve();
+      }, time)
+    );
+  }
+
+  return Promise.resolve().then(() => {
+    fn();
+  });
+}
+
+test('debug', () => {
   useStrict();
   startDebug();
 
@@ -32,10 +45,10 @@ test('debug', t => {
   stopDebug();
   cancelStrict();
 
-  return immediate(() => t.true(data === 'abcd'));
+  return immediate(() => expect(data === 'abcd').toBe(true));
 });
 
-test('nested debug', t => {
+test('nested debug', () => {
   useStrict();
   startDebug();
 
@@ -55,10 +68,10 @@ test('nested debug', t => {
   stopDebug();
   cancelStrict();
 
-  return immediate(() => t.true(data === 'abcd'));
+  return immediate(() => expect(data === 'abcd').toBe(true));
 });
 
-test('debug out of action', t => {
+test('debug out of action', () => {
   startDebug();
 
   let data = '';
@@ -75,10 +88,10 @@ test('debug out of action', t => {
 
   stopDebug();
 
-  return immediate(() => t.true(data === 'abcde'));
+  return immediate(() => expect(data === 'abcde').toBe(true));
 });
 
-test('test callstack', async t => {
+test('test callstack', async () => {
   return immediate(async () => {
     startDebug();
 
@@ -113,11 +126,11 @@ test('test callstack', async t => {
 
     stopDebug();
 
-    return immediate(() => t.true(callStack.length === 6));
+    return immediate(() => expect(callStack.length === 6).toBe(true));
   }, 0);
 });
 
-test('test overflow callstack', async t => {
+test('test overflow callstack', async () => {
   return immediate(async () => {
     startDebug();
 
@@ -156,11 +169,11 @@ test('test overflow callstack', async t => {
 
     globalState.getCallstackMaxCount = 50;
 
-    return immediate(() => t.true(callStack.length === 3));
+    return immediate(() => expect(callStack.length === 3).toBe(true));
   }, 0);
 });
 
-test('test action', async t => {
+test('test action', async () => {
   return immediate(async () => {
     startDebug();
 
@@ -189,7 +202,8 @@ test('test action', async t => {
       once = false;
 
       delete debugInfo!.id;
-      t.deepEqual(debugInfo, {
+
+      expect(debugInfo).toEqual({
         name: 'CustomAction.action1',
         changeList: [
           {
@@ -218,11 +232,11 @@ test('test action', async t => {
 
     stopDebug();
 
-    return immediate(() => t.true(true));
+    return immediate(() => expect(true).toBe(true));
   }, 0);
 });
 
-test('test delete', async t => {
+test('test delete', async () => {
   return immediate(async () => {
     startDebug();
 
@@ -236,7 +250,8 @@ test('test delete', async t => {
       once = false;
 
       delete debugInfo!.id;
-      t.deepEqual(debugInfo || {}, {
+
+      expect(debugInfo).toEqual({
         name: null,
         changeList: [
           {
@@ -251,6 +266,6 @@ test('test delete', async t => {
 
     delete dynamicObj.name;
 
-    return immediate(() => t.true(true));
+    return immediate(() => expect(true).toBe(true));
   }, 0);
 });

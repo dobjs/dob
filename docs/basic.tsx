@@ -1,15 +1,13 @@
-import Component from '../src/index';
 import * as React from 'react';
+import { observable, observe } from '../src/index';
 
-class Props {}
+export default () => <div />;
 
-class State {}
+const obj = observable({ a: 1 });
 
-export default class Page extends React.PureComponent<Props, State> {
-  public static defaultProps = new Props();
-  public state = new State();
+observe(() => {
+  // tslint:disable-next-line:no-console
+  console.log('obj.a has changed to', obj.a);
+}); // <· obj.a has changed to 1
 
-  public render() {
-    return <Component />;
-  }
-}
+obj.a = 2; // <· obj.a has changed to 2

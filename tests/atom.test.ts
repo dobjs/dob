@@ -40,7 +40,7 @@ test('basic test', () => {
   clock.startTicking();
   clock.startTicking();
 
-  return Promise.resolve().then(() => expect(time).toBe(5));
+  return Promise.resolve().then(() => expect(time === 5).toBe(true));
 });
 
 test('unobservable', () => {
@@ -54,5 +54,5 @@ test('unobservable', () => {
   clock.startTicking();
   clock.stopAtom();
 
-  return Promise.resolve().then(() => expect(time).toBe(4));
+  return Promise.resolve().then(() => expect(time === 4).toBe(true));
 });
