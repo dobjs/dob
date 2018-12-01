@@ -46,31 +46,6 @@
   "pre-commit": [
     "tslint"
   ],
-  "run-react": {
-    "entrys": [
-      "demos/reaction"
-    ],
-    "productionEntrys": [
-      "src/index"
-    ],
-    "rules": [
-      {
-        "test": ".css$",
-        "use": [
-          "style-loader",
-          "css-loader"
-        ]
-      }
-    ],
-    "dlls": [
-      "react",
-      "react-dom"
-    ],
-    "production": {
-      "path": "built",
-      "filename": "bundle.js"
-    }
-  },
   "pri": {
     "type": "component"
   }
