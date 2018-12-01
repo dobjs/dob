@@ -23,7 +23,7 @@
     "type": "git",
     "url": "git+https://github.com/dobjs/dob.git"
   },
-  "author": "",
+  "author": "ascoders",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/dobjs/dob/issues"
