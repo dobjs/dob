@@ -19,11 +19,6 @@
     "prepublishOnly": "npm run build",
     "release": "npm publish"
   },
-  "ava": {
-    "files": [
-      "built/**/*.test.js"
-    ]
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dobjs/dob.git"
