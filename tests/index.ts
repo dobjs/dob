@@ -237,7 +237,7 @@ test('Action can get sync return value', () => {
   return Promise.resolve().then(() => expect(result === 2).toBe(true));
 });
 
-test('Action can get async return value', () => {
+test('Action can get async return value', async () => {
   let data = 0;
   const dynamicObj = observable({ counter: 0 });
   observe(() => {
@@ -928,11 +928,11 @@ test('Action not handle async function!!', async () => {
   });
 
   return Promise.resolve()
-    .then(() => expect(runCount === 2).toBe(true)) // TODO:6
-    .then(() => expect(num === 2).toBe(true)); // TODO:6
+    .then(() => expect(runCount === 2).toBe(false))
+    .then(() => expect(num === 2).toBe(false));
 });
 
-test('Action handle async function with Action', () => {
+test('Action handle async function with Action', async () => {
   let runCount = 0;
   let num = 0;
 
@@ -961,8 +961,8 @@ test('Action handle async function with Action', () => {
   });
 
   return Promise.resolve()
-    .then(() => expect(runCount === 3).toBe(false)) // TODO: true
-    .then(() => expect(num === 5).toBe(false)); // TODO: true
+    .then(() => expect(runCount === 3).toBe(true))
+    .then(() => expect(num === 5).toBe(true));
 });
 
 /**

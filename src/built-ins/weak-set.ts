@@ -40,7 +40,7 @@ export default function shim<T extends IcustomObject>(target: T & WeakSet<any>, 
     // tslint:disable-next-line:space-before-function-paren only-arrow-functions
     target.add = function (value: string) {
         const has = this.has(value)
-        const result = native.add.apply(this, arguments)
+        const result = native.add.apply(this, arguments as any) as any
 
         globalState.event.emit("set", { target, key: null, value, oldValue: null })
 
@@ -53,7 +53,7 @@ export default function shim<T extends IcustomObject>(target: T & WeakSet<any>, 
     // tslint:disable-next-line:space-before-function-paren only-arrow-functions
     target.delete = function (value: string) {
         const has = this.has(value)
-        const result = native.delete.apply(this, arguments)
+        const result = native.delete.apply(this, arguments as any) as any
 
         globalState.event.emit("deleteProperty", { target, key: null })
 

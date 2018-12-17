@@ -1,13 +1,12 @@
 {
   "name": "dob",
-  "version": "2.5.9",
+  "version": "2.5.10",
   "description": "",
   "main": "dist/src/index.js",
   "types": "src/index.tsx",
   "scripts": {
     "test": "pri test",
     "posttest": "codecov -f coverage/*.json -t bc4c34e2-24cb-4b05-8b97-7f30395e642b",
-    "prepublish": "rm -rf built && tsc && npm run build",
     "start": "pri dev",
     "tslint": "tslint './src/**/*.?(ts|tsx)'",
     "build": "pri build",
@@ -31,12 +30,12 @@
   "homepage": "https://github.com/dobjs/dob#readme",
   "devDependencies": {
     "todomvc-app-css": "^2.1.0",
-    "pri": "^1.0.0-beta38"
+    "pri": "^1.0.0-beta70"
   },
   "dependencies": {
+    "@babel/runtime": "^7.0.0",
     "dependency-inject": "^1.1.5",
-    "lodash.clonedeep": "^4.5.0",
-    "@babel/runtime": "^7.0.0"
+    "lodash.clonedeep": "^4.5.0"
   },
   "pre-commit": [
     "tslint"

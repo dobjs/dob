@@ -45,7 +45,7 @@ export default function shim<T extends IcustomObject>(
     // tslint:disable-next-line:space-before-function-paren only-arrow-functions
     target.set = function (key: string, value: any) {
         const oldValue = this.get(key)
-        const result = native.set.apply(this, arguments)
+        const result = native.set.apply(this, arguments as any) as any
 
         globalState.event.emit("set", { target, key, oldValue, value })
 
@@ -58,7 +58,7 @@ export default function shim<T extends IcustomObject>(
     // tslint:disable-next-line:space-before-function-paren only-arrow-functions
     target.delete = function (key: string) {
         const has = this.has(key)
-        const result = native.delete.apply(this, arguments)
+        const result = native.delete.apply(this, arguments as any) as any
 
         globalState.event.emit("deleteProperty", { target, key })
 
